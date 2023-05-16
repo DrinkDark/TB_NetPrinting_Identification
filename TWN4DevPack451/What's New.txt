@@ -1,0 +1,101 @@
+                                                                    ELATEC GmbH
+
+****** TWN4DevPack451 *********************************************************
+
+- Support new hardware versions of TWN4 with 3rd gen MCU
+- AppBlaster supports scroll bars in case of dialog not fitting properly
+- HID PROX works even under heavy CPU load
+
+
+****** TWN4DevPack450b ********************************************************
+
+- OSDP: Fix bug with LSTATR/LSTATR
+
+
+****** TWN4DevPack450a ********************************************************
+
+- OSDP: Improved update robustness
+
+
+****** TWN4DevPack450 *********************************************************
+
+- Strongly enhanced flexibility regarding OSDP configuration in conjunction
+  with several controller types/brands on the market (key handling, event
+  handling)
+- Firmware update via OSDP (according to OSDP V2.2)
+- LEGIC products support Apple VAS (consider requirements for firmware of LEGIC
+  frontend)
+- LEGIC products support HID ICLASS (consider requirements for firmware of LEGIC
+  frontend)
+
+
+****** TWN4DevPack408 *********************************************************
+
+- TWN4 Mini Reader always supports HF (which is obvious)
+
+
+****** TWN4DevPack407 *********************************************************
+
+- Support integrated SE processor
+
+
+****** TWN4DevPack406 *********************************************************
+
+- TWN4DevPack406 is a maintenance package with improvements and fixes
+- Firmware, BLE: Fix issue with long range switching to short range 
+- Director: Adjustable timeout value 
+- General: Fix support of ISO7816_SetCommSettings by Simple Protocol
+- TWN4 Slim LEGIC supports Mobile Badge BLE NFC with iPhone as well
+- Fixed an issue, where stop mode caused an increased current consumption
+- See document "TWN4 System Overview DocRev30.pdf", section "History of
+  Changes" for more details
+
+
+****** TWN4DevPack405 *********************************************************
+
+- New products: TWN4 Slim LEGIC, TWN4 Palon Square
+- Support Google Smart Tap
+- See document "TWN4 System Overview DocRev29.pdf", section "History of
+  Changes" for more details
+
+
+****** TWN4DevPack402b ********************************************************
+
+- Updated end user license agreement (see file EULA DocRev3.pdf)
+
+
+****** TWN4DevPack402a ********************************************************
+
+- Safetrust: Fix compatibility issue
+
+
+****** TWN4DevPack402 *********************************************************
+
+- Support Safetrust!
+- Support KleverKey!
+- See document "TWN4 System Overview DocRev28.pdf", section "History of
+  Changes" for more details
+
+
+****** TWN4DevPack401b ********************************************************
+
+- Updated end user license agreement (see file EULA DocRev3.pdf)
+
+****** TWN4DevPack401 *********************************************************
+
+- Introduce TWN4 Device Security
+- Introduce MultiBIX images
+- Support mirror image, which allows firmware update via almost any device
+  interface (please contact ELATEC GmbH)
+- Support Apple VAS including custom key (please contact ELATEC GmbH)
+- Support Transact (please contact ELATEC GmbH)
+- Support remote upgrade (please contact ELATEC GmbH)
+- See document "TWN4 System Overview DocRev27.pdf", section "History of
+  Changes" for more details
+
+
+*******************************************************************************
+
+In case of any questions, don't hesitate to contact our support:
+
+  support-rfid@elatec.com
