@@ -25,14 +25,6 @@
 #define SEARCH_BLE(a,b,c,d)		false
 #define BLE_MASK				0
 
-TBLEUUID* bleUUIDService;
-TBLEUUID* bleUUIDChara;
-unsigned long gattHandle;Characteristic value receivedAttrOpcodeError characteristic value ReadCardData
-
-
-byte *receivedUserData;
-byte *receivedAttrOpcode;
-int *receivedUserDataLength;
 
 bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int MaxCardStringLen)
 {
@@ -57,7 +49,7 @@ void OnStartup(void)
     LEDOn(GREENLED);
     LEDOff(REDLED);
     
-    SetVolume(30);
+    SetVolume(20);
     BeepLow();
     BeepHigh();
 }
@@ -72,7 +64,7 @@ void OnNewCardFound(const char *CardString)
     LEDOn(REDLED);
     LEDBlink(REDLED,500,500);
 
-    SetVolume(30);
+    SetVolume(20);
     BeepHigh();
 }
 
@@ -101,49 +93,32 @@ int main(void)
 
 	SetTagTypes(LFTAGTYPES,HFTAGTYPES & ~BLE_MASK);
 
-    /*TBLEConfig BLEparams;
-
-    BLEparams.Power = 100;          //Timout of an established connection in milliseconds.
-    BLEparams.ConnectTimeout = 40;  //TX power in 0.1dBm steps in the range 0 to 80 (0.0dBm to 8.0dBm).
-    BLEparams.BondableMode = 0;     //Bonding mode (0 = off, 1 = on)
-    BLEparams.AdvInterval = 200;    //Advertisement interval (values 20ms to 10240ms)
-    BLEparams.ChannelMap = 1;       //Advertisement Bluetooth channels
-    BLEparams.DiscoverMode = 2;     //Discoverable Modes, which dictate how the device is visible to other devices
-    BLEparams.ConnectMode = 0;      //Connectable Modes for the LE (Low Energy) GAP (Generic Access Profile)
-    BLEparams.SecurityFlags = 0x00; //Security requirement bitmask
-    BLEparams.IOCapabilities = 0;   //Security Management related I/O capabilities
-    BLEparams.Passkey = 0;          //Passkey: If security is configured, the application needs to display or ask user to enter a passkey during the bonding process
-
-    BLEPresetConfig(&BLEparams);*/
-    //BLEPresetUserData(0x00, (const) receivedUserData, 4);
-
-    TBLEUUID service;
-    service.UUID[0] = 0x18;
-    service.UUID[1] = 0x1C;
-    service.UUIDLength = 2;
-
-    bleUUIDService = &service;
-
-    TBLEUUID chara;
-    chara.UUID[0] = 0x29;
-    chara.UUID[1] = 0x02;
-    chara.UUIDLength = 2;
-    bleUUIDChara = &chara;
-
-    byte receivedUserData1[200];
-    byte receivedAttrOpcode1[2];
-    int receivedUserDataLength1;
-
-    receivedUserData = &receivedUserData1;
-    receivedAttrOpcode = &receivedAttrOpcode1;
-    receivedUserDataLength = &receivedUserDataLength1;
-
-    gattHandle = 0;
+	char OldCardString[MAXCARDSTRINGLEN+1]; 
+    OldCardString[0] = 0;
 
     BLEInit(1);     //0 = used custom mode, 1 = advertisement mode, 5 = discover mode
-	
-    char OldCardString[MAXCARDSTRINGLEN+1]; 
-    OldCardString[0] = 0;
+
+    TBLEUUID bleUUIDService;
+    bleUUIDService.UUID[0] = 0x2A;
+    bleUUIDService.UUID[1] = 0xC3;
+    bleUUIDService.UUIDLength = 2;
+
+    TBLEUUID bleUUIDChara;
+    bleUUIDChara.UUID[0] = 0x29;
+    bleUUIDChara.UUID[1] = 0x02;
+    bleUUIDChara.UUIDLength = 2;
+
+    int attrHandle;
+
+    byte receivedUserData[200];
+    byte receivedAttrOpcode[2];
+    int receivedUserDataLength;
+
+    /*const byte UUID_SPP[16] = {0x5a,0x44,0xc0,0x04,0x41,0x12,0x42,0x74,0x88,0x0e,0xcd,0x9b,0x3d,0xae,0xdf,0x8e};
+    const byte UUID_SPP_DATA[16] = {0x43,0xc2,0x9e,0xdf,0x2f,0x0a,0x4c,0x43,0xaa,0x22,0x48,0x9d,0x16,0x9e,0xc7,0x52};
+
+    BLESetStreamingUUID(UUID_SPP, 16, UUID_SPP_DATA, 16);
+    BLESetStreamingMode(BLE_STREAM_CONN_ADVERTISE, BLE_STREAM_GATT_CLIENT, BLE_STREAM_TRANSFER_BLOCKWISE);*/
 
     while (true)
     {
@@ -166,8 +141,7 @@ int main(void)
 					strcpy(OldCardString,NewCardString);
 					OnNewCardFound(NewCardString);
 				}
-				// (Re-)start timeoutAdvertisement received
-                
+				// (Re-)start timeout
 			   	StartTimer(CARDTIMEOUT);
 			}
 			OnCardDone();
@@ -179,7 +153,6 @@ int main(void)
 		    OldCardString[0] = 0;
         }
 
-
         switch(BLECheckEvent()) {
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
                 HostWriteString("Attribute changed");
@@ -189,6 +162,37 @@ int main(void)
             case BLE_EVENT_CONNECTION_OPENED :
                 HostWriteString("Device connected");
                 HostWriteString("\r");
+                if(BLEDiscover(BLE_DISC_SERVICE_WITH_UUID, 0, &bleUUIDService)){
+                    HostWriteString("Service discovered with uuid");
+                    HostWriteString("\r");
+                }
+
+                /*const byte uuid[2] = {0x02,0x29};
+                if(BLEFindGattServerAttribute(&uuid, 2, &attrHandle)){
+                    HostWriteString("Attribute find");
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Error find attribute");
+                    HostWriteString("\r");                    
+                }*/
+                
+                const byte uuid[2] = {0x18,0x1C};
+                if(BLEGattGetAttribute(&uuid, &attrHandle)){
+                    HostWriteString("Attribute find");
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Attribute not find");
+                    HostWriteString("\r");                    
+                }
+
+                if(BLEDiscover(BLE_DISC_CHARAC_WITH_UUID, attrHandle, &bleUUIDChara)){
+                    HostWriteString("Characteristic find");
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Characteristic not find");
+                    HostWriteString("\r");                    
+                }
+
                 break;
             
             case BLE_EVENT_CONNECTION_CLOSED :
@@ -225,19 +229,25 @@ int main(void)
             case BLE_EVENT_GATT_PROCEDURE_COMPLETED :
                 HostWriteString("Discover completed");
                 HostWriteString("\r");
+                
                 break;
 
             case BLE_EVENT_GATT_CHARACTERISTIC_VALUE :
                 HostWriteString("Characteristic value received");
                 HostWriteString("\r"); 
-                BLEGattGetValue(0, gattHandle, (const) bleUUIDChara, receivedAttrOpcode, receivedUserData, receivedUserDataLength, 32); 
 
-                for(uint8_t i = 0; i < (*receivedUserDataLength); i++){ 
+                if(BLEGattGetValue(0, (unsigned long) attrHandle, &uuid, &receivedAttrOpcode, &receivedUserData, &receivedUserDataLength, 200)){
+                    HostWriteString("Characteristic value read");
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Error characteristic value read");
+                    HostWriteString("\r");
+                }
+
+                for(uint8_t i = 0; i < receivedUserDataLength; i++){ 
                     HostWriteByte(receivedUserData[i]);
-                    HostWriteString("i");
                 }
                 HostWriteString("\r");
-                break;
         }
     }
 }
