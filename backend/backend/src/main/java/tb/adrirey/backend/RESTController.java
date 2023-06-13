@@ -9,12 +9,18 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @RestController
-public class Controller {
-    User user = new User();
+public class RESTController {
+    ServerCommandProxy scp;
+    User user;
+
+    public RESTController() {
+        user = new User();
+        scp = new ServerCommandProxy("PaperCutServer", 9191, "authToken");
+    }
 
     @RequestMapping("/userName")
-    public String getName() {
-        return user.getName() + " " + user.getSurname();
+    public String getName(@RequestParam String data) {
+        return scp.lookUpUserNameByCardNo(data);
     }
 
     @RequestMapping("/credit")
