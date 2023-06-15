@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="paperCutManager:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/paperCutManager_jar</output-path>
+    <root id="archive" name="paperCutManager.jar">
+      <element id="module-output" name="paperCutManager" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/xmlrpc-2.0/xmlrpc-2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/xmlrpc-2.0/commons-codec-1.3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

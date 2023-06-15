@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/paperCutCommands.iml" filepath="$PROJECT_DIR$/paperCutCommands.iml" />
+      <module fileurl="file://$PROJECT_DIR$/paperCutManager.iml" filepath="$PROJECT_DIR$/paperCutManager.iml" />
     </modules>
   </component>
 </project>
