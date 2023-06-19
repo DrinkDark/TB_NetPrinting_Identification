@@ -1,5 +1,6 @@
 package tb.adrirey.backend;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
@@ -13,6 +14,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+@CrossOrigin(origins = "http://localhost:19006", maxAge = 3600)
 @RestController
 public class RESTController {
     ServerCommandProxy scp;
@@ -25,17 +27,17 @@ public class RESTController {
         scp = new ServerCommandProxy("PaperCutServer", 9191, "authToken");
     }
 
-    @RequestMapping("/getUserName")
+    @RequestMapping(method = RequestMethod.GET, path ="/getUserName")
     public String getName(@RequestParam String data) {
         return scp.lookUpUserNameByCardNo(data);
     }
 
-    @RequestMapping("/getCredit")
+    @RequestMapping(method = RequestMethod.GET, path = "/getCredit")
     public double getCredit(@RequestParam String data) {
         return scp.getUserAccountBalance(scp.lookUpUserNameByCardNo(data));
     }
 
-    @RequestMapping("/getEncryptID")
+    @RequestMapping(method = RequestMethod.GET, path ="/getEncryptData")
     public String aesEncryptedData(@RequestParam String data) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, aesMasterKey);
