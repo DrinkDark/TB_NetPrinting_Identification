@@ -1,5 +1,6 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import axios from 'axios';
 
 export default function Button({ label,  theme }) {
   if (theme === "primary") {
@@ -9,7 +10,16 @@ export default function Button({ label,  theme }) {
       >
         <Pressable
           style={[styles.button, { backgroundColor: "#fff" }]}
-          onPress={() => alert('You pressed a button.')}
+          onPress={() => 
+            /*fetch('http://localhost:8080/getUserName?data=1234').then(
+              (response) => console.log(response))}*/
+              axios.get('http://localhost:8080/getUserName?data=1234')
+              .then(response => {
+                console.log(response.data);
+              })
+              .catch(error => {
+                console.error(error);
+              })}
         >
           <FontAwesome
             name="bluetooth-b"
