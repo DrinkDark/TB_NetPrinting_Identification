@@ -10,16 +10,7 @@ export default function Button({ label,  theme }) {
       >
         <Pressable
           style={[styles.button, { backgroundColor: "#fff" }]}
-          onPress={() => 
-            /*fetch('http://localhost:8080/getUserName?data=1234').then(
-              (response) => console.log(response))}*/
-              axios.get('http://localhost:8080/getUserName?data=1234')
-              .then(response => {
-                console.log(response.data);
-              })
-              .catch(error => {
-                console.error(error);
-              })}
+          onPress={() => alert("You pressed a button")}
         >
           <FontAwesome
             name="bluetooth-b"
@@ -35,13 +26,19 @@ export default function Button({ label,  theme }) {
 
   return (
     <View style={styles.buttonContainer}>
-        <Pressable style={styles.button} onPress={() => alert('You pressed a button.')}>
+        <Pressable style={styles.button} onPress={() => 
+        axios.get('http://localhost:8080/getUserName?data=1234')
+        .then(response => {
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.error(error);
+        })}>
           <Text style={styles.buttonLabel}>{label}</Text>
         </Pressable>
       </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   buttonContainer: {
