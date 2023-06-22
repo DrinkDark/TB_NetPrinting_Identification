@@ -5,17 +5,17 @@
  * @format
  */
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
   View,
   Image,
+  Platform,
+  NativeEventEmitter,
+  PermissionsAndroid,
 } from 'react-native';
 
 import {
@@ -26,16 +26,44 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import BleManager from 'react-native-ble-manager';
+
 import Button from './components/Button';
-import ImageViewer from './components/ImageViewer';
-
-const PlaceholderImage = require('./assets/images/background-image.png');
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
 
 function App(): JSX.Element {
+
+  useEffect(() => {
+    
+    BleManager.start({showAlert: false}).then(() => {
+      console.log('BLE Manager initialized');
+    });
+
+    BleManager.enableBluetooth().then(() => {
+      console.log('Bluetooth is turned on!');
+    });
+
+       if (Platform.OS === 'android' && Platform.Version >= 23) {
+      PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      ).then(result => {
+        if (result) {
+          console.log('Permission is OK');
+        } else {
+          PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          ).then(result => {
+            if (result) {
+              console.log('User accept');
+            } else {
+              console.log('User refuse');
+            }
+          });
+        }
+      });
+    }
+
+  }, []);
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
