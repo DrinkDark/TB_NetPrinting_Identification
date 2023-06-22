@@ -15,6 +15,7 @@ import {
   Text,
   useColorScheme,
   View,
+  Image,
 } from 'react-native';
 
 import {
@@ -25,35 +26,14 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import Button from './components/Button';
+import ImageViewer from './components/ImageViewer';
+
+const PlaceholderImage = require('./assets/images/background-image.png');
+
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
-
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -63,56 +43,63 @@ function App(): JSX.Element {
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+  <View style={styles.container}>
+    <View style={styles.imageContainer}>
+      <View>
+        <Text style={styles.title}>NetPrinting identification</Text>
+      </View>
+      <Image
+          source={require('./assets/images/printer.jpeg')}
+          style={styles.image}
+        />
+      <View style={styles.footerContainer}>
+          <Button theme="primary" label="Connect to device" />
+          <Button label="Get user name" />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      <View>
+        <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
+      </View>
+    </View>
+  </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  title: {
+    fontSize: 32,
+    textDecorationLine: 'underline',
+    marginTop: -60,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
+  credit: {
+    fontSize: 12,
     fontWeight: '400',
+    textAlign: 'center',
+    marginTop:30,
   },
   highlight: {
     fontWeight: '700',
   },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 18,
+    marginTop: 20,
+  },  
+  imageContainer: {
+    marginTop: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerContainer: {
+    flex: 9/10,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  }
 });
 
 export default App;
