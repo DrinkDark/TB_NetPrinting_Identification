@@ -27,6 +27,7 @@ export default function useBle(): BluetoothlowEnergyApi{
                 buttonNeutral: "Maybe Later"
             },
         );
+        await PermissionsAndroid.requestMultiple([ PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN, PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT])
         callback(grantedStatus === PermissionsAndroid.RESULTS.GRANTED);
     }
 
