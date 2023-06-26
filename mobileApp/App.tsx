@@ -5,17 +5,18 @@
  * @format
  */
 
-import React, {useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
+
 import {
   StyleSheet,
   Text,
   useColorScheme,
   View,
   Image,
-  Platform,
-  NativeEventEmitter,
-  PermissionsAndroid,
+  LogBox,
+  Pressable,
+  TouchableOpacity,
 } from 'react-native';
 
 import {
@@ -26,44 +27,29 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import BleManager from 'react-native-ble-manager';
+import { Device } from "react-native-ble-plx";
 
 import Button from './components/Button';
+import useBle from './useBLE';
+import DeviceModal from './DeviceConnectionModal';
+
+LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 
 function App(): JSX.Element {
 
-  useEffect(() => {
-    
-    BleManager.start({showAlert: false}).then(() => {
-      console.log('BLE Manager initialized');
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  const {requestPermissions, scanForDevices, allDevices} = useBle();
+
+  const hideModal = () => {
+    setIsModalVisible(false);
+  }
+
+  const openModal = async () => {
+    requestPermissions((isGranted: boolean) => {
+      alert('The android permission is granted' + isGranted);
     });
-
-    BleManager.enableBluetooth().then(() => {
-      console.log('Bluetooth is turned on!');
-    });
-
-       if (Platform.OS === 'android' && Platform.Version >= 23) {
-      PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      ).then(result => {
-        if (result) {
-          console.log('Permission is OK');
-        } else {
-          PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          ).then(result => {
-            if (result) {
-              console.log('User accept');
-            } else {
-              console.log('User refuse');
-            }
-          });
-        }
-      });
-    }
-
-  }, []);
-
+  }
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -75,11 +61,18 @@ function App(): JSX.Element {
     <View style={styles.imageContainer}>
       <View>
         <Text style={styles.title}>NetPrinting identification</Text>
+        
       </View>
       <Image
           source={require('./assets/images/printer.jpeg')}
           style={styles.image}
         />
+      <DeviceModal
+        closeModal={hideModal}
+        visible={isModalVisible}
+        connectToPeripheral={hideModal}
+        devices={[]}
+      />
       <View style={styles.footerContainer}>
           <Button theme="primary" label="Connect to device" />
           <Button label="Get user name" />

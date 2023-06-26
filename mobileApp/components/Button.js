@@ -1,6 +1,10 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import axios from 'axios';
 
+import useBle from '../useBLE';
+
+const {requestPermissions, scanForDevices, allDevices} = useBle();
+
 export default function Button({ label,  theme }) {
   if (theme === "primary") {
     return (
@@ -9,7 +13,13 @@ export default function Button({ label,  theme }) {
       >
         <Pressable
           style={[styles.button, { backgroundColor: "#fff" }]}
-          onPress={() => alert('You pressed a button.')}
+          
+          onPress={() =>     
+            requestPermissions((isGranted: boolean) => {
+              if(isGranted){
+                scanForDevices()
+              }
+          })}
         >
           <Text style={[styles.buttonLabel, { color: "#25292e" }]}>{label}</Text>
         </Pressable>
