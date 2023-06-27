@@ -8,7 +8,9 @@ type PermissionCallback = (result: boolean) => void;
 const bleManager = new BleManager();
 
 
-const cardIdUUID = '5a44c004-4112-4274-880e-cd9b3daedf8e';
+const cardIdUUIDCharac = '495f449c-fc60-4048-b53e-bdb3046d4495';
+const cardIdUUIDService = '5a44c004-4112-4274-880e-cd9b3daedf8e';
+
 interface BluetoothlowEnergyApi {
     requestPermissions(callback: PermissionCallback): Promise<void>;
     scanForDevices(): void;
@@ -43,7 +45,7 @@ function useBle(): BluetoothlowEnergyApi{
             if (device && device.name == "TWN4 BLE"){
                 console.log('Device found : ',device.name);
                 console.log('Stop scanning.');
-                connectToDevice(device);
+                connectToDevice(device);  
             }
     });
 
@@ -53,15 +55,18 @@ function useBle(): BluetoothlowEnergyApi{
             const deviceConnection = await bleManager.connectToDevice(device.id);
             await deviceConnection.discoverAllServicesAndCharacteristics();
             console.log('Device connected : ', device.name);
-            console.log(bleManager.servicesForDevice);
+            const valueSend = await bleManager.writeCharacteristicWithoutResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode('041350322c46680'));
+            console.log('Value send : 041350322c46680');
         } catch (e) {
             console.log('FAILED TO CONNECT', e);
         }
+
+        
     };
 
     const sendValue = async (device: Device) => {
         try {
-            const valueSend = await bleManager.writeCharacteristicWithoutResponseForDevice(device.id, device.descriptorsForService, cardIdUUID, base64.encode(0x041350322c46680));
+            const valueSend = await bleManager.writeCharacteristicWithoutResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode('041350322c46680'));
         } catch (e) {
             console.log('FAILED TO CONNECT', e);
         }

@@ -98,21 +98,37 @@ int main(void)
 
     BLEInit(1);     //0 = used custom mode, 1 = advertisement mode, 5 = discover mode
 
-    TBLEUUID bleUUIDService;
-    bleUUIDService.UUID[0] = 0x2A;
-    bleUUIDService.UUID[1] = 0xC3;
-    bleUUIDService.UUIDLength = 2;
+    TBLEUUID* uuid = NULL;
+    TBLEUUID uuidmem;
+    uuid = &uuidmem;
+    uuid->UUID[0] = 0x49;
+    uuid->UUID[1] = 0x5f;
+    uuid->UUID[2] = 0x44;
+    uuid->UUID[3] = 0x9c;
+    uuid->UUID[4] = 0xfc;
+    uuid->UUID[5] = 0x60;
+    uuid->UUID[6] = 0x40;
+    uuid->UUID[7] = 0x48;
+    uuid->UUID[8] = 0xb5;
+    uuid->UUID[9] = 0x3e;
+    uuid->UUID[10] = 0xbd;
+    uuid->UUID[11] = 0xb3;
+    uuid->UUID[12] = 0x04;
+    uuid->UUID[13] = 0x6d;
+    uuid->UUID[14] = 0x44;
+    uuid->UUID[15] = 0x95;
+    uuid->UUIDLength = 16;
 
-    TBLEUUID bleUUIDChara;
-    bleUUIDChara.UUID[0] = 0x29;
-    bleUUIDChara.UUID[1] = 0x02;
-    bleUUIDChara.UUIDLength = 2;
+    int attrHandle = 0;
 
-    int attrHandle;
+    byte receivedUserDataMem[200]; 
+    byte* receivedUserData = &receivedUserDataMem;
 
-    byte receivedUserData[200];
-    byte receivedAttrOpcode[2];
-    int receivedUserDataLength;
+    byte receivedAttrOpcodeMem; 
+    byte* receivedAttrOpcode = &receivedAttrOpcodeMem;
+
+    int receivedUserDataLengthMem; 
+    int* receivedUserDataLength = &receivedUserDataLengthMem;
 
     /*const byte UUID_SPP[16] = {0x5a,0x44,0xc0,0x04,0x41,0x12,0x42,0x74,0x88,0x0e,0xcd,0x9b,0x3d,0xae,0xdf,0x8e};
     const byte UUID_SPP_DATA[16] = {0x43,0xc2,0x9e,0xdf,0x2f,0x0a,0x4c,0x43,0xaa,0x22,0x48,0x9d,0x16,0x9e,0xc7,0x52};
@@ -162,36 +178,9 @@ int main(void)
             case BLE_EVENT_CONNECTION_OPENED :
                 HostWriteString("Device connected");
                 HostWriteString("\r");
-                if(BLEDiscover(BLE_DISC_SERVICE_WITH_UUID, 0, &bleUUIDService)){
-                    HostWriteString("Service discovered with uuid");
-                    HostWriteString("\r");
-                }
-
-                /*const byte uuid[2] = {0x02,0x29};
-                if(BLEFindGattServerAttribute(&uuid, 2, &attrHandle)){
-                    HostWriteString("Attribute find");
-                    HostWriteString("\r");
-                } else {
-                    HostWriteString("Error find attribute");
-                    HostWriteString("\r");                    
-                }*/
-                
-                const byte uuid[2] = {0x18,0x1C};
-                if(BLEGattGetAttribute(&uuid, &attrHandle)){
-                    HostWriteString("Attribute find");
-                    HostWriteString("\r");
-                } else {
-                    HostWriteString("Attribute not find");
-                    HostWriteString("\r");                    
-                }
-
-                if(BLEDiscover(BLE_DISC_CHARAC_WITH_UUID, attrHandle, &bleUUIDChara)){
-                    HostWriteString("Characteristic find");
-                    HostWriteString("\r");
-                } else {
-                    HostWriteString("Characteristic not find");
-                    HostWriteString("\r");                    
-                }
+                Beep(100, 1500, 200, 100);
+                Beep(100, 1500, 200, 100);
+                Beep(100, 1500, 200, 100);
 
                 break;
             
@@ -236,7 +225,7 @@ int main(void)
                 HostWriteString("Characteristic value received");
                 HostWriteString("\r"); 
 
-                if(BLEGattGetValue(0, (unsigned long) attrHandle, &uuid, &receivedAttrOpcode, &receivedUserData, &receivedUserDataLength, 200)){
+                if(BLEGattGetValue(3, (unsigned long) attrHandle, uuid, receivedAttrOpcode, receivedUserData, receivedUserDataLengthMem, 200)){
                     HostWriteString("Characteristic value read");
                     HostWriteString("\r");
                 } else {
@@ -244,8 +233,12 @@ int main(void)
                     HostWriteString("\r");
                 }
 
-                for(uint8_t i = 0; i < receivedUserDataLength; i++){ 
+                HostWriteString(receivedUserDataLength);
+                HostWriteString(*receivedUserDataLength);
+
+                for(uint8_t i = 0; i < *receivedUserDataLength; i++){ 
                     HostWriteByte(receivedUserData[i]);
+                    HostWriteByte("o");
                 }
                 HostWriteString("\r");
         }
