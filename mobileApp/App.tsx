@@ -6,7 +6,6 @@
  */
 
 import React, { useState } from 'react';
-import type {PropsWithChildren} from 'react';
 
 import {
   StyleSheet,
@@ -15,41 +14,23 @@ import {
   View,
   Image,
   LogBox,
-  Pressable,
-  TouchableOpacity,
+
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
+
 } from 'react-native/Libraries/NewAppScreen';
 
 import { Device } from "react-native-ble-plx";
 
 import Button from './components/Button';
 import useBle from './useBLE';
-import DeviceModal from './DeviceConnectionModal';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 
 function App(): JSX.Element {
 
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
-  const {requestPermissions, scanForDevices, allDevices} = useBle();
-
-  const hideModal = () => {
-    setIsModalVisible(false);
-  }
-
-  const openModal = async () => {
-    requestPermissions((isGranted: boolean) => {
-      alert('The android permission is granted' + isGranted);
-    });
-  }
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -61,18 +42,11 @@ function App(): JSX.Element {
     <View style={styles.imageContainer}>
       <View>
         <Text style={styles.title}>NetPrinting identification</Text>
-        
       </View>
       <Image
           source={require('./assets/images/printer.jpeg')}
           style={styles.image}
         />
-      <DeviceModal
-        closeModal={hideModal}
-        visible={isModalVisible}
-        connectToPeripheral={hideModal}
-        devices={[]}
-      />
       <View style={styles.footerContainer}>
           <Button theme="primary" label="Connect to device" />
           <Button label="Get user name" />
@@ -95,6 +69,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     textDecorationLine: 'underline',
     marginTop: -60,
+  },
+  text: {
+    marginTop: 30,
+    fontSize: 24,
   },
   credit: {
     fontSize: 12,
