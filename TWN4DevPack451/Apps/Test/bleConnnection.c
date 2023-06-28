@@ -173,20 +173,46 @@ int main(void)
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
                 HostWriteString("Attribute changed");
                 HostWriteString("\r");
-                break;
+
+                attrHandle = (int)(0b1000000000100010);
+                if(BLEGetGattServerAttributeValue(attrHandle, receivedUserData, receivedUserDataLength, 200)){
+                    HostWriteString("Characteristic value read");
+                    HostWriteString("\r");
+                    for(uint8_t j = 0; j < *receivedUserDataLength; j++){ 
+                        HostWriteByte(receivedUserData[j]);
+                    }
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Error characteristic value read");
+                    HostWriteString("\r");
+                }
+        
+                
+                /*if(BLEGattGetValue(0, (unsigned long) 0, uuid, receivedAttrOpcode, receivedUserData, receivedUserDataLength, 200)){
+                    HostWriteString("Characteristic value read");
+                    HostWriteString("\r");
+                    for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
+                        HostWriteByte(receivedUserData[j]);
+                    }
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Error characteristic value read");
+                    HostWriteString("\r");
+                }*/
+
+            break;
 
             case BLE_EVENT_CONNECTION_OPENED :
                 HostWriteString("Device connected");
                 HostWriteString("\r");
-                Beep(100, 1500, 200, 100);
-                Beep(100, 1500, 200, 100);
-                Beep(100, 1500, 200, 100);
-
+                Beep(50, 1500, 100, 100);
+                Beep(50, 1500, 100, 100);
                 break;
             
             case BLE_EVENT_CONNECTION_CLOSED :
                 HostWriteString("Device disconnected");
                 HostWriteString("\r");  
+                Beep(50, 800, 500, 100);
                 break;
             
             case BLE_EVENT_LE_GAP_EXTENDED_SCAN_RESPONSE :
@@ -224,8 +250,16 @@ int main(void)
             case BLE_EVENT_GATT_CHARACTERISTIC_VALUE :
                 HostWriteString("Characteristic value received");
                 HostWriteString("\r"); 
+                bool resp = BLEGetGattServerAttributeValue(35, receivedUserData, receivedUserDataLength, 200);
+                if(resp){
+                    HostWriteString("Characteristic value read");
+                    HostWriteString("\r");
+                } else {
+                    HostWriteString("Error characteristic value read");
+                    HostWriteString("\r");
+                }
 
-                if(BLEGattGetValue(3, (unsigned long) attrHandle, uuid, receivedAttrOpcode, receivedUserData, receivedUserDataLengthMem, 200)){
+                /*if(BLEGattGetValue(2, (unsigned long) 35, uuid, receivedAttrOpcode, receivedUserData, receivedUserDataLength, 200)){
                     HostWriteString("Characteristic value read");
                     HostWriteString("\r");
                 } else {
@@ -234,7 +268,7 @@ int main(void)
                 }
 
                 HostWriteString(receivedUserDataLength);
-                HostWriteString(*receivedUserDataLength);
+                HostWriteString(*receivedUserDataLength);*/
 
                 for(uint8_t i = 0; i < *receivedUserDataLength; i++){ 
                     HostWriteByte(receivedUserData[i]);
