@@ -19,6 +19,7 @@ import java.util.Base64;
 public class RESTController {
     ServerCommandProxy scp;
 
+
     private byte[] key = {(byte) 0xbf, (byte) 0xc1, (byte) 0xc1, (byte) 0x8b, (byte) 0x3c, (byte) 0x60, (byte) 0x50, (byte) 0x2a,
             (byte) 0x4f, (byte) 0x08, (byte) 0xdf, (byte) 0xb6, (byte) 0xe0, (byte) 0xd9, (byte) 0xd1, (byte) 0x1f};
     private final Key aesMasterKey = new SecretKeySpec(key, "AES");
@@ -27,11 +28,13 @@ public class RESTController {
         scp = new ServerCommandProxy("PaperCutServer", 9191, "authToken");
     }
 
-    @RequestMapping(method = RequestMethod.GET, path ="/getUserName")
-    public String getName(@RequestParam String data) {
-        return scp.lookUpUserNameByCardNo(data);
+    //Get primary card number (= user ID) from papercut server
+    @RequestMapping(method = RequestMethod.GET, path ="/getUserID")
+    public String getUserID(@RequestParam String data) {
+        return scp.getUserProperty(data, "primary-card-number");
     }
 
+    //Get credit from papercut server
     @RequestMapping(method = RequestMethod.GET, path = "/getCredit")
     public double getCredit(@RequestParam String data) {
         return scp.getUserAccountBalance(scp.lookUpUserNameByCardNo(data));
