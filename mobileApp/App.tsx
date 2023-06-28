@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   StyleSheet,
@@ -14,6 +14,8 @@ import {
   View,
   Image,
   LogBox,
+  TextInput,
+  ScrollView,
 
 } from 'react-native';
 
@@ -25,28 +27,67 @@ import {
 import { Device } from "react-native-ble-plx";
 
 import Button from './components/Button';
-import useBle from './useBLE';
+import axios from 'axios';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 
 function App(): JSX.Element {
+  const scrollViewRef = useRef();
 
+  const scrollToInput = () => {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+  };
+  const [userName, onChangeUserName] = useState('');
+  const [userID, onChangeUserID] = useState('');
   const isDarkMode = useColorScheme() === 'dark';
 
+  useEffect(() => {
+    if (userName !== '') {
+      axios.get('http://10.93.11.8:8080/getUserID?data=' + userName)
+      .then(response => {
+        const userID = response.data;
+        onChangeUserID(userID);
+        console.log('UserID : ' + userID);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    } else {
+      onChangeUserID('');
+    }
+  }, [userName]);
+  
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   return (
+  
   <View style={styles.container}>
-    <View style={styles.imageContainer}>
+  <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollViewContent}>
       <View>
         <Text style={styles.title}>NetPrinting identification</Text>
       </View>
+      <View style={styles.containerUserName}>
+        <Text style={styles.text}>  User name : </Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeUserName}
+          value={userName}
+          placeholder="Enter user name"
+          keyboardType="default"
+        />
+      </View>
+      <View style={styles.containerUserName}>
+        <Text style={styles.text}>  User ID : {userID}</Text>
+
+      </View>
+      <View style={styles.imageContainer}>
       <Image
           source={require('./assets/images/printer.jpeg')}
           style={styles.image}
         />
+      </View>
       <View style={styles.footerContainer}>
           <Button theme="primary" label="Connect to device" />
           <Button label="Get user name" />
@@ -54,8 +95,9 @@ function App(): JSX.Element {
       <View>
         <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
       </View>
-    </View>
+    </ScrollView>
   </View>
+   
   );
 }
 
@@ -65,14 +107,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  containerUserName: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: 'gray',  
+    marginTop: 35,  
+  },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     textDecorationLine: 'underline',
-    marginTop: -60,
+    marginTop: 10,
+    fontWeight: 'bold',
   },
   text: {
-    marginTop: 30,
     fontSize: 24,
+    marginBottom: 6,
+  },
+  input: {
+    height: 40,
+    fontSize: 20,
+    padding: 10,
+    marginTop: 2,
   },
   credit: {
     fontSize: 12,
@@ -80,14 +135,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop:30,
   },
-  highlight: {
-    fontWeight: '700',
-  },
   image: {
     width: 200,
     height: 200,
     borderRadius: 18,
-    marginTop: 20,
+    marginTop: 30,
   },  
   imageContainer: {
     marginTop: 50,
@@ -95,10 +147,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerContainer: {
-    flex: 9/10,
+    marginTop: 40,
     alignItems: 'center',
     justifyContent: 'flex-end',
   }
 });
 
 export default App;
+
+

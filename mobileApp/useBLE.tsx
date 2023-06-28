@@ -3,6 +3,7 @@ import React from 'react'
 import { PermissionsAndroid} from "react-native";
 import { BleManager, Device } from "react-native-ble-plx";
 import base64 from 'react-native-base64'
+import App from './App';
 type PermissionCallback = (result: boolean) => void;
 
 const bleManager = new BleManager();
@@ -13,11 +14,10 @@ const cardIdUUIDService = '5a44c004-4112-4274-880e-cd9b3daedf8e';
 
 interface BluetoothlowEnergyApi {
     requestPermissions(callback: PermissionCallback): Promise<void>;
-    scanForDevices(): void;
 }
 
 function useBle(): BluetoothlowEnergyApi{
-
+ 
     const requestPermissions = async (callback: PermissionCallback) => {
         const grantedStatus = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -55,13 +55,11 @@ function useBle(): BluetoothlowEnergyApi{
             const deviceConnection = await bleManager.connectToDevice(device.id);
             await deviceConnection.discoverAllServicesAndCharacteristics();
             console.log('Device connected : ', device.name);
-            const valueSend = await bleManager.writeCharacteristicWithResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode('041350322c46680'));
-            console.log('Value send : 041350322c46680');
+            const valueSend = await bleManager.writeCharacteristicWithResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode('1234'));
+            console.log('Value send : 1234');
         } catch (e) {
             console.log('FAILED TO CONNECT', e);
         }
-
-        
     };
 
     const sendValue = async (device: Device) => {
@@ -72,11 +70,8 @@ function useBle(): BluetoothlowEnergyApi{
         }
     };
 
-    const disconnectFromDevice = () => {
-       /* if (connectedDevice) {
-          bleManager.cancelDeviceConnection(connectedDevice.id);
-          setConnectedDevice(null);
-        }*/
+    const disconnectFromDevice = (device: Device) => {
+          bleManager.cancelDeviceConnection(device.id);
       };
 
     return {
@@ -90,3 +85,4 @@ function requestMultiple(arg0: any[]): any {
 }
 
 export default useBle;
+

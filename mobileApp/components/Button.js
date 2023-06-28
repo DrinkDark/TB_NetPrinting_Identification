@@ -30,13 +30,7 @@ export default function Button({ label,  theme }) {
   return (
     <View style={styles.buttonContainer}>
         <Pressable style={styles.button} onPress={() =>               
-        axios.get('http://localhost:8080/getUserName?data=1234')
-              .then(response => {
-                console.log(response.data);
-              })
-              .catch(error => {
-                console.error(error);
-              })}>
+        alert('Button pressed')}>
           <Text style={styles.buttonLabel}>{label}</Text>
         </Pressable>
       </View>
