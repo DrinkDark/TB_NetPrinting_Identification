@@ -55,7 +55,7 @@ function useBle(): BluetoothlowEnergyApi{
             const deviceConnection = await bleManager.connectToDevice(device.id);
             await deviceConnection.discoverAllServicesAndCharacteristics();
             console.log('Device connected : ', device.name);
-            const valueSend = await bleManager.writeCharacteristicWithoutResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode('041350322c46680'));
+            const valueSend = await bleManager.writeCharacteristicWithResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode('041350322c46680'));
             console.log('Value send : 041350322c46680');
         } catch (e) {
             console.log('FAILED TO CONNECT', e);

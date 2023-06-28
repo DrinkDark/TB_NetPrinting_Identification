@@ -250,31 +250,20 @@ int main(void)
             case BLE_EVENT_GATT_CHARACTERISTIC_VALUE :
                 HostWriteString("Characteristic value received");
                 HostWriteString("\r"); 
-                bool resp = BLEGetGattServerAttributeValue(35, receivedUserData, receivedUserDataLength, 200);
-                if(resp){
+         
+                /*attrHandle = 48;
+                if(BLEGetGattServerAttributeValue(attrHandle, receivedUserData, receivedUserDataLength, 200)){
                     HostWriteString("Characteristic value read");
+                    HostWriteString("\r");
+                    for(uint8_t j = 0; j < *receivedUserDataLength; j++){ 
+                        HostWriteByte(receivedUserData[j]);
+                    }
                     HostWriteString("\r");
                 } else {
                     HostWriteString("Error characteristic value read");
                     HostWriteString("\r");
-                }
-
-                /*if(BLEGattGetValue(2, (unsigned long) 35, uuid, receivedAttrOpcode, receivedUserData, receivedUserDataLength, 200)){
-                    HostWriteString("Characteristic value read");
-                    HostWriteString("\r");
-                } else {
-                    HostWriteString("Error characteristic value read");
-                    HostWriteString("\r");
-                }
-
-                HostWriteString(receivedUserDataLength);
-                HostWriteString(*receivedUserDataLength);*/
-
-                for(uint8_t i = 0; i < *receivedUserDataLength; i++){ 
-                    HostWriteByte(receivedUserData[i]);
-                    HostWriteByte("o");
-                }
-                HostWriteString("\r");
+                }*/
+                break;
         }
     }
 }
