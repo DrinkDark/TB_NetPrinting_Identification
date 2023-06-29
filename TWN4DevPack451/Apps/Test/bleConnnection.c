@@ -119,7 +119,17 @@ int main(void)
     uuid->UUID[15] = 0x95;
     uuid->UUIDLength = 16;*/
 
-    int attrHandle = 0;
+    int attrHandleMem;
+    int *attrHandle;
+    attrHandle = &attrHandleMem;
+
+    int attrStatusFlagMem;
+    int *attrStatusFlag;
+    attrStatusFlag = &attrStatusFlagMem;
+
+    int attrConfigFlagMem;
+    int *attrConfigFlag;
+    attrConfigFlag = &attrConfigFlagMem;
 
     byte receivedUserDataMem[200]; 
     byte* receivedUserData = &receivedUserDataMem;
@@ -173,9 +183,10 @@ int main(void)
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
                 //HostWriteString("Attribute changed");
                 //HostWriteString("\r");
+                BLEGetGattServerCharacteristicStatus(attrHandle, attrStatusFlag, attrConfigFlag);
+                *attrHandle += (int)(0b1000000000000000);
                 
-                attrHandle = (int)(0b1000000000100010);
-                if(BLEGetGattServerAttributeValue(attrHandle, receivedUserData, receivedUserDataLength, 200)){
+                if(BLEGetGattServerAttributeValue(*attrHandle, receivedUserData, receivedUserDataLength, 200)){
                     //HostWriteString("Characteristic value read");
                     //HostWriteString("\r");
                     for(uint8_t j = 0; j < *receivedUserDataLength; j++){ 
