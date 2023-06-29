@@ -65,10 +65,15 @@ function useBle(): BluetoothlowEnergyApi{
 
     const sendValue = async (device: Device, userID: String) => {
         try {
-            const valueSend = await bleManager.writeCharacteristicWithResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode(userID.toString()));
-            console.log('Value send : ', userID);
-            Alert.alert('User ID successfully sent to the card reader !');
-            disconnectFromDevice(device);
+            const response = await bleManager.writeCharacteristicWithResponseForDevice(device.id, cardIdUUIDService, cardIdUUIDCharac, base64.encode(userID.toString()));
+            if(userID.toString() === base64.decode(response.value).toString()) {
+                console.log('Value send : ', userID);
+                Alert.alert('User ID successfully sent to the card reader !');
+            } else {
+                console.log('Error : value not send : ', userID);
+                Alert.alert('Error : user ID not sent correctly to the card reader !');
+            }  
+            disconnectFromDevice(device);  
         } catch (e) {
             console.log('FAILED TO SEND VALUE :', e);
         }
