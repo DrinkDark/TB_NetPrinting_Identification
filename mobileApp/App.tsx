@@ -26,6 +26,8 @@ import {
 
 import Button from './components/Button';
 
+
+
 function App(): JSX.Element {
   const [userName, onChangeUserName, userID] = useUser();
 
@@ -41,6 +43,7 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  
   return (
   
   <View style={styles.container}>

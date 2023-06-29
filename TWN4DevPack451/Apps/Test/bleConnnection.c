@@ -49,7 +49,7 @@ void OnStartup(void)
     LEDOn(GREENLED);
     LEDOff(REDLED);
     
-    SetVolume(20);
+    SetVolume(50);
     BeepLow();
     BeepHigh();
 }
@@ -62,9 +62,9 @@ void OnNewCardFound(const char *CardString)
 
     LEDOff(GREENLED);
     LEDOn(REDLED);
-    LEDBlink(REDLED,500,500);
+    LEDBlink(REDLED,200,200);
 
-    SetVolume(20);
+    SetVolume(50);
     BeepHigh();
 }
 
@@ -98,7 +98,7 @@ int main(void)
 
     BLEInit(1);     //0 = used custom mode, 1 = advertisement mode, 5 = discover mode
 
-    TBLEUUID* uuid = NULL;
+    /*TBLEUUID* uuid = NULL;
     TBLEUUID uuidmem;
     uuid = &uuidmem;
     uuid->UUID[0] = 0x49;
@@ -117,7 +117,7 @@ int main(void)
     uuid->UUID[13] = 0x6d;
     uuid->UUID[14] = 0x44;
     uuid->UUID[15] = 0x95;
-    uuid->UUIDLength = 16;
+    uuid->UUIDLength = 16;*/
 
     int attrHandle = 0;
 
@@ -171,85 +171,76 @@ int main(void)
 
         switch(BLECheckEvent()) {
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
-                HostWriteString("Attribute changed");
-                HostWriteString("\r");
-
+                //HostWriteString("Attribute changed");
+                //HostWriteString("\r");
+                
                 attrHandle = (int)(0b1000000000100010);
                 if(BLEGetGattServerAttributeValue(attrHandle, receivedUserData, receivedUserDataLength, 200)){
-                    HostWriteString("Characteristic value read");
-                    HostWriteString("\r");
+                    //HostWriteString("Characteristic value read");
+                    //HostWriteString("\r");
                     for(uint8_t j = 0; j < *receivedUserDataLength; j++){ 
                         HostWriteByte(receivedUserData[j]);
                     }
                     HostWriteString("\r");
                 } else {
-                    HostWriteString("Error characteristic value read");
-                    HostWriteString("\r");
+                    //HostWriteString("Error characteristic value read");
+                    //HostWriteString("\r");
                 }
-        
-                
-                /*if(BLEGattGetValue(0, (unsigned long) 0, uuid, receivedAttrOpcode, receivedUserData, receivedUserDataLength, 200)){
-                    HostWriteString("Characteristic value read");
-                    HostWriteString("\r");
-                    for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
-                        HostWriteByte(receivedUserData[j]);
-                    }
-                    HostWriteString("\r");
-                } else {
-                    HostWriteString("Error characteristic value read");
-                    HostWriteString("\r");
-                }*/
 
             break;
 
             case BLE_EVENT_CONNECTION_OPENED :
-                HostWriteString("Device connected");
-                HostWriteString("\r");
+                //HostWriteString("Device connected");
+                //HostWriteString("\r");
+                LEDOff(GREENLED);
+                LEDBlink(REDLED,200,200);
                 Beep(50, 1500, 100, 100);
                 Beep(50, 1500, 100, 100);
                 break;
             
             case BLE_EVENT_CONNECTION_CLOSED :
-                HostWriteString("Device disconnected");
-                HostWriteString("\r");  
+                //HostWriteString("Device disconnected");
+                //HostWriteString("\r");  
+                LEDOff(REDLED);
+                LEDOn(GREENLED);
                 Beep(50, 800, 500, 100);
                 break;
             
             case BLE_EVENT_LE_GAP_EXTENDED_SCAN_RESPONSE :
             case BLE_EVENT_LE_GAP_SCAN_RESPONSE :
-                HostWriteString("Advertisement received");
-                HostWriteString("\r");  
+                //HostWriteString("Advertisement received");
+                //HostWriteString("\r");  
                 break;
 
             case BLE_EVENT_SM_BONDED :
-                HostWriteString("Bonding completed");
-                HostWriteString("\r");  
+                //HostWriteString("Bonding completed");
+                //HostWriteString("\r");  
                 break;
 
             case BLE_EVENT_SM_BONDING_FAILED :
-                HostWriteString("Bonding failed");
-                HostWriteString("\r");  
+                //HostWriteString("Bonding failed");
+                //HostWriteString("\r");  
                 break;
 
             case BLE_EVENT_GATT_CHARACTERISTIC :
-                HostWriteString("Characteristic discovered");
-                HostWriteString("\r");  
+                //HostWriteString("Characteristic discovered");
+                //HostWriteString("\r");  
                 break;
 
             case BLE_EVENT_GATT_SERVICE :
-                HostWriteString("Service discovered");
-                HostWriteString("\r");
+                //HostWriteString("Service discovered");
+                //HostWriteString("\r");
                 break;
                 
             case BLE_EVENT_GATT_PROCEDURE_COMPLETED :
-                HostWriteString("Discover completed");
-                HostWriteString("\r");
+                //HostWriteString("Discover completed");
+                //HostWriteString("\r");
                 
                 break;
 
             case BLE_EVENT_GATT_CHARACTERISTIC_VALUE :
-                HostWriteString("Characteristic value received");
-                HostWriteString("\r"); 
+                //HostWriteString("Characteristic value received");
+                //HostWriteString("\r"); 
          
                 /*attrHandle = 48;
                 if(BLEGetGattServerAttributeValue(attrHandle, receivedUserData, receivedUserDataLength, 200)){
