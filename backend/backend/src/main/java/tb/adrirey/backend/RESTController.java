@@ -34,6 +34,12 @@ public class RESTController {
         return scp.getUserProperty(data, "primary-card-number");
     }
 
+    //Check if a user exist
+    @RequestMapping(method = RequestMethod.GET, path ="/userExist")
+    public Boolean userExist(@RequestParam String data) {
+        return scp.isUserExists(data);
+    }
+
     //Get credit from papercut server
     @RequestMapping(method = RequestMethod.GET, path = "/getCredit")
     public double getCredit(@RequestParam String data) {
