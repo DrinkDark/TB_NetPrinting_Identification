@@ -3,9 +3,9 @@ import axios from 'axios';
 
 import useBle from '../useBLE';
 
-const {requestPermissions, scanForDevices, allDevices} = useBle();
+const {requestPermissions, scanForDevices} = useBle();
 
-export default function Button({ label,  theme }) {
+export default function Button({ label,  theme, userID }) {
   if (theme === "primary") {
     return (
       <View
@@ -17,7 +17,7 @@ export default function Button({ label,  theme }) {
           onPress={() =>     
             requestPermissions((isGranted: boolean) => {
               if(isGranted){
-                scanForDevices()
+                scanForDevices(userID)
               }
           })}
         >
