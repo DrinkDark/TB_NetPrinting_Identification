@@ -13,9 +13,8 @@ const useUser = () => {
           if(response.data){
             axios.get(`http://${ipAddress}:8080/getUserID?data=${userName}`)
             .then(response => {
-              const userID = response.data;
-              setUserID(userID);
-              console.log('UserID: ' + userID);
+              setUserID(response.data);
+              console.log('UserID: ' + response.data);
             })
             .catch(error => {
               console.error(error);

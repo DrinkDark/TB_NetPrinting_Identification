@@ -140,12 +140,6 @@ int main(void)
     int receivedUserDataLengthMem; 
     int* receivedUserDataLength = &receivedUserDataLengthMem;
 
-    /*const byte UUID_SPP[16] = {0x5a,0x44,0xc0,0x04,0x41,0x12,0x42,0x74,0x88,0x0e,0xcd,0x9b,0x3d,0xae,0xdf,0x8e};
-    const byte UUID_SPP_DATA[16] = {0x43,0xc2,0x9e,0xdf,0x2f,0x0a,0x4c,0x43,0xaa,0x22,0x48,0x9d,0x16,0x9e,0xc7,0x52};
-
-    BLESetStreamingUUID(UUID_SPP, 16, UUID_SPP_DATA, 16);
-    BLESetStreamingMode(BLE_STREAM_CONN_ADVERTISE, BLE_STREAM_GATT_CLIENT, BLE_STREAM_TRANSFER_BLOCKWISE);*/
-
     while (true)
     {
 		int TagType;
@@ -183,9 +177,12 @@ int main(void)
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
                 //HostWriteString("Attribute changed");
                 //HostWriteString("\r");
+
+                //Get attribute handle of the modified value
                 BLEGetGattServerCharacteristicStatus(attrHandle, attrStatusFlag, attrConfigFlag);
                 *attrHandle += (int)(0b1000000000000000);
                 
+                //Read the modified value based on the read handle
                 if(BLEGetGattServerAttributeValue(*attrHandle, receivedUserData, receivedUserDataLength, 200)){
                     //HostWriteString("Characteristic value read");
                     //HostWriteString("\r");

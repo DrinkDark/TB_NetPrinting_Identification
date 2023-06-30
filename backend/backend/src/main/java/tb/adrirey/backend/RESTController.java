@@ -28,10 +28,10 @@ public class RESTController {
         scp = new ServerCommandProxy("PaperCutServer", 9191, "authToken");
     }
 
-    //Get primary card number (= user ID) from papercut server
+    //Get secondary card number (= user ID) from papercut server
     @RequestMapping(method = RequestMethod.GET, path ="/getUserID")
     public String getUserID(@RequestParam String data) {
-        return scp.getUserProperty(data, "primary-card-number");
+        return scp.getUserProperty(data, "secondary-card-number");
     }
 
     //Check if a user exist

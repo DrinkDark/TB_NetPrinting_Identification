@@ -26,9 +26,7 @@ import {
 
 import Button from './components/Button';
 
-
-
-function App(): JSX.Element {
+const App = () => {
   const [userName, onChangeUserName, userID] = useUser();
 
   const scrollViewRef = useRef();
@@ -74,7 +72,7 @@ function App(): JSX.Element {
   </View>
    
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
