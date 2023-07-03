@@ -1,9 +1,8 @@
 #include "twn4.sys.h"
 #include "apptools.h"
 
-// ******************************************************************
-// ****** Configuration Area ****************************************
-// ******************************************************************
+//------------------------------------------------------------------------------------
+//------------------------------  CONFIGURATION  -------------------------------------
 
 #if APPEXTCONFIG
 
@@ -40,8 +39,6 @@ bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int M
     ConvertBinaryToString(CardData,0,CardDataBitCnt,CardString,16,(CardDataBitCnt+7)/8*2,MaxCardStringLen);
     return true;
 }
-
-// ****** Event Handler *********************************************
 
 void OnStartup(void)
 {
@@ -80,14 +77,13 @@ void OnCardDone(void)
 
 #endif
 
-// ******************************************************************
-// ****** Main Program Loop *****************************************
-// ******************************************************************
-
 int main(void)
 {
 	OnStartup();    	
 
+    //------------------------------------------------------------------------------------
+    //--------------------------------  CARD INIT  ---------------------------------------
+    
 	const byte Params[] = { SUPPORT_CONFIGCARD, 1, CONFIGENABLED, TLV_END };
 	SetParameters(Params,sizeof(Params));
 
@@ -96,55 +92,26 @@ int main(void)
 	char OldCardString[MAXCARDSTRINGLEN+1]; 
     OldCardString[0] = 0;
 
-    BLEInit(1);     //0 = used custom mode, 1 = advertisement mode, 5 = discover mode
 
-    /*TBLEUUID* uuid = NULL;
-    TBLEUUID uuidmem;
-    uuid = &uuidmem;
-    uuid->UUID[0] = 0x49;
-    uuid->UUID[1] = 0x5f;
-    uuid->UUID[2] = 0x44;
-    uuid->UUID[3] = 0x9c;
-    uuid->UUID[4] = 0xfc;
-    uuid->UUID[5] = 0x60;
-    uuid->UUID[6] = 0x40;
-    uuid->UUID[7] = 0x48;
-    uuid->UUID[8] = 0xb5;
-    uuid->UUID[9] = 0x3e;
-    uuid->UUID[10] = 0xbd;
-    uuid->UUID[11] = 0xb3;
-    uuid->UUID[12] = 0x04;
-    uuid->UUID[13] = 0x6d;
-    uuid->UUID[14] = 0x44;
-    uuid->UUID[15] = 0x95;
-    uuid->UUIDLength = 16;*/
+    BLEInit(1);     //Init BLE in advertise mode
 
-    int attrHandleMem;
-    int *attrHandle;
-    attrHandle = &attrHandleMem;
 
-    int attrStatusFlagMem;
-    int *attrStatusFlag;
-    attrStatusFlag = &attrStatusFlagMem;
-
-    int attrConfigFlagMem;
-    int *attrConfigFlag;
-    attrConfigFlag = &attrConfigFlagMem;
-
-    byte receivedUserDataMem[200]; 
-    byte* receivedUserData = &receivedUserDataMem;
-
-    byte receivedAttrOpcodeMem; 
-    byte* receivedAttrOpcode = &receivedAttrOpcodeMem;
-
-    int receivedUserDataLengthMem; 
-    int* receivedUserDataLength = &receivedUserDataLengthMem;
 
     while (true)
     {
+        //------------------------------------------------------------------------------------
+        //--------------------------------  CARD VALUE  --------------------------------------
 		int TagType;
 		int IDBitCnt;
 		byte ID[32];
+
+        //------------------------------------------------------------------------------------
+        //---------------------------------  BLE VALUE  --------------------------------------
+        int attrHandle;
+        int attrStatusFlag;
+        int attrConfigFlag;
+        byte receivedUserData[200];
+        int receivedUserDataLength;
 
 		// Search a transponder
 	    if (SearchTag(&TagType,&IDBitCnt,ID,sizeof(ID)) || SEARCH_BLE(&TagType,&IDBitCnt,ID,sizeof(ID)))
@@ -179,14 +146,18 @@ int main(void)
                 //HostWriteString("\r");
 
                 //Get attribute handle of the modified value
-                BLEGetGattServerCharacteristicStatus(attrHandle, attrStatusFlag, attrConfigFlag);
-                *attrHandle += (int)(0b1000000000000000);
+                BLEGetGattServerCharacteristicStatus(&attrHandle, &attrStatusFlag, &attrConfigFlag);
+
+                //Attribute handle bit 15 set to 1 = BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE
+                attrHandle += (int)(0b1000000000000000);   
                 
-                //Read the modified value based on the read handle
-                if(BLEGetGattServerAttributeValue(*attrHandle, receivedUserData, receivedUserDataLength, 200)){
+                //Read the modified value based on the read handle attribute
+                if(BLEGetGattServerAttributeValue(attrHandle, &receivedUserData, &receivedUserDataLength, 200)){
                     //HostWriteString("Characteristic value read");
                     //HostWriteString("\r");
-                    for(uint8_t j = 0; j < *receivedUserDataLength; j++){ 
+
+                    //Print read value on the output
+                    for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
                         HostWriteByte(receivedUserData[j]);
                     }
                     HostWriteString("\r");
@@ -213,56 +184,12 @@ int main(void)
                 LEDOn(GREENLED);
                 Beep(50, 800, 500, 100);
                 break;
-            
-            case BLE_EVENT_LE_GAP_EXTENDED_SCAN_RESPONSE :
-            case BLE_EVENT_LE_GAP_SCAN_RESPONSE :
-                //HostWriteString("Advertisement received");
-                //HostWriteString("\r");  
-                break;
 
-            case BLE_EVENT_SM_BONDED :
-                //HostWriteString("Bonding completed");
-                //HostWriteString("\r");  
-                break;
-
-            case BLE_EVENT_SM_BONDING_FAILED :
-                //HostWriteString("Bonding failed");
-                //HostWriteString("\r");  
-                break;
-
-            case BLE_EVENT_GATT_CHARACTERISTIC :
-                //HostWriteString("Characteristic discovered");
-                //HostWriteString("\r");  
-                break;
-
-            case BLE_EVENT_GATT_SERVICE :
-                //HostWriteString("Service discovered");
-                //HostWriteString("\r");
-                break;
-                
-            case BLE_EVENT_GATT_PROCEDURE_COMPLETED :
-                //HostWriteString("Discover completed");
-                //HostWriteString("\r");
-                
-                break;
-
-            case BLE_EVENT_GATT_CHARACTERISTIC_VALUE :
-                //HostWriteString("Characteristic value received");
-                //HostWriteString("\r"); 
-         
-                /*attrHandle = 48;
-                if(BLEGetGattServerAttributeValue(attrHandle, receivedUserData, receivedUserDataLength, 200)){
-                    HostWriteString("Characteristic value read");
-                    HostWriteString("\r");
-                    for(uint8_t j = 0; j < *receivedUserDataLength; j++){ 
-                        HostWriteByte(receivedUserData[j]);
-                    }
-                    HostWriteString("\r");
-                } else {
-                    HostWriteString("Error characteristic value read");
-                    HostWriteString("\r");
-                }*/
-                break;
+            case BLE_EVENT_SM_PASSKEY_REQUEST :
+                HostWriteString("Passkey request");
+                HostWriteString("\r");  
+            break;
+        
         }
     }
 }
