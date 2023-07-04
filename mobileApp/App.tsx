@@ -7,6 +7,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import useUser from './useUser'
+import useEncryption from './useEncryption';
+import Button from './components/Button';
 
 import {
   StyleSheet,
@@ -16,6 +18,7 @@ import {
   LogBox,
   TextInput,
   ScrollView,
+  Switch,
 
 } from 'react-native';
 
@@ -24,10 +27,9 @@ import {
 
 } from 'react-native/Libraries/NewAppScreen';
 
-import Button from './components/Button';
-
 const App = () => {
   const [userName, onChangeUserName, userID] = useUser();
+  const [plainText, cipherText, encryptData, decryptData] = useEncryption();
 
   const scrollViewRef = useRef();
 
@@ -62,8 +64,13 @@ const App = () => {
       <View style={styles.containerUserName}>
         <Text style={styles.text}>  User ID : {userID}</Text>
       </View>
+      <View style={styles.containerUserName}>
+        <Text style={styles.text}>  Encrypt data : {cipherText}</Text>
+      </View>
       <View style={styles.footerContainer}>
-          <Button theme="primary" label="Authentication" userID={userID}/>
+          <Button theme="authentication" label="Authentication" userID={userID}/>
+          <Button theme="encrypt" label='Encrypt data'/>
+          <Button theme="decrypt" label='Decrypt data'/>
         </View>
       <View>
         <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
@@ -107,6 +114,12 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'center',
     marginTop:40,
+  },
+  containerSwitch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    marginTop: 20,
   },
   footerContainer: {
     marginTop: 80,

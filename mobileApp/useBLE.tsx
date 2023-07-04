@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import { Alert, PermissionsAndroid, Pressable, StyleSheet, Text, View} from "react-native";
+import { Alert, PermissionsAndroid} from "react-native";
 import { BleManager, Device } from "react-native-ble-plx";
 import base64 from 'react-native-base64'
 type PermissionCallback = (result: boolean) => void;
@@ -9,6 +9,7 @@ const bleManager = new BleManager();
 
 
 const CARD_ID_UUID_CHARAC = '495f449c-fc60-4048-b53e-bdb3046d4495';
+
 const CARD_ID_UUID_SERVICE = '5a44c004-4112-4274-880e-cd9b3daedf8e';
 
 interface BluetoothlowEnergyApi {
@@ -16,6 +17,7 @@ interface BluetoothlowEnergyApi {
 }
 
 function useBle(): BluetoothlowEnergyApi{
+    var connectedDevice: Device;
 
     const requestPermissions = async (callback: PermissionCallback) => {
         const grantedStatus = await PermissionsAndroid.request(
@@ -40,9 +42,10 @@ function useBle(): BluetoothlowEnergyApi{
                     console.log('Error scanning for devices : ', error);
                 } 
               if (device && device.name == "TWN4 BLE"){
-                    console.log('Device found : ',device.name);
-                    console.log('Stop scanning.');
-                    connectToDevice(device, userID);  
+                connectedDevice = device;
+                console.log('Device found : ', device.name);
+                console.log('Stop scanning.');
+                connectToDevice(userID);  
                 }
             });
         } else {
@@ -50,21 +53,22 @@ function useBle(): BluetoothlowEnergyApi{
         }
     }
         
-    const connectToDevice = async (device: Device, userID: String) => {
+    const connectToDevice = async (userID: String) => {
         try {
             bleManager.stopDeviceScan();
-            const deviceConnection = await bleManager.connectToDevice(device.id);
-            await deviceConnection.discoverAllServicesAndCharacteristics();;
-            console.log('Device connected : ', device.name);
-            sendValue(device, userID);
+            const deviceConnection = await bleManager.connectToDevice(connectedDevice.id);
+            await deviceConnection.discoverAllServicesAndCharacteristics();
+            console.log('Device connected : ', connectedDevice.name);
+
+            sendValue(userID);
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);
         }
     };
 
-    const sendValue = async (device: Device, userID: String) => {
+    const sendValue = async (userID: String) => {
         try {
-            const response = await bleManager.writeCharacteristicWithResponseForDevice(device.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(userID.toString()));
+            const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(userID.toString()));
             if(userID.toString() === base64.decode(response.value).toString()) {
                 console.log('Value send : ', userID);
                 Alert.alert('User ID successfully sent to the card reader !');
@@ -72,15 +76,16 @@ function useBle(): BluetoothlowEnergyApi{
                 console.log('Error : value not send : ', userID);
                 Alert.alert('Error : user ID not sent correctly to the card reader !');
             }  
-            disconnectFromDevice(device);  
+            disconnectFromDevice();  
         } catch (e) {
             console.log('FAILED TO SEND VALUE :', e);
         }
     };
 
-    const disconnectFromDevice = (device: Device) => {
+    const disconnectFromDevice = () => {
         try {
-            bleManager.cancelDeviceConnection(device.id);
+            bleManager.cancelDeviceConnection(connectedDevice.id);
+            console.log('Device disconnected : ', connectedDevice.name);
         } catch (e) {
             console.log('FAILED TO DISCONNECT :', e);
         }
