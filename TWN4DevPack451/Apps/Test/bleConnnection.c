@@ -93,20 +93,35 @@ int main(void)
     OldCardString[0] = 0;
 
 
+    //------------------------------------------------------------------------------------
+    //---------------------------------  BLE INIT  ---------------------------------------
+
     BLEInit(1);     //Init BLE in advertise mode
 
+    //------------------------------------------------------------------------------------
+    //------------------------------  CRYPTO INIT  ---------------------------------------
+    
+    const byte aesKey[] = {0xbf, 0xc1, 0xc1, 0x8b, 0x3c, 0x60, 0x50, 
+        0x2a, 0x4f, 0x08, 0xdf, 0xb6, 0xe0, 0xd9, 0xd1, 0x1f};
 
+    Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));
+
+    byte plainText[16];
+    byte cypherText[16];
+
+    Encrypt(CRYPTO_ENV0, (const) &plainText, &cypherText, sizeof(cypherText));
+    BLESetGattServerAttributeValue(34, 0, &cypherText, sizeof(cypherText));
 
     while (true)
     {
         //------------------------------------------------------------------------------------
-        //--------------------------------  CARD VALUE  --------------------------------------
+        //--------------------------------  CARD VALUES  -------------------------------------
 		int TagType;
 		int IDBitCnt;
 		byte ID[32];
 
         //------------------------------------------------------------------------------------
-        //---------------------------------  BLE VALUE  --------------------------------------
+        //--------------------------------  BLE VALUES  --------------------------------------
         int attrHandle;
         int attrStatusFlag;
         int attrConfigFlag;
@@ -185,10 +200,10 @@ int main(void)
                 Beep(50, 800, 500, 100);
                 break;
 
-            case BLE_EVENT_SM_PASSKEY_REQUEST :
+            /*case BLE_EVENT_SM_PASSKEY_REQUEST :
                 HostWriteString("Passkey request");
                 HostWriteString("\r");  
-            break;
+            break;*/
         
         }
     }

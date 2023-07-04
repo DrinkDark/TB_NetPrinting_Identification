@@ -1,6 +1,7 @@
 package tb.adrirey.backend;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
@@ -12,7 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+
+import static org.apache.tomcat.util.buf.HexUtils.toHexString;
 
 @CrossOrigin(origins = "http://localhost:19006", maxAge = 3600)
 @RestController
@@ -21,7 +23,7 @@ public class RESTController {
 
 
     private byte[] key = {(byte) 0xbf, (byte) 0xc1, (byte) 0xc1, (byte) 0x8b, (byte) 0x3c, (byte) 0x60, (byte) 0x50, (byte) 0x2a,
-            (byte) 0x4f, (byte) 0x08, (byte) 0xdf, (byte) 0xb6, (byte) 0xe0, (byte) 0xd9, (byte) 0xd1, (byte) 0x1f};
+                          (byte) 0x4f, (byte) 0x08, (byte) 0xdf, (byte) 0xb6, (byte) 0xe0, (byte) 0xd9, (byte) 0xd1, (byte) 0x1f};
     private final Key aesMasterKey = new SecretKeySpec(key, "AES");
 
     public RESTController() {
@@ -47,10 +49,20 @@ public class RESTController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path ="/getEncryptData")
-    public String aesEncryptedData(@RequestParam String data) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("AES");
+    public String aesEncryptedData(@RequestParam String data) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, aesMasterKey);
-        byte[] cipherText = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(cipherText);
+        byte plainText[] = Hex.decodeHex(data.toCharArray());
+        byte cipherText[] =  cipher.doFinal(plainText);
+        return toHexString(cipherText);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path ="/getDecryptData")
+    public String aesDecryptedData(@RequestParam String data) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, DecoderException {
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, aesMasterKey);
+        byte plainText[] = Hex.decodeHex(data.toCharArray());
+        byte cipherText[] =  cipher.doFinal(plainText);
+        return toHexString(cipherText);
     }
 }
