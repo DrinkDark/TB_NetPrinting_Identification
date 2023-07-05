@@ -29,8 +29,8 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 const App = () => {
-  const [userName, onChangeUserName, userID] = useUser();
   const [plainText, cipherText, encryptData, decryptData] = useEncryption();
+  const [userName, onChangeUserName, userID] = useUser();
 
   const scrollViewRef = useRef();
 
@@ -44,42 +44,31 @@ const App = () => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  
   return (
-  
-  <View style={styles.container}>
-  <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollViewContent}>
-      <View>
-        <Text style={styles.title}>NetPrinting identification</Text>
-      </View>
-      <View style={styles.containerUserName}>
-        <Text style={styles.text}>  User name : </Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeUserName}
-          value={userName}
-          placeholder="Enter user name"
-          keyboardType="default"
-        />
-      </View>
-      <View style={styles.containerUserName}>
-        <Text style={styles.text}>  User ID : {userID}</Text>
-      </View>
-      <View style={styles.containerUserName}>
-        <Text style={styles.text}>  Encrypt data : {cipherText}</Text>
-      </View>
-      <BLE></BLE>
-      <View style={styles.footerContainer}>
-          <Button theme="authentication" label="Authentication" userID={userID}/>
-          <Button theme="encrypt" label='Encrypt data'/>
-          <Button theme="decrypt" label='Decrypt data'/>
+    <View style={styles.container}>
+    <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollViewContent}>
+        <View>
+          <Text style={styles.title}>NetPrinting identification</Text>
         </View>
-      <View>
-        <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
-      </View>
-    </ScrollView>
-  </View>
-   
+        <View style={styles.containerUserName}>
+          <Text style={styles.text}>  User name : </Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeUserName}
+            value={userName}
+            placeholder="Enter user name"
+            keyboardType="default"
+          />
+        </View>
+        <View style={styles.containerUserName}>
+          <Text style={styles.text}>  User ID : {userID}</Text>
+        </View>
+        <BLE></BLE>
+        <View>
+          <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -115,7 +104,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     textAlign: 'center',
-    marginTop:40,
+    marginTop:10,
   },
   containerSwitch: {
     flexDirection: 'row',
@@ -131,6 +120,5 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-
 
 

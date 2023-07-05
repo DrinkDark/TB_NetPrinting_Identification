@@ -4,15 +4,14 @@ import { Device } from 'react-native-ble-plx';
 const ipAddress = '10.93.11.8';
 
 const useDevice = () => {
-  const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [printedText, setPrintedText] = useState('Press button to start scanning!');
+  const [printedText, setPrintedText] = useState('');
 
   useEffect(() => {
 
   }, []);
 
-  return [allDevices, setAllDevices, connectedDevice, setConnectedDevice, printedText, setPrintedText];
+  return [connectedDevice, setConnectedDevice, printedText, setPrintedText];
 };
 
 export default useDevice;

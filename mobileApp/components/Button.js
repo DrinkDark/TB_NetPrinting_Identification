@@ -1,7 +1,7 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import axios from 'axios';
 
-import * as ble from './BLE';
+import ble from './BLE';
 import useEncryption from '../hooks/useEncryption';
 
 //const {requestPermissions, scanForDevices} = ble();
@@ -19,13 +19,9 @@ export default function Button({ label,  theme, userID }) {
         <Pressable
           style={[styles.button, { backgroundColor: "#fff" }]}
           
-          onPress={() =>     
-            requestPermissions((isGranted: boolean) => {
-              if(isGranted){
-                scanForDevices(userID)
-              }
-          })}
-        >
+          onPress={() => {
+            ble.requestPermissions()
+          }}>
           <Text style={[styles.buttonLabel, { color: "#25292e" }]}>{label}</Text>
         </Pressable>
     </View>

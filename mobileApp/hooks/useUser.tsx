@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+
+import BLE from '../components/BLE';
+
 const ipAddress = '10.93.11.8';
 
 const useUser = () => {
@@ -14,7 +17,8 @@ const useUser = () => {
             axios.get(`http://${ipAddress}:8080/getUserID?data=${userName}`)
             .then(response => {
               setUserID(response.data);
-              console.log('UserID: ' + response.data);
+              BLE.setUserID(response.data);
+              console.log('UserID : ' + response.data);
             })
             .catch(error => {
               console.error(error);
