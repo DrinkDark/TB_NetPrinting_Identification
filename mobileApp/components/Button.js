@@ -1,11 +1,10 @@
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import axios from 'axios';
 
-import useBle from '../useBLE';
-import App from '../App';
-import useEncryption from '../useEncryption';
+import * as ble from './BLE';
+import useEncryption from '../hooks/useEncryption';
 
-const {requestPermissions, scanForDevices} = useBle();
+//const {requestPermissions, scanForDevices} = ble();
 
 
 export default function Button({ label,  theme, userID }) {

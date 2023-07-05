@@ -6,9 +6,10 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import useUser from './useUser'
-import useEncryption from './useEncryption';
+import useUser from './hooks/useUser'
+import useEncryption from './hooks/useEncryption';
 import Button from './components/Button';
+import BLE from './components/BLE';
 
 import {
   StyleSheet,
@@ -67,6 +68,7 @@ const App = () => {
       <View style={styles.containerUserName}>
         <Text style={styles.text}>  Encrypt data : {cipherText}</Text>
       </View>
+      <BLE></BLE>
       <View style={styles.footerContainer}>
           <Button theme="authentication" label="Authentication" userID={userID}/>
           <Button theme="encrypt" label='Encrypt data'/>
@@ -129,5 +131,6 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+
 
 

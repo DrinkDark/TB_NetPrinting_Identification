@@ -1,22 +1,19 @@
-
-import { useState } from 'react'
-import { Alert, PermissionsAndroid} from "react-native";
+import { Alert, PermissionsAndroid, Text} from "react-native";
 import { BleManager, Device } from "react-native-ble-plx";
+
 import base64 from 'react-native-base64'
+import useUser from "../hooks/useUser";
+import { useState } from "react";
+
 type PermissionCallback = (result: boolean) => void;
 
 const bleManager = new BleManager();
 
-
 const CARD_ID_UUID_CHARAC = '495f449c-fc60-4048-b53e-bdb3046d4495';
-
 const CARD_ID_UUID_SERVICE = '5a44c004-4112-4274-880e-cd9b3daedf8e';
 
-interface BluetoothlowEnergyApi {
-    requestPermissions(callback: PermissionCallback): Promise<void>;
-}
-
-function useBle(): BluetoothlowEnergyApi{
+const useBLE = () => {
+    //const user = useUser();
     var connectedDevice: Device;
 
     const requestPermissions = async (callback: PermissionCallback) => {
@@ -92,16 +89,18 @@ function useBle(): BluetoothlowEnergyApi{
           
       };
 
-    return {
+    /*return {
         requestPermissions,
         scanForDevices,
-    } ;
-}
+    };*/
+    return (
+        <Text>Hello world ! </Text>
+   );
+};
 
 function requestMultiple(arg0: any[]): any {
     throw new Error("Function not implemented.");
 }
 
-
-export default useBle;
+export default useBLE;
 
