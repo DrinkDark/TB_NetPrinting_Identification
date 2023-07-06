@@ -33,8 +33,6 @@ bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int M
     CardDataBitCnt = MIN(IDBitCnt,sizeof(CardData)*8);
     CopyBits(CardData,0,ID,0,CardDataBitCnt);
 
-	// Modify card data (do not modify, just copy)
-
   	// Convert data to ASCII
     ConvertBinaryToString(CardData,0,CardDataBitCnt,CardString,16,(CardDataBitCnt+7)/8*2,MaxCardStringLen);
     return true;
@@ -96,22 +94,23 @@ int main(void)
     //------------------------------------------------------------------------------------
     //---------------------------------  BLE INIT  ---------------------------------------
     TBLEConfig BLEConfig =  {
-        .ConnectTimeout = 10000;   //Timout of an established connection in milliseconds
-        .Power = 40;               //TX power : 0 to 80 (0.0dBm to 8.0dBm)
-        .BondableMode = 0x00;      //Bonding : 0 = off, 1 = on
-        .AdvInterval = 200;        //Advertisement interval : values 20ms to 10240ms
-        .ChannelMap = 0x07;        //Advertisement Bluetooth channels : 7 = CH37 + CH38 + CH39
-        .DiscoverMode = 0x02;      //Discoverable Mode : 2 = LE_GAP_GENERAL_DISCOVERABLE
-        .ConnectMode = 0x02;       //Connectable mode : 2 = LE_GAP_CONNECTABLE_SCANNABLE
-        .SecurityFlags = 0x00;     //Security requirement bitmask : Bit 0 = 0 Allow bonding without MITM protection, Bit 1 = 0 Allow encryption without bonding
-        .IOCapabilities = 0x04;    //Security Management related I/O capabilities : 4 = keyboard / display
-        .Passkey = 0x00000000;     //Passkey if security is configured
-    }
-  
+        .ConnectTimeout = 10000,   //Timout of an established connection in milliseconds
+        .Power = 40,               //TX power : 0 to 80 (0.0dBm to 8.0dBm)
+        .BondableMode = 0x00,      //Bonding : 0 = off, 1 = on
+        .AdvInterval = 200,        //Advertisement interval : values 20ms to 10240ms
+        .ChannelMap = 0x07,        //Advertisement Bluetooth channels : 7 = CH37 + CH38 + CH39
+        .DiscoverMode = 0x02,      //Discoverable Mode : 2 = LE_GAP_GENERAL_DISCOVERABLE
+        .ConnectMode = 0x02,       //Connectable mode : 2 = LE_GAP_CONNECTABLE_SCANNABLE
+        .SecurityFlags = 0x00,     //Security requirement bitmask : Bit 0 = 0 Allow bonding without MITM protection, Bit 1 = 0 Allow encryption without bonding
+        .IOCapabilities = 0x04,    //Security Management related I/O capabilities : 4 = keyboard / display
+        .Passkey = 0x00000000,      //Passkey if security is configured
+    };
 
     BLEPresetConfig(&BLEConfig);
 
-    BLEInit(0);     //Init BLE with BLE preset config
+    BLEInit(BLE_MODE_CUSTOM);  
+
+    BLESecurity(BLE_SM_CONFIGURE, (int) 0b00000000, 3);
 
     //------------------------------------------------------------------------------------
     //------------------------------  CRYPTO INIT  ---------------------------------------
@@ -140,8 +139,11 @@ int main(void)
         int attrHandle;
         int attrStatusFlag;
         int attrConfigFlag;
+
         byte receivedUserData[200];
         int receivedUserDataLength;
+
+        int HostChannel = CHANNEL_BLE;
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
@@ -175,7 +177,7 @@ int main(void)
 
         //------------------------------------------------------------------------------------
         //-------------------------------  BLE IDENTIFICATION  -------------------------------
-
+        
         switch(BLECheckEvent()) {
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
                 //HostWriteString("Attribute changed");
@@ -209,6 +211,7 @@ int main(void)
                 //HostWriteString("\r");
                 LEDOff(GREENLED);
                 LEDBlink(REDLED,200,200);
+
                 Beep(50, 1500, 100, 100);
                 Beep(50, 1500, 100, 100);
                 break;
@@ -218,6 +221,7 @@ int main(void)
                 //HostWriteString("\r");  
                 LEDOff(REDLED);
                 LEDOn(GREENLED);
+
                 Beep(50, 800, 500, 100);
                 break;
 
