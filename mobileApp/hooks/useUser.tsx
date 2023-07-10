@@ -13,12 +13,12 @@ const useUser = () => {
     if (userName !== '') {
       axios.get(`http://${ipAddress}:8080/userExists?userName=${userName}`)
         .then(response => {
-          if(response.data){
+          if(response.data.userExists){
             axios.get(`http://${ipAddress}:8080/getUserID?userName=${userName}`)
             .then(response => {
-              setUserID(response.data);
-              BLE.setUserID(response.data);
-              console.log('UserID : ' + response.data);
+              setUserID(response.data.userID);
+              BLE.setUserID(response.data.userID);
+              console.log('UserID : ' + response.data.userID);
             })
             .catch(error => {
               console.error(error);

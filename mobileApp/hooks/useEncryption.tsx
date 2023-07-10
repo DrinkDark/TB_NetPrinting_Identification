@@ -16,8 +16,8 @@ const useEncryption = () => {
     if (plainText.length === 32) {
       axios.get(`http://${ipAddress}:8080/getEncryptData?data=${plainText}`)
       .then(response => {
-        setCipherText(response.data);
-        console.log('Cipher text : ' + response.data);
+        setCipherText(response.data.encryptData);
+        console.log('Cipher text : ' + response.data.encryptData);
       })
       .catch(error => {
         console.error(error);
@@ -30,8 +30,8 @@ const useEncryption = () => {
     if (cipherText.length === 32) {
       axios.get(`http://${ipAddress}:8080/getDecryptData?data=${cipherText}`)
       .then(response => {
-        setPlainText((response.data));
-        console.log('Plain text : ' + response.data);
+        setPlainText((response.data.decryptData));
+        console.log('Plain text : ' + response.data.decryptData);
       })
       .catch(error => {
         console.error(error);
