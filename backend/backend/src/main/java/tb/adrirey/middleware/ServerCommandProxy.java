@@ -1,4 +1,4 @@
-package tb.adrirey.backend;
+package tb.adrirey.middleware;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
