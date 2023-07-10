@@ -195,8 +195,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginBottom: 6,
         textDecorationLine: 'underline',
-        textAlign: 'center', // Center text horizontally
-    
     },
     buttonContainer: {
         width: 320,

@@ -6,9 +6,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import useUser from './hooks/useUser'
 //import useEncryption from './hooks/useEncryption';
-import Button from './components/Button';
 import BLE from './components/BLE';
 
 import {
@@ -16,27 +14,19 @@ import {
   Text,
   useColorScheme,
   View,
-  LogBox,
-  TextInput,
   ScrollView,
-  Switch,
-
 } from 'react-native';
 
 import {
   Colors,
 
 } from 'react-native/Libraries/NewAppScreen';
+import User from './components/User';
 
 const App = () => {
   //const [plainText, cipherText, encryptData, decryptData] = useEncryption();
-  const [userName, onChangeUserName, userID] = useUser();
 
   const scrollViewRef = useRef();
-
-  const scrollToInput = () => {
-    scrollViewRef.current.scrollToEnd({ animated: true });
-  };
 
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -46,24 +36,10 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-    <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollViewContent}>
         <View>
           <Text style={styles.title}>NetPrinting identification</Text>
         </View>
-        <View style={styles.containerUserName}>
-          <Text style={styles.text}>  User name : </Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={onChangeUserName}
-            value={userName}
-            placeholder="Enter user name"
-            keyboardType="default"
-          />
-        </View>
-        <View style={styles.containerUserName}>
-          <Text style={styles.text}>  User ID : {userID}</Text>
-        </View>
-      </ScrollView>
+      <User></User>
       <BLE></BLE>
         <View>
           <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
@@ -78,27 +54,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  containerUserName: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: 'gray',  
-    marginTop: 35,  
-  },
   title: {
-    fontSize: 34,
+    fontSize: 32,
     textDecorationLine: 'underline',
-    marginTop: 10,
+    marginTop: 20,
     fontWeight: 'bold',
   },
   text: {
     fontSize: 24,
     marginBottom: 6,
-  },
-  input: {
-    height: 40,
-    fontSize: 20,
-    padding: 10,
-    marginTop: 2,
   },
   credit: {
     fontSize: 12,
@@ -107,16 +71,6 @@ const styles = StyleSheet.create({
     marginTop:10,
     marginBottom: 20,
   },
-  containerSwitch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerContainer: {
-    marginTop: 80,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  }
 });
 
 export default App;
