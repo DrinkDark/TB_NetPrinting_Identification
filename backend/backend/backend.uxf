@@ -1,0 +1,34 @@
+<diagram program="umletino" version="15.1"><zoom_level>11</zoom_level><element><id>UMLClass</id><coordinates><x>396</x><y>99</y><w>220</w><h>77</h></coordinates><panel_attributes>MiddlewareApplication
+--
++ restC : RESTController
+--
++ main(args : String[]) . void
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>264</x><y>539</y><w>484</w><h>154</h></coordinates><panel_attributes>ServerCommandProxy
+--
+- xmlRpcClient : final XmlRpcClient
+- _authToken : final String
+--
++ ServerCommandProxy(server : String, port : int, authToken : String) : void
++ getUserAccountBalance(userName : String) : double
++ getUserProperty(userName : String, propertyName: String) : String
++ isUserExists(userName : String) : Boolean
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>363</x><y>242</y><w>286</w><h>198</h></coordinates><panel_attributes>RESTController
+--
+- scp : ServerCommandProxy
+- key : byte[]
+- aesMasterKey : Key
+--
++ RESTController()
++ getUserID(userName : String) : String
++ userExists(userName : String) : Boolean
++ getUserCredit(userName : String) : String
++ aesEncryptedData(data: String) : String
++ aesDecryptedData(data: String) : String
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>495</x><y>165</y><w>66</w><h>99</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+restC</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>495</x><y>429</y><w>55</w><h>132</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+scp</panel_attributes><additional_attributes>10;10;10;100</additional_attributes></element><element><id>UMLNote</id><coordinates><x>583</x><y>484</y><w>165</w><h>44</h></coordinates><panel_attributes>bg=yellow
+only the used methods 
+are shown</panel_attributes><additional_attributes></additional_attributes></element></diagram>

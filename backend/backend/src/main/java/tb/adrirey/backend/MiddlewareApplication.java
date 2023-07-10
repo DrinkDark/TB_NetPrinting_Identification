@@ -7,11 +7,11 @@ import java.net.SocketException;
 
 
 @SpringBootApplication
-public class BackendApplication {
+public class MiddlewareApplication {
 
 	public static void main(String[] args) throws SocketException {
-		RESTController c = new RESTController();
-		SpringApplication.run(BackendApplication.class, args);
+		RESTController restC = new RESTController();
+		SpringApplication.run(MiddlewareApplication.class, args);
 	}
 
 

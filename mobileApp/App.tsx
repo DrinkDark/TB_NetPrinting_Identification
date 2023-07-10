@@ -7,7 +7,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import useUser from './hooks/useUser'
-import useEncryption from './hooks/useEncryption';
+//import useEncryption from './hooks/useEncryption';
 import Button from './components/Button';
 import BLE from './components/BLE';
 
@@ -29,7 +29,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 const App = () => {
-  const [plainText, cipherText, encryptData, decryptData] = useEncryption();
+  //const [plainText, cipherText, encryptData, decryptData] = useEncryption();
   const [userName, onChangeUserName, userID] = useUser();
 
   const scrollViewRef = useRef();
@@ -63,11 +63,11 @@ const App = () => {
         <View style={styles.containerUserName}>
           <Text style={styles.text}>  User ID : {userID}</Text>
         </View>
-        <BLE></BLE>
+      </ScrollView>
+      <BLE></BLE>
         <View>
           <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
         </View>
-      </ScrollView>
     </View>
   );
 };
@@ -105,11 +105,11 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'center',
     marginTop:10,
+    marginBottom: 20,
   },
   containerSwitch: {
     flexDirection: 'row',
     alignItems: 'center',
-
     marginTop: 20,
   },
   footerContainer: {

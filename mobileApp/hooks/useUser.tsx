@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import BLE from '../components/BLE';
 
-const ipAddress = '10.93.11.8';
+const ipAddress = '10.93.9.38'; //network card wifi
 
 const useUser = () => {
   const [userName, setUserName] = useState('');
@@ -11,10 +11,10 @@ const useUser = () => {
 
   useEffect(() => {
     if (userName !== '') {
-      axios.get(`http://${ipAddress}:8080/userExist?data=${userName}`)
+      axios.get(`http://${ipAddress}:8080/userExists?userName=${userName}`)
         .then(response => {
           if(response.data){
-            axios.get(`http://${ipAddress}:8080/getUserID?data=${userName}`)
+            axios.get(`http://${ipAddress}:8080/getUserID?userName=${userName}`)
             .then(response => {
               setUserID(response.data);
               BLE.setUserID(response.data);
@@ -26,6 +26,9 @@ const useUser = () => {
           } else {
             setUserID('');
           }
+        })
+        .catch(error => {
+          console.error(error);
         });
     }
   }, [userName]);

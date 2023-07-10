@@ -22,7 +22,7 @@
 + buttonSize : dimension
 --
 + GUI(scp : ServerCommandProxy) : void
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>275</x><y>286</y><w>99</w><h>110</h></coordinates><panel_attributes>lt=.&gt;
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>275</x><y>286</y><w>88</w><h>110</h></coordinates><panel_attributes>lt=.&gt;
 &lt;&lt;extends&gt;&gt;</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>231</x><y>374</y><w>110</w><h>33</h></coordinates><panel_attributes>JFrame</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>407</x><y>165</y><w>275</w><h>44</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
 gui</panel_attributes><additional_attributes>230;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>770</x><y>198</y><w>55</w><h>143</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
 scp</panel_attributes><additional_attributes>10;10;10;110</additional_attributes></element><element><id>UMLNote</id><coordinates><x>902</x><y>264</y><w>165</w><h>44</h></coordinates><panel_attributes>bg=yellow
