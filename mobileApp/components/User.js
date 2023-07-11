@@ -13,17 +13,6 @@ import useUser from '../hooks/useUser'
 const User = () => {
     const [userName, onChangeUserName, userID, users] = useUser();
 
-    const Item = ({ title }) => (
-        <Pressable
-          style={[
-            styles.itemSelected,
-          ]}
-          onPress={() => onChangeUserName(title)}
-        >
-          <Text style={styles.itemText}>{title}</Text>
-        </Pressable>
-      );
-
       const handlePress = (user) => {
         if (userName === user) {
             onChangeUserName(null);
@@ -46,9 +35,10 @@ const User = () => {
 
     return (
         <><View style={styles.container}>
-            <View>
-                <Text style={styles.itemTitle}>Users : </Text>
-            </View>
+          <View>
+              <Text style={styles.itemTitle}>Users : </Text>
+          </View>
+          <View style={styles.containerFlatlist}>
             <FlatList
                 horizontal={true}
                 data={users}
@@ -56,9 +46,10 @@ const User = () => {
                 keyExtractor={item => item}
                 extraData={userName}
             />
-        <Text style={styles.text}>
-        User ID : {userID ? userID : 'Select a user !'}
-      </Text>
+            <Text style={styles.text}>
+              User ID : {userID ? userID : 'Select a user !'}
+            </Text>
+          </View> 
         </View>
         </>
   );
@@ -66,48 +57,52 @@ const User = () => {
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 0.28,
-        marginLeft: 15,
-        marginRight: 15,
-        marginTop: 15,
-    }, 
-    title: {
-        fontSize: 34,
-        textDecorationLine: 'underline',
-        marginTop: 10,
-        marginBottom: 10,
-        fontWeight: 'bold',
-    },
-    text: {
-        fontSize: 20,
-        marginBottom: 6,
-        marginTop: 10,
-    },
-    item: {
-        padding: 10,
-        backgroundColor: '#404040',
-        marginHorizontal: 5,
-        marginTop: 10,
-        borderRadius: 10,
-    },
-    itemSelected: {
-        padding: 10,
-        backgroundColor: '#90ad73',
-        marginHorizontal: 5,
-        marginTop: 10,
-        borderRadius: 10,
-    },
-    itemText: {
-        color: '#fff',
-        fontSize: 16,
-        marginHorizontal: 15,
-    },
-    itemTitle: {
-        color: '#fff',
-        fontSize: 22,
-        fontWeight: 'bold',
-    },
+  container: {
+      flex: 0.6,
+      marginLeft: 15,
+      marginRight: 15,
+      marginTop: 15,
+  }, 
+  title: {
+      fontSize: 34,
+      textDecorationLine: 'underline',
+      marginTop: 10,
+      marginBottom: 10,
+      fontWeight: 'bold',
+  },
+  text: {
+      fontSize: 20,
+
+  },
+  containerFlatlist: {
+    flex: 1,
+  }, 
+  item: {
+      padding: 10,
+      backgroundColor: '#404040',
+      marginHorizontal: 5,
+      marginTop: 10,
+      borderRadius: 10,
+      height: 45,
+  },
+  itemSelected: {
+      padding: 10,
+      backgroundColor: '#90ad73',
+      marginHorizontal: 5,
+      marginTop: 10,
+      borderRadius: 10,
+      height: 45,
+  },
+  itemText: {
+      color: '#fff',
+      fontSize: 16,
+      marginHorizontal: 15,
+  },
+  itemTitle: {
+      color: '#fff',
+      fontSize: 22,
+      fontWeight: 'bold',
+  },
 });
 
 export default User;

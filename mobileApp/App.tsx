@@ -36,14 +36,14 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-        <View>
-          <Text style={styles.title}>NetPrinting identification</Text>
-        </View>
+      <View>
+        <Text style={styles.title}>NetPrinting identification</Text>
+      </View>
       <User></User>
       <BLE></BLE>
-        <View>
-          <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
-        </View>
+      <View>
+        <Text style={styles.credit}>Test application for netPrinting identification{'\n'} HEI Sion - Adrien Rey</Text>
+      </View>
     </View>
   );
 };
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     textAlign: 'center',
-    marginTop:10,
-    marginBottom: 20,
+    marginTop: 15,
+    marginBottom: 30,
   },
 });
 

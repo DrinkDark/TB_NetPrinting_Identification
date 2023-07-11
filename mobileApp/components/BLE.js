@@ -77,7 +77,7 @@ const BLE = () => {
     scanForDevices = () => {
         if(userID !== ''){
             console.log("Start scanning...");
-            setPrintedText('Scanning...');
+            setPrintedText('Discovering ...');
     
             bleManager.startDeviceScan(null, null, (error, device) => {
                 if(error) {
@@ -140,25 +140,25 @@ const BLE = () => {
         } catch (e) {
             console.log('FAILED TO DISCONNECT :', e);
         }    
-    };
+    };          
 
-    const Item = ({title}) => (
-        <View style={styles.item}>
+    const Item = ({title, id}) => (
+        <View style={[styles.item, discoveredDeviceList[0].id == id && styles.itemSelected]}>
           <Text style={styles.itemText}>{title}</Text>
         </View>
     );
 
     return (
         <><View style={styles.container}>
-        <FlatList
-            ListHeaderComponent={ <Text style={styles.itemTitle}>Discovered devices</Text>}
-            data={discoveredDeviceList}
-            renderItem={({item}) => <Item title={item.name + ' (' + item.id + ')'} />}
-            keyExtractor={item => item.id}
-        />
-        <View>
-         <Text style={styles.text}>{printedText}</Text>
-         </View>
+        <Text style={styles.itemTitle}>{discoveredDeviceList.length === 0 ? null : 'Discovered devices'}</Text>
+        <View style={styles.containerFlatlist}>
+            <FlatList
+                data={discoveredDeviceList}
+                renderItem={({item}) => <Item title={item.name + ' (' + item.id + ')'} id={item.id} />}
+                keyExtractor={item => item.id}
+            />
+        </View>
+       
         <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
             <Pressable
                 style={[styles.button, { backgroundColor: "#fff" }]}
@@ -176,8 +176,11 @@ const BLE = () => {
                 } }>
                 <Text style={[styles.buttonLabel, { color: "#25292e" }]}>{discoveredDeviceList.length === 0 ? 'Discover devices' : 'Connect to ' + discoveredDeviceList[0].name}</Text>
             </Pressable>
+            
         </View>
-
+        <View>
+         <Text style={styles.text}>{printedText}</Text>
+         </View>
      </View></>
     );
 
@@ -191,10 +194,15 @@ export default BLE;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 30,
+        marginBottom: 20,
+
+    }, 
+    containerFlatlist: {
+        flex: 1,
         marginBottom: 20,
     }, 
     item: {
@@ -205,6 +213,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
       },
+    itemSelected: {
+        padding: 8,
+        backgroundColor: '#7390ad',
+        marginBottom: 5,
+        marginVertical: 8,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
     itemText: {
         color: '#fff',
         fontSize: 16,
@@ -240,7 +256,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 16,
-        marginBottom: 15,
-      },
+        marginTop: 10,
+    },
       
 })

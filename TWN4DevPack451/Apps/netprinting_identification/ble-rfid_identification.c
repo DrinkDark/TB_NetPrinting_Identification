@@ -95,7 +95,7 @@ int main(void)
     //---------------------------------  BLE INIT  ---------------------------------------
     TBLEConfig BLEConfig =  {
         .ConnectTimeout = 10000,   //Timout of an established connection in milliseconds
-        .Power = 40,               //TX power : 0 to 80 (0.0dBm to 8.0dBm)
+        .Power = 20,               //TX power : 0 to 80 (0.0dBm to 8.0dBm)
         .BondableMode = 0x00,      //Bonding : 0 = off, 1 = on
         .AdvInterval = 200,        //Advertisement interval : values 20ms to 10240ms
         .ChannelMap = 0x07,        //Advertisement Bluetooth channels : 7 = CH37 + CH38 + CH39
