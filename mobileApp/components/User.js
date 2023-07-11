@@ -24,7 +24,7 @@ const User = () => {
         </Pressable>
       );
 
-      const handleUserPress = (user) => {
+      const handlePress = (user) => {
         if (userName === user) {
             onChangeUserName(null);
         } else {
@@ -38,18 +38,11 @@ const User = () => {
             styles.item,
             userName === item && styles.itemSelected,
           ]}
-          onPress={() => handleUserPress(item)}
+          onPress={() => handlePress(item)}
         >
           <Text style={styles.itemText}>{item}</Text>
         </TouchableOpacity>
       );
-
-      
-    /*const Item = ({title}) => (
-        <View style={styles.item}>
-        <Text style={styles.itemText}>{title}</Text>
-        </View>
-    );*/
 
     return (
         <><View style={styles.container}>

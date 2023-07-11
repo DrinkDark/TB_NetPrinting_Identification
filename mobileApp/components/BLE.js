@@ -17,17 +17,43 @@ const BLE = () => {
     const [discoveredDeviceList, setDiscoveredDeviceList] = useState([]);
 
     const addDevice = (device) => {
-        setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList, device]);
+        setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList, device]);  
+        sortDeviceList();             
     };
 
-    const removeDevice = (deviceId) => {
-        setDiscoveredDeviceList(prevDeviceList => prevDeviceList.filter(device => device.id !== deviceId));
+    const sortDeviceList = () => {
+        setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList].sort((a, b) => b.rssi - a.rssi));
+    }
+
+    const updateDevice = (updatedDevice) => {
+        const updatedDeviceList = discoveredDeviceList.map(device => {
+          if (device.id === updatedDevice.id) {
+            return { ...device, ...updatedDevice };
+          }
+          return device;
+        });
+        setDiscoveredDeviceList(updatedDeviceList);
+        sortDeviceList();
     };
 
     const clearDeviceList = () => {
         setDiscoveredDeviceList([]);
     };
 
+    alreadyDiscover = (device) => {
+        var exist = false;
+
+        for (var i = 0; i < discoveredDeviceList.length; i++) {
+            if (discoveredDeviceList[i].id === device.id) {
+                updateDevice(device);
+                //console.log('Device updated : ', device.name, ' (' , device.id, '), RSSI = ', device.rssi);
+                exist = true;
+                break; 
+            }
+        }
+        return exist;
+    };
+    
     requestPermissions = async () => {
         const grantedStatus = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -48,18 +74,6 @@ const BLE = () => {
         }
     };
 
-    alreadyDiscover = (device) => {
-        var exist = false;
-
-        for (var i = 0; i < discoveredDeviceList.length; i++) {
-            if (discoveredDeviceList[i].id === device.id) {
-                exist = true;
-                break; 
-            }
-        }
-        return exist;
-    };
-
     scanForDevices = () => {
         if(userID !== ''){
             console.log("Start scanning...");
@@ -69,12 +83,11 @@ const BLE = () => {
                 if(error) {
                     console.log('Error scanning for devices : ', error);
                 } 
-                if (device && device.name == "TWN4 BLE"){
+                if (device && device.serviceUUIDs && (device.serviceUUIDs).includes(CARD_ID_UUID_SERVICE)){
                     if(alreadyDiscover(device) === false){
-                        console.log('Device found : ', device.name);
+                        console.log('Device found : ', device.name, ' (' , device.id, '), RSSI = ', device.rssi);
                         addDevice(device);
-                    }
-                    //connectToDevice(device);  
+                    } 
                 }
             });
         } else {
@@ -89,10 +102,10 @@ const BLE = () => {
             const deviceConnection = await bleManager.connectToDevice(device.id);
             setConnectedDevice(deviceConnection);
 
-            setPrintedText(connectedDevice + ' connected (' + connectedDevice + ')');
+            setPrintedText(device.name + ' connected (' + device.id + ')');
             await deviceConnection.discoverAllServicesAndCharacteristics();
 
-            sendValue(connectedDevice);
+            sendValue(device);
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);
         }
@@ -138,27 +151,33 @@ const BLE = () => {
     return (
         <><View style={styles.container}>
         <FlatList
-            ListHeaderComponent={discoveredDeviceList.length > 0 && <Text style={styles.itemTitle}>Discovered devices : </Text>}
+            ListHeaderComponent={ <Text style={styles.itemTitle}>Discovered devices</Text>}
             data={discoveredDeviceList}
             renderItem={({item}) => <Item title={item.name + ' (' + item.id + ')'} />}
             keyExtractor={item => item.id}
         />
+        <View>
+         <Text style={styles.text}>{printedText}</Text>
+         </View>
         <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
             <Pressable
                 style={[styles.button, { backgroundColor: "#fff" }]}
                 onPress={() => {
-                    if(userID !== ''){
-                        requestPermissions();
+                    if(discoveredDeviceList.length === 0) {
+                        if(userID !== ''){
+                            requestPermissions();
+                        } else {
+                            Alert.alert('Select a user !')
+                        }
                     } else {
-                        Alert.alert('Enter a valid user name !')
+                        connectToDevice(discoveredDeviceList[0])
                     }
+                    
                 } }>
-                <Text style={[styles.buttonLabel, { color: "#25292e" }]}>Start scanning</Text>
+                <Text style={[styles.buttonLabel, { color: "#25292e" }]}>{discoveredDeviceList.length === 0 ? 'Discover devices' : 'Connect to ' + discoveredDeviceList[0].name}</Text>
             </Pressable>
         </View>
-         <View>
-         <Text style={styles.text}>{printedText}</Text>
-         </View>
+
      </View></>
     );
 
@@ -175,7 +194,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 30
+        marginTop: 30,
+        marginBottom: 20,
     }, 
     item: {
         padding: 8,
@@ -192,9 +212,8 @@ const styles = StyleSheet.create({
     },
     itemTitle: {
         color: '#fff',
-        fontSize: 20,
-        marginBottom: 6,
-        textDecorationLine: 'underline',
+        fontSize: 22,
+        fontWeight: 'bold',
     },
     buttonContainer: {
         width: 320,
@@ -203,21 +222,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
-      },
-      button: {
+    },
+    button: {
         borderRadius: 10,
         width: '100%',
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
-      },
-      buttonIcon: {
+    },
+    buttonIcon: {
         paddingRight: 8,
-      },
-      buttonLabel: {
+    },
+    buttonLabel: {
         color: '#fff',
         fontSize: 20,
+    },
+    text: {
+        fontSize: 16,
+        marginBottom: 15,
       },
       
 })
