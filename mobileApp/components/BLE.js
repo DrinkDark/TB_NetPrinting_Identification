@@ -74,11 +74,11 @@ const BLE = () => {
         }
     };
 
-    scanForDevices = () => {
+    scanForDevices = async () => {
         if(userID !== ''){
             console.log("Start scanning...");
             setPrintedText('Discovering ...');
-    
+
             bleManager.startDeviceScan(null, null, (error, device) => {
                 if(error) {
                     console.log('Error scanning for devices : ', error);
@@ -87,13 +87,16 @@ const BLE = () => {
                     if(alreadyDiscover(device) === false){
                         console.log('Device found : ', device.name, ' (' , device.id, '), RSSI = ', device.rssi);
                         addDevice(device);
-                    } 
+                    } else if (device.rssi >= -30){
+                        connectToDevice(device);
+                    }
                 }
             });
         } else {
             Alert.alert('Enter a valid user name.');
         }
     };
+
 
     connectToDevice = async (device) => {
         try {
@@ -106,6 +109,7 @@ const BLE = () => {
             await deviceConnection.discoverAllServicesAndCharacteristics();
 
             sendValue(device);
+            
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);
         }
@@ -163,18 +167,13 @@ const BLE = () => {
             <Pressable
                 style={[styles.button, { backgroundColor: "#fff" }]}
                 onPress={() => {
-                    if(discoveredDeviceList.length === 0) {
-                        if(userID !== ''){
-                            requestPermissions();
-                        } else {
-                            Alert.alert('Select a user !')
-                        }
+                    if(userID !== ''){
+                        requestPermissions();
                     } else {
-                        connectToDevice(discoveredDeviceList[0])
+                        Alert.alert('Select a user !')
                     }
-                    
                 } }>
-                <Text style={[styles.buttonLabel, { color: "#25292e" }]}>{discoveredDeviceList.length === 0 ? 'Discover devices' : 'Connect to ' + discoveredDeviceList[0].name}</Text>
+                <Text style={[styles.buttonLabel, { color: "#25292e" }]}>{'Discover devices' }</Text>
             </Pressable>
             
         </View>

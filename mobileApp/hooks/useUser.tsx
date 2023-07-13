@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import BLE from '../components/BLE';
-
-const ipAddress = '10.93.9.38'; //network card wifi
+//10.93.9.38
+const ipAddress = '192.168.137.1'; //network card wifi
 
 const useUser = () => {
   const [userName, setUserName] = useState('');
