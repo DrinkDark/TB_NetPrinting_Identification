@@ -123,9 +123,6 @@ int main(void)
     byte plainText[16];
     byte cypherText[16];
 
-    Encrypt(CRYPTO_ENV0, (const) &plainText, &cypherText, sizeof(cypherText));
-    BLESetGattServerAttributeValue(34, 0, &cypherText, sizeof(cypherText));
-
     while (true)
     {
         //------------------------------------------------------------------------------------

@@ -87,7 +87,7 @@ const BLE = () => {
                     if(alreadyDiscover(device) === false){
                         console.log('Device found : ', device.name, ' (' , device.id, '), RSSI = ', device.rssi);
                         addDevice(device);
-                    } else if (device.rssi >= -30){
+                    } else if (device.rssi >= -35){
                         connectToDevice(device);
                     }
                 }
@@ -162,7 +162,9 @@ const BLE = () => {
                 keyExtractor={item => item.id}
             />
         </View>
-       
+        <View>
+         <Text style={styles.message}>{discoveredDeviceList.length === 0 ? null : 'Approach the smartphone to the reader.'}</Text>
+         </View>
         <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
             <Pressable
                 style={[styles.button, { backgroundColor: "#fff" }]}
@@ -256,6 +258,11 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 16,
         marginTop: 10,
+    },
+    message: {
+        fontSize: 18,
+        marginTop: 10,
+        marginBottom: 15,
     },
       
 })

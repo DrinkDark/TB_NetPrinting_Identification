@@ -23,6 +23,7 @@ public class RESTController {
 
     private byte[] key = {(byte) 0xbf, (byte) 0xc1, (byte) 0xc1, (byte) 0x8b, (byte) 0x3c, (byte) 0x60, (byte) 0x50, (byte) 0x2a,
                           (byte) 0x4f, (byte) 0x08, (byte) 0xdf, (byte) 0xb6, (byte) 0xe0, (byte) 0xd9, (byte) 0xd1, (byte) 0x1f};
+
     private final Key aesMasterKey = new SecretKeySpec(key, "AES");
 
     public RESTController() {
