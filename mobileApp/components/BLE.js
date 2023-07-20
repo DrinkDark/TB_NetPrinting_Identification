@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Alert,Text, View, StyleSheet,PermissionsAndroid, Pressable, FlatList} from 'react-native';
-import { BleManager, Device } from "react-native-ble-plx";
+
+import { BleManager, Characteristic, Device } from "react-native-ble-plx";
+
+import { Buffer } from 'buffer';
 
 import base64 from 'react-native-base64'
 
@@ -15,6 +18,7 @@ const BLE = () => {
     const [printedText, setPrintedText] = useState('');
     const [connectedDevice, setConnectedDevice] = useState();
     const [discoveredDeviceList, setDiscoveredDeviceList] = useState([]);
+    const [modifiedCharac, setModifiedCharac] = useState('');
 
     const addDevice = (device) => {
         setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList, device]);  
@@ -54,6 +58,24 @@ const BLE = () => {
         return exist;
     };
     
+    const onNotificationReceived = (
+        error: BleError | null,
+        characteristic: Characteristic | null,
+      ) => {
+        if (error) {
+            console.log('Error notification (charachteristic : ' + characteristic.uuid + ')');
+            console.log(error);
+            return -1;
+        } else if (!characteristic?.value) {
+            console.log('Notification (charachteristic : ' + characteristic.uuid + ') received with no data');
+            return -1;
+        } else {
+            console.log('Notification received (charachteristic : ' + characteristic.uuid + ') : ' + Buffer.from(characteristic.value, 'base64').toString('hex'));
+            setModifiedCharac(Buffer.from(characteristic.value, 'base64').toString('hex'));
+        }
+    
+      };
+
     requestPermissions = async () => {
         const grantedStatus = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -108,7 +130,11 @@ const BLE = () => {
             setPrintedText(device.name + ' connected (' + device.id + ')');
             await deviceConnection.discoverAllServicesAndCharacteristics();
 
-            sendValue(device);
+            console.log('Enable monitor notification.');
+            await device.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
+
+            //disconnectFromDevice(device);
+            //sendValue(device);
             
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);
@@ -161,10 +187,13 @@ const BLE = () => {
                 renderItem={({item}) => <Item title={item.name + ' (' + item.id + ')'} id={item.id} />}
                 keyExtractor={item => item.id}
             />
+        </View>    
+        <View>
+         <Text style={styles.message}>{modifiedCharac === null ? null : modifiedCharac}</Text>
         </View>
         <View>
          <Text style={styles.message}>{discoveredDeviceList.length === 0 ? null : 'Approach the smartphone to the reader.'}</Text>
-         </View>
+        </View>
         <View style={[styles.buttonContainer, { borderWidth: 4, borderColor: "#ffd33d", borderRadius: 18 }]}>
             <Pressable
                 style={[styles.button, { backgroundColor: "#fff" }]}

@@ -123,6 +123,7 @@ int main(void)
     byte plainText[16];
     byte cypherText[16];
 
+
     while (true)
     {
         //------------------------------------------------------------------------------------
@@ -141,6 +142,9 @@ int main(void)
         int receivedUserDataLength;
 
         int HostChannel = CHANNEL_BLE;
+
+        const byte data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
+                0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00};
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
@@ -164,6 +168,11 @@ int main(void)
 			   	StartTimer(CARDTIMEOUT);
 			}
 			OnCardDone();
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            attrHandle = 34 + (int)(0b1000000000000000);
+            BLESetGattServerAttributeValue(attrHandle, 0, &data, sizeof(data));
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	    }
     	
         if (TestTimer())
