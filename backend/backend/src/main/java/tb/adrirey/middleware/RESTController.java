@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 import static org.apache.tomcat.util.buf.HexUtils.toHexString;
 
@@ -77,6 +78,16 @@ public class RESTController {
         byte plainText[] = Hex.decodeHex(data.toCharArray());
         byte cipherText[] =  cipher.doFinal(plainText);
         DecryptedData response = new DecryptedData(toHexString(cipherText));
+        return ResponseEntity.ok(response);
+    }
+
+    //get a random 16bit number
+    @RequestMapping(method = RequestMethod.GET, path ="/getRandNum")
+    public ResponseEntity<RandNum> getRandNum() {
+        SecureRandom sr = new SecureRandom();
+        byte[] rndBytes = new byte[16];
+
+        RandNum response = new RandNum(toHexString(rndBytes));
         return ResponseEntity.ok(response);
     }
 }
