@@ -1,3 +1,4 @@
+
 #include "twn4.sys.h"
 #include "apptools.h"
 
@@ -24,7 +25,7 @@
 #define SEARCH_BLE(a,b,c,d)		false
 #define BLE_MASK				0
 
-
+//Read the card value from the readed card
 bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int MaxCardStringLen)
 {
 	// Select data from card (take any ID from any transponder)
@@ -38,6 +39,7 @@ bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int M
     return true;
 }
 
+//Startup fonction for the card reader
 void OnStartup(void)
 {
     LEDInit(REDLED | GREENLED);
@@ -49,6 +51,7 @@ void OnStartup(void)
     BeepHigh();
 }
 
+//New card found
 void OnNewCardFound(const char *CardString)
 {
 	// Send card string including prefix (actually no prefix) and suffix ("\r")
@@ -108,21 +111,20 @@ int main(void)
 
     BLEPresetConfig(&BLEConfig);
 
-    BLEInit(BLE_MODE_CUSTOM);  
-
-    BLESecurity(BLE_SM_CONFIGURE, (int) 0b00000000, 3);
+    BLEInit(BLE_MODE_CUSTOM);   //BLE_MODE_CUSTOM use BLEPresetConfig param
 
     //------------------------------------------------------------------------------------
     //------------------------------  CRYPTO INIT  ---------------------------------------
-    
     const byte aesKey[] = {0xbf, 0xc1, 0xc1, 0x8b, 0x3c, 0x60, 0x50, 
-        0x2a, 0x4f, 0x08, 0xdf, 0xb6, 0xe0, 0xd9, 0xd1, 0x1f};
+        0x2a, 0x4f, 0x08, 0xdf, 0xb6, 0xe0, 0xd9, 0xd1, 0x1f};          //Shared 128 bits AES shared key 
 
-    Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));
+    const byte data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,      
+            0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00};      //Data to send (to be remplace by a random number)
+
+    Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));   //Enable encryption initialisation with CRYPTO_ENV0 for init vector, CBC-AES128 encryption and the key
 
     byte plainText[16];
     byte cypherText[16];
-
 
     while (true)
     {
@@ -142,9 +144,6 @@ int main(void)
         int receivedUserDataLength;
 
         int HostChannel = CHANNEL_BLE;
-
-        const byte data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
-                0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00};
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
@@ -184,23 +183,48 @@ int main(void)
         //------------------------------------------------------------------------------------
         //-------------------------------  BLE IDENTIFICATION  -------------------------------
         
+        //Check all the BLE events. Only the needed case are implemented. 
         switch(BLECheckEvent()) {
+
+            //Device connected to the card reader
+            case BLE_EVENT_CONNECTION_OPENED :
+                //HostWriteString("Device connected");
+                //HostWriteString("\r");
+                LEDOff(GREENLED);
+                LEDBlink(REDLED,200,200);
+
+                Beep(50, 1500, 100, 100);
+                Beep(50, 1500, 100, 100);
+                break;
+            
+            //Device disconnected from the card reader
+            case BLE_EVENT_CONNECTION_CLOSED :
+                //HostWriteString("Device disconnected");
+                //HostWriteString("\r");  
+                LEDOff(REDLED);
+                LEDOn(GREENLED);
+
+                Beep(50, 800, 500, 100);
+                break;  
+
+            //Characteristic modified in the GATT server
+            //Get the attribute handle of the 
             case BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE :
                 //HostWriteString("Attribute changed");
                 //HostWriteString("\r");
 
-                //Get attribute handle of the modified value
+                //Get attribute handle of the modified characteristic
                 BLEGetGattServerCharacteristicStatus(&attrHandle, &attrStatusFlag, &attrConfigFlag);
 
-                //Attribute handle bit 15 set to 1 = BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE
+                //Attribute handle bit 15 have to be set to 1 when event BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE
                 attrHandle += (int)(0b1000000000000000);   
                 
-                //Read the modified value based on the read handle attribute
+                //Read the modified value based on the read attribute handle
                 if(BLEGetGattServerAttributeValue(attrHandle, &receivedUserData, &receivedUserDataLength, 200)){
                     //HostWriteString("Characteristic value read");
                     //HostWriteString("\r");
 
-                    //Print read value on the output
+                    //Print read value on the output byte by byte 
                     for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
                         HostWriteByte(receivedUserData[j]);
                     }
@@ -212,30 +236,7 @@ int main(void)
 
             break;
 
-            case BLE_EVENT_CONNECTION_OPENED :
-                //HostWriteString("Device connected");
-                //HostWriteString("\r");
-                LEDOff(GREENLED);
-                LEDBlink(REDLED,200,200);
-
-                Beep(50, 1500, 100, 100);
-                Beep(50, 1500, 100, 100);
-                break;
-            
-            case BLE_EVENT_CONNECTION_CLOSED :
-                //HostWriteString("Device disconnected");
-                //HostWriteString("\r");  
-                LEDOff(REDLED);
-                LEDOn(GREENLED);
-
-                Beep(50, 800, 500, 100);
-                break;
-
-            /*case BLE_EVENT_SM_PASSKEY_REQUEST :
-                HostWriteString("Passkey request");
-                HostWriteString("\r");  
-            break;*/
-        
+                  
         }
     }
 }

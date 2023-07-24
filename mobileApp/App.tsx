@@ -1,10 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React, { useEffect, useRef, useState } from 'react';
 //import useEncryption from './hooks/useEncryption';
 import BLE from './components/BLE';

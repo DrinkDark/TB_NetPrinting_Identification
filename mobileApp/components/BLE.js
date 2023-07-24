@@ -5,21 +5,42 @@ import { BleManager, Characteristic, Device } from "react-native-ble-plx";
 
 import { Buffer } from 'buffer';
 
+import axios from 'axios';
+
 import base64 from 'react-native-base64'
 
 const bleManager = new BleManager();
+
+const ipAddress = '192.168.137.1';
 
 const CARD_ID_UUID_CHARAC = '495f449c-fc60-4048-b53e-bdb3046d4495';
 const CARD_ID_UUID_SERVICE = '5a44c004-4112-4274-880e-cd9b3daedf8e';
 
 var userID = '';
 
+const Status = {
+    NoAuthentication: 'NoAuthentication',
+    DeviceAuthentication: 'DeviceAuthentication',
+    WaitDeviceAuthentication: 'WaitDeviceAuthentication',
+    DeviceAuthenticate: 'DeviceAuthenticate',
+    WaitDeviceRandNum: 'WaitDeviceRandNum',
+    AppAuthentication: 'AppAuthentication',
+    WaitAppAuthentication: 'WaitAppAuthentication',
+    AppAuthenticate: 'AppAuthenticate',
+    Identification: 'Identification',
+    Authenticate: 'Authenticate',
+    AuthFailed: 'AuthFailed'
+  };
+
+var status = Status.NoAuthentication;
+
 const BLE = () => {
     const [printedText, setPrintedText] = useState('');
     const [connectedDevice, setConnectedDevice] = useState();
     const [discoveredDeviceList, setDiscoveredDeviceList] = useState([]);
     const [modifiedCharac, setModifiedCharac] = useState('');
-
+    const [randNum, setRandNum] = useState('');
+    
     const addDevice = (device) => {
         setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList, device]);  
         sortDeviceList();             
@@ -72,6 +93,23 @@ const BLE = () => {
         } else {
             console.log('Notification received (charachteristic : ' + characteristic.uuid + ') : ' + Buffer.from(characteristic.value, 'base64').toString('hex'));
             setModifiedCharac(Buffer.from(characteristic.value, 'base64').toString('hex'));
+
+            switch(status) {
+                case Status.WaitDeviceAuthentication:
+                    status = Status.DeviceAuthentication;
+                break;
+
+                case Status.WaitDeviceRandNum:
+                    status = Status.AppAuthentication;
+                    break;
+    
+                case Status.WaitAppAuthentication:
+                    status = Status.AppAuthenticate;
+                    break;
+
+                default:
+                    break;
+            }
         }
     
       };
@@ -97,7 +135,7 @@ const BLE = () => {
     };
 
     scanForDevices = async () => {
-        if(userID !== ''){
+        if(userID !== '' && status === Status.NoAuthentication){
             console.log("Start scanning...");
             setPrintedText('Discovering ...');
 
@@ -119,44 +157,147 @@ const BLE = () => {
         }
     };
 
-
     connectToDevice = async (device) => {
         try {
             bleManager.stopDeviceScan();
             console.log('Stop scanning.');
             const deviceConnection = await bleManager.connectToDevice(device.id);
-            setConnectedDevice(deviceConnection);
+            setConnectedDevice(device);
 
             setPrintedText(device.name + ' connected (' + device.id + ')');
-            await deviceConnection.discoverAllServicesAndCharacteristics();
+            await device.discoverAllServicesAndCharacteristics();
 
             console.log('Enable monitor notification.');
             await device.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
 
-            //disconnectFromDevice(device);
-            //sendValue(device);
+            authenticationControler(device);  
             
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);
         }
     };
 
-    const sendValue = async (device) => {
+    const getRandomNum = async(device) => {
         try {
-            const response = await bleManager.writeCharacteristicWithResponseForDevice(device.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(userID.toString()));
-            if(userID.toString() === base64.decode(response.value).toString()) {
-                console.log('Value send : ', userID);
-                Alert.alert('User ID successfully sent to the card reader !');
+            const response = await axios.get(`http://${ipAddress}:8080/getRandNum`);
+            const randNum = response.data.randNum;
+            setRandNum(randNum);
+            console.log('App random number: ' + randNum);
+
+            return randNum;
+        } catch (error) {
+            console.error(error);
+            return null; // Return null or handle the error appropriately
+        }
+    };
+
+    const getDecryptedData = (data) => {
+        axios.get(`http://${ipAddress}:8080/getDecryptedData?data=${modifiedCharac}`)
+        .then(response => {
+            console.log('Decrypted random number : ' + response.data.decryptedData);
+            return response.data.decryptedData;
+        })
+        .catch(error => {
+            console.error(error);
+            status = Status.AuthFailed;
+        });
+
+    };
+
+    const getEncryptedData = (data) => {
+        axios.get(`http://${ipAddress}:8080/getEncryptedData?data=${modifiedCharac}`)
+        .then(response => {
+            console.log('Encrypted random number : ' + response.data.encryptedData);
+            response.data.encryptedData;
+        })
+        .catch(error => {
+            console.error(error);
+            status = Status.AuthFailed;
+        });
+    };
+    
+
+    const authenticationControler = async(device) => {
+        while(true){
+            switch(status) {
+                case Status.NoAuthentication:
+                    if(sendValue(device, await getRandomNum())){
+                        console.log('Authentication protocole started...');
+                        status = Status.WaitDeviceAuthentication;
+                    } else {
+                        status = Status.AuthFailed;
+                    }
+                    break;
+
+                case Status.DeviceAuthentication:
+                    if(randNum === getDecryptedData(modifiedCharac)) {
+                        console.log('Device authenticate');
+                        status = Status.DeviceAuthenticate;
+                    } else{
+                        status = Status.AuthFailed;
+                    }
+                    break;
+
+                case Status.DeviceAuthenticate:
+                    if(await sendValue(device, getRandomNum())){;
+                        status = Status.WaitDeviceRandNum;
+                    } else {
+                        status = Status.AuthFailed;
+                    }
+                    break;
+
+                case Status.WaitDeviceRandNum:
+
+                    break;
+
+                case Status.AppAuthentication:
+                    if(await sendValue(device, getEncryptedData(modifiedCharac))){;
+                        status = Status.WaitAppAuthentication;
+                    } else {
+                        status = Status.AuthFailed;
+                    }
+                    break;
+    
+                case Status.WaitAppAuthentication:
+
+                    break;
+
+                case Status.AppAuthenticate:
+                   
+                    break;
+    
+                case Status.Authenticate:
+                    Alert.alert('User ID successfully sent to the card reader !');
+                    console.log('Authentication done, ID send !');
+                    setRandNum('');
+                    disconnectFromDevice(device);
+                    return;
+    
+                case Status.AuthFailed:
+                    Alert.alert('Authentication failed !');
+                    console.log('Authentication failed !');
+                    disconnectFromDevice(device)
+                    return;
+
+                default:
+                    break;
+            }
+        }
+           
+    };
+
+    const sendValue = async (device, value) => {
+        try {
+            const response = await bleManager.writeCharacteristicWithResponseForDevice(device.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(value.toString()));
+            if(value.toString() === base64.decode(response.value).toString()) {
+                console.log('Value send : ', value);  
             } else {
-                console.log('Error : ID not send.');
-                Alert.alert('Error : user ID not sent correctly to the card reader !');
+                console.log('Value send failed: ', value);
+                status = Status.AuthFailed;
             }  
-            
         } catch (e) {
             console.log('FAILED TO SEND VALUE :', e);
-            Alert.alert('Error : user ID not sent correctly to the card reader !');  
         }
-        disconnectFromDevice(device);  
     };
 
     const disconnectFromDevice = (device) => {
@@ -164,6 +305,7 @@ const BLE = () => {
             bleManager.cancelDeviceConnection(device.id);
             setConnectedDevice();
             clearDeviceList();
+            status = Status.NoAuth;
 
             console.log('Device disconnected : ' + device.name);
             setPrintedText('');
@@ -188,9 +330,6 @@ const BLE = () => {
                 keyExtractor={item => item.id}
             />
         </View>    
-        <View>
-         <Text style={styles.message}>{modifiedCharac === null ? null : modifiedCharac}</Text>
-        </View>
         <View>
          <Text style={styles.message}>{discoveredDeviceList.length === 0 ? null : 'Approach the smartphone to the reader.'}</Text>
         </View>
