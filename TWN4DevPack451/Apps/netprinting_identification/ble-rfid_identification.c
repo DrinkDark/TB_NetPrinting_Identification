@@ -25,6 +25,18 @@
 #define SEARCH_BLE(a,b,c,d)		false
 #define BLE_MASK				0
 
+enum States {
+    WaitAuthentication,
+    DeviceAuthentication,
+    DeviceAuthenticated,
+    AppAuthentication,
+    WaitAppAuthentication,
+    AppAuthenticated,
+    Authenticated,
+    Identification,
+    AuthenticationFailed
+} currentState;
+
 //Read the card value from the readed card
 bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int MaxCardStringLen)
 {
@@ -78,6 +90,28 @@ void OnCardDone(void)
 
 #endif
 
+void deviceConnected() {
+    //HostWriteString("Device connected");
+    //HostWriteString("\r");
+
+    LEDOff(GREENLED);
+    LEDBlink(REDLED,200,200);
+
+    Beep(50, 1500, 100, 100);
+    Beep(50, 1500, 100, 100);
+}
+
+void deviceDisconnected() {
+    //HostWriteString("Device disconnected");
+    //HostWriteString("\r");  
+
+    LEDOff(REDLED);
+    LEDOn(GREENLED);
+
+    Beep(50, 800, 500, 100);
+}
+
+
 int main(void)
 {
 	OnStartup();    	
@@ -119,12 +153,14 @@ int main(void)
         0x2a, 0x4f, 0x08, 0xdf, 0xb6, 0xe0, 0xd9, 0xd1, 0x1f};          //Shared 128 bits AES shared key 
 
     const byte data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,      
-            0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00};      //Data to send (to be remplace by a random number)
+            0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00, };      //Data to send (to be remplace by a random number)
 
     Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));   //Enable encryption initialisation with CRYPTO_ENV0 for init vector, CBC-AES128 encryption and the key
 
-    byte plainText[16];
-    byte cypherText[16];
+    byte encryptedData[16];
+    byte decryptedData[32];
+
+    currentState = WaitAuthentication;
 
     while (true)
     {
@@ -140,8 +176,10 @@ int main(void)
         int attrStatusFlag;
         int attrConfigFlag;
 
-        byte receivedUserData[200];
+        byte receivedUserData[32];
         int receivedUserDataLength;
+
+        byte receivedData[16];
 
         int HostChannel = CHANNEL_BLE;
 
@@ -167,17 +205,97 @@ int main(void)
 			   	StartTimer(CARDTIMEOUT);
 			}
 			OnCardDone();
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            attrHandle = 34 + (int)(0b1000000000000000);
-            BLESetGattServerAttributeValue(attrHandle, 0, &data, sizeof(data));
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	    }
     	
         if (TestTimer())
         {
 		    OnCardTimeout(OldCardString);
 		    OldCardString[0] = 0;
+        }
+
+        //------------------------------------------------------------------------------------
+        //---------------------------------  STATE MACHINE  ----------------------------------
+
+        switch(currentState) {
+
+            case DeviceAuthentication:
+                HostWriteString("DeviceAuthentication");
+                HostWriteString("\r");
+
+                Encrypt(CRYPTO_ENV0, (const) &receivedData, &encryptedData, sizeof(encryptedData));
+
+                BLESetGattServerAttributeValue(attrHandle, 0, &encryptedData, sizeof(encryptedData));
+
+                currentState = DeviceAuthenticated;
+                break;
+
+
+            case AppAuthentication:
+                HostWriteString("AppAuthentication");
+                HostWriteString("\r");
+
+                BLESetGattServerAttributeValue(attrHandle, 0, &data, sizeof(data));         //TODO replace with random number
+
+                currentState = WaitAppAuthentication;
+                break;
+
+            case AppAuthenticated:
+                HostWriteString("AppAuthenticated");
+                HostWriteString("\r");
+
+                Decrypt(CRYPTO_ENV0, (const) &receivedData, &decryptedData, sizeof(decryptedData));
+
+                //Transform the byte array by merging every two bytes into one byte
+                //ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
+                for (size_t i = 0; i < sizeof(decryptedData); i += 2) {
+                    char high = (decryptedData)[i];
+                    char low = (decryptedData)[i + 1];
+
+                    // Convert characters to their numeric values
+                    if (high >= 'a' && high <= 'f') {
+                        high = high - 'a' + 10;
+                    } else {
+                        high = high - '0';
+                    }
+
+                    if (low >= 'a' && low <= 'f') {
+                        low = low - 'a' + 10;
+                    } else {
+                        low = low - '0';
+                    }
+
+                    receivedData[i / 2] = ((high << 4) | (low & 0x0F));
+                 }
+                 
+                if (memcmp(&receivedData, &data, sizeof(data))) {                                                //TODO replace with random number
+                    BLESetGattServerAttributeValue(attrHandle, 0, &data, sizeof(data));     //TODO replace with random number
+                    currentState = Authenticated;
+                } else {
+                    currentState = AuthenticationFailed;
+                }
+                break;
+
+            case Identification:
+                HostWriteString("Identification");
+                HostWriteString("\r");
+
+                //Print read value on the output byte by byte 
+                for(uint8_t j = 0; j < sizeof(receivedUserDataLength); j++){ 
+                    HostWriteByte(receivedUserData[j]);
+                }
+                HostWriteString("\r");
+
+                currentState = WaitAuthentication;
+                break;
+
+            case AuthenticationFailed:
+                HostWriteString("AuthenticationFailed");
+                HostWriteString("\r");
+                BLEDisconnectFromDevice();
+                return;
+
+            default:
+                break;
         }
 
         //------------------------------------------------------------------------------------
@@ -188,23 +306,12 @@ int main(void)
 
             //Device connected to the card reader
             case BLE_EVENT_CONNECTION_OPENED :
-                //HostWriteString("Device connected");
-                //HostWriteString("\r");
-                LEDOff(GREENLED);
-                LEDBlink(REDLED,200,200);
-
-                Beep(50, 1500, 100, 100);
-                Beep(50, 1500, 100, 100);
+                deviceConnected();
                 break;
             
             //Device disconnected from the card reader
             case BLE_EVENT_CONNECTION_CLOSED :
-                //HostWriteString("Device disconnected");
-                //HostWriteString("\r");  
-                LEDOff(REDLED);
-                LEDOn(GREENLED);
-
-                Beep(50, 800, 500, 100);
+                deviceDisconnected();
                 break;  
 
             //Characteristic modified in the GATT server
@@ -218,20 +325,77 @@ int main(void)
 
                 //Attribute handle bit 15 have to be set to 1 when event BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE
                 attrHandle += (int)(0b1000000000000000);   
-                
-                //Read the modified value based on the read attribute handle
-                if(BLEGetGattServerAttributeValue(attrHandle, &receivedUserData, &receivedUserDataLength, 200)){
-                    //HostWriteString("Characteristic value read");
-                    //HostWriteString("\r");
 
-                    //Print read value on the output byte by byte 
-                    for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
-                        HostWriteByte(receivedUserData[j]);
+                //Read the modified value based on the read attribute handle
+                bool dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedUserData, &receivedUserDataLength, sizeof(receivedUserData));
+
+
+                //Transform the byte array by merging every two bytes into one byte
+                //ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
+                for (size_t i = 0; i < sizeof(receivedUserData); i += 2) {
+                    char high = (receivedUserData)[i];
+                    char low = (receivedUserData)[i + 1];
+
+                    // Convert characters to their numeric values
+                    if (high >= 'a' && high <= 'f') {
+                        high = high - 'a' + 10;
+                    } else {
+                        high = high - '0';
                     }
-                    HostWriteString("\r");
-                } else {
-                    //HostWriteString("Error characteristic value read");
-                    //HostWriteString("\r");
+
+                    if (low >= 'a' && low <= 'f') {
+                        low = low - 'a' + 10;
+                    } else {
+                        low = low - '0';
+                    }
+
+                    receivedData[i / 2] = ((high << 4) | (low & 0x0F));
+                 }
+
+                switch(currentState) {
+                    case WaitAuthentication:
+                        HostWriteString("WaitAuthentication");
+                        HostWriteString("\r");
+
+                        if(dataReceived){
+                            currentState = DeviceAuthentication;
+                        } else {
+                            currentState = AuthenticationFailed;
+                        }
+                        break;
+
+                    case DeviceAuthenticated:
+                        HostWriteString("DeviceAuthenticated");
+                        HostWriteString("\r");
+
+                        if(dataReceived){
+                            currentState = AppAuthentication;
+                        } else {
+                            currentState = AuthenticationFailed;
+                        }
+                        break;
+
+                    case WaitAppAuthentication:
+                        HostWriteString("WaitAppAuthentication");
+                        HostWriteString("\r");
+
+                        if(dataReceived){
+                            currentState = AppAuthenticated;
+                        } else {
+                            currentState = AuthenticationFailed;
+                        }
+                        break;
+
+                    case Authenticated:
+                        HostWriteString("Authenticated");
+                        HostWriteString("\r");
+
+                        if(dataReceived){
+                            currentState = Identification;
+                        } else {
+                            currentState = AuthenticationFailed;
+                        }
+                        break;
                 }
 
             break;

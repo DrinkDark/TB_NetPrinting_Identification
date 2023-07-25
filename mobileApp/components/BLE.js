@@ -17,29 +17,29 @@ const CARD_ID_UUID_CHARAC = '495f449c-fc60-4048-b53e-bdb3046d4495';
 const CARD_ID_UUID_SERVICE = '5a44c004-4112-4274-880e-cd9b3daedf8e';
 
 var userID = '';
+var connectedDevice;
+var modifiedCharac;
+var randNum;
 
-const Status = {
-    NoAuthentication: 'NoAuthentication',
+const States = {
+    WaitAuthentication: 'WaitAuthentication',
     DeviceAuthentication: 'DeviceAuthentication',
     WaitDeviceAuthentication: 'WaitDeviceAuthentication',
-    DeviceAuthenticate: 'DeviceAuthenticate',
+    DeviceAuthenticated: 'DeviceAuthenticated',
     WaitDeviceRandNum: 'WaitDeviceRandNum',
     AppAuthentication: 'AppAuthentication',
     WaitAppAuthentication: 'WaitAppAuthentication',
-    AppAuthenticate: 'AppAuthenticate',
-    Identification: 'Identification',
-    Authenticate: 'Authenticate',
-    AuthFailed: 'AuthFailed'
+    AppAuthenticated: 'AppAuthenticated',
+    Authenticated: 'Authenticated',
+    AuthenticationFailed: 'AuthFailed'
   };
 
-var status = Status.NoAuthentication;
+var currentState = States.WaitAuthentication;
 
 const BLE = () => {
     const [printedText, setPrintedText] = useState('');
-    const [connectedDevice, setConnectedDevice] = useState();
     const [discoveredDeviceList, setDiscoveredDeviceList] = useState([]);
-    const [modifiedCharac, setModifiedCharac] = useState('');
-    const [randNum, setRandNum] = useState('');
+
     
     const addDevice = (device) => {
         setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList, device]);  
@@ -76,7 +76,7 @@ const BLE = () => {
                 break; 
             }
         }
-        return exist;
+        return exist;Wa
     };
     
     const onNotificationReceived = (
@@ -84,32 +84,33 @@ const BLE = () => {
         characteristic: Characteristic | null,
       ) => {
         if (error) {
-            console.log('Error notification (charachteristic : ' + characteristic.uuid + ')');
+            //console.log('Error notification (charachteristic : ' + characteristic.uuid + ')');
             console.log(error);
             return -1;
         } else if (!characteristic?.value) {
-            console.log('Notification (charachteristic : ' + characteristic.uuid + ') received with no data');
+            //console.log('Notification (charachteristic : ' + characteristic.uuid + ') received with no data');
             return -1;
         } else {
-            console.log('Notification received (charachteristic : ' + characteristic.uuid + ') : ' + Buffer.from(characteristic.value, 'base64').toString('hex'));
-            setModifiedCharac(Buffer.from(characteristic.value, 'base64').toString('hex'));
+            //console.log('Notification received (charachteristic : ' + characteristic.uuid + ') : ' + Buffer.from(characteristic.value, 'base64').toString('hex'));
+            modifiedCharac = Buffer.from(characteristic.value, 'base64').toString('hex');
 
-            switch(status) {
-                case Status.WaitDeviceAuthentication:
-                    status = Status.DeviceAuthentication;
+            switch(currentState) {
+                case States.WaitDeviceAuthentication:
+                    currentState = States.DeviceAuthentication;
                 break;
 
-                case Status.WaitDeviceRandNum:
-                    status = Status.AppAuthentication;
+                case States.WaitDeviceRandNum:
+                    currentState = States.AppAuthentication;
                     break;
     
-                case Status.WaitAppAuthentication:
-                    status = Status.AppAuthenticate;
+                case States.WaitAppAuthentication:
+                    currentState = States.AppAuthenticated;
                     break;
 
                 default:
                     break;
             }
+            authenticationControler();
         }
     
       };
@@ -135,7 +136,7 @@ const BLE = () => {
     };
 
     scanForDevices = async () => {
-        if(userID !== '' && status === Status.NoAuthentication){
+        if(userID !== '' && currentState === States.WaitAuthentication){
             console.log("Start scanning...");
             setPrintedText('Discovering ...');
 
@@ -162,121 +163,121 @@ const BLE = () => {
             bleManager.stopDeviceScan();
             console.log('Stop scanning.');
             const deviceConnection = await bleManager.connectToDevice(device.id);
-            setConnectedDevice(device);
+            connectedDevice = device;
 
-            setPrintedText(device.name + ' connected (' + device.id + ')');
-            await device.discoverAllServicesAndCharacteristics();
+            setPrintedText(connectedDevice.name + ' connected (' + connectedDevice.id + ')');
+            await connectedDevice.discoverAllServicesAndCharacteristics();
 
             console.log('Enable monitor notification.');
-            await device.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
+            await connectedDevice.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
 
-            authenticationControler(device);  
+            authenticationControler(connectedDevice);  
             
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);
         }
     };
 
-    const getRandomNum = async(device) => {
+    const getRandomNum = async() => {
         try {
             const response = await axios.get(`http://${ipAddress}:8080/getRandNum`);
-            const randNum = response.data.randNum;
-            setRandNum(randNum);
+            randNum = response.data.randNum;
+            
             console.log('App random number: ' + randNum);
-
             return randNum;
         } catch (error) {
             console.error(error);
-            return null; // Return null or handle the error appropriately
+            currentState = States.AuthenticationFailed;
         }
     };
 
-    const getDecryptedData = (data) => {
-        axios.get(`http://${ipAddress}:8080/getDecryptedData?data=${modifiedCharac}`)
-        .then(response => {
-            console.log('Decrypted random number : ' + response.data.decryptedData);
-            return response.data.decryptedData;
-        })
-        .catch(error => {
-            console.error(error);
-            status = Status.AuthFailed;
-        });
+    const getDecryptedData = async(data) => {
+        try {
+            const response = await axios.get(`http://${ipAddress}:8080/getDecryptData?data=${data}`);
+            const decryptData = response.data.decryptedData;
 
+            console.log('Decrypted data : ' + decryptData);
+            return decryptData;
+        } catch (error) {
+            console.error(error);
+            currentState = States.AuthenticationFailed;
+        }
     };
 
-    const getEncryptedData = (data) => {
-        axios.get(`http://${ipAddress}:8080/getEncryptedData?data=${modifiedCharac}`)
-        .then(response => {
-            console.log('Encrypted random number : ' + response.data.encryptedData);
-            response.data.encryptedData;
-        })
-        .catch(error => {
+    const getEncryptedData = async(data) => {
+        try {
+            const response = await axios.get(`http://${ipAddress}:8080/getEncryptData?data=${data}`);
+            const encryptData = response.data.encryptedData;
+
+            console.log('Encrypted data : ' + encryptData);
+            return encryptData;
+        } catch (error) {
             console.error(error);
-            status = Status.AuthFailed;
-        });
+            currentState = States.AuthenticationFailed;
+        }
     };
     
-
-    const authenticationControler = async(device) => {
+    const authenticationControler = async() => {
         while(true){
-            switch(status) {
-                case Status.NoAuthentication:
-                    if(sendValue(device, await getRandomNum())){
-                        console.log('Authentication protocole started...');
-                        status = Status.WaitDeviceAuthentication;
+            switch(currentState) {
+                case States.WaitAuthentication:
+                    console.log('Authentication protocol started...');
+                    if(await sendValue(await getRandomNum())){
+                        currentState = States.WaitDeviceAuthentication;
+                        return;
                     } else {
-                        status = Status.AuthFailed;
+                        currentState = States.AuthenticationFailed;
                     }
                     break;
 
-                case Status.DeviceAuthentication:
-                    if(randNum === getDecryptedData(modifiedCharac)) {
+                case States.DeviceAuthentication:
+                    console.log(randNum);
+                    if(randNum === await getDecryptedData(modifiedCharac)) {
                         console.log('Device authenticate');
-                        status = Status.DeviceAuthenticate;
+                        currentState = States.DeviceAuthenticated;
                     } else{
-                        status = Status.AuthFailed;
+                        currentState = States.AuthenticationFailed;
                     }
                     break;
 
-                case Status.DeviceAuthenticate:
-                    if(await sendValue(device, getRandomNum())){;
-                        status = Status.WaitDeviceRandNum;
+                case States.DeviceAuthenticated:
+                    if(await sendValue(await getRandomNum())){;
+                        currentState = States.WaitDeviceRandNum;
+                        return;
                     } else {
-                        status = Status.AuthFailed;
+                        currentState = States.AuthenticationFailed;
                     }
                     break;
 
-                case Status.WaitDeviceRandNum:
-
-                    break;
-
-                case Status.AppAuthentication:
-                    if(await sendValue(device, getEncryptedData(modifiedCharac))){;
-                        status = Status.WaitAppAuthentication;
+                case States.AppAuthentication:
+                    if(await sendValue(await getEncryptedData(modifiedCharac))){;
+                        currentState = States.WaitAppAuthentication;
+                        return;
                     } else {
-                        status = Status.AuthFailed;
+                        currentState = States.AuthenticationFailed;
                     }
                     break;
-    
-                case Status.WaitAppAuthentication:
 
-                    break;
+                case States.AppAuthenticated:
+                    if(await sendValue(userID)){;
+                        currentState = States.Authenticated;
+                    } else {
+                        currentState = States.AuthenticationFailed;
+                    }
+                break;
 
-                case Status.AppAuthenticate:
-                   
-                    break;
-    
-                case Status.Authenticate:
+                case States.Authenticated:
                     Alert.alert('User ID successfully sent to the card reader !');
                     console.log('Authentication done, ID send !');
-                    setRandNum('');
-                    disconnectFromDevice(device);
+                    disconnectFromDevice(connectedDevice);
+
+                    currentState = States.WaitAuthentication;
                     return;
     
-                case Status.AuthFailed:
+                case States.AuthenticationFailed:
                     Alert.alert('Authentication failed !');
                     console.log('Authentication failed !');
-                    disconnectFromDevice(device)
+                    disconnectFromDevice(connectedDevice)
                     return;
 
                 default:
@@ -286,28 +287,30 @@ const BLE = () => {
            
     };
 
-    const sendValue = async (device, value) => {
+    const sendValue = async (value) => {
         try {
-            const response = await bleManager.writeCharacteristicWithResponseForDevice(device.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(value.toString()));
+            const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(value.toString()));
             if(value.toString() === base64.decode(response.value).toString()) {
                 console.log('Value send : ', value);  
+                return true;
             } else {
                 console.log('Value send failed: ', value);
-                status = Status.AuthFailed;
+                currentState = States.AuthenticationFailed;
+                return false;
             }  
         } catch (e) {
-            console.log('FAILED TO SEND VALUE :', e);
+            console.log('FAILED TO SEND VALUE :', e);3
+            return false;
         }
     };
 
-    const disconnectFromDevice = (device) => {
+    const disconnectFromDevice = () => {
         try {
-            bleManager.cancelDeviceConnection(device.id);
-            setConnectedDevice();
+            bleManager.cancelDeviceConnection(connectedDevice.id);
             clearDeviceList();
-            status = Status.NoAuth;
+            currentState = States.WaitAuthentication;
 
-            console.log('Device disconnected : ' + device.name);
+            console.log('Device disconnected : ' + connectedDevice.name);
             setPrintedText('');
         } catch (e) {
             console.log('FAILED TO DISCONNECT :', e);

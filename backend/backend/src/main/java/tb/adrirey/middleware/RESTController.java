@@ -81,11 +81,13 @@ public class RESTController {
         return ResponseEntity.ok(response);
     }
 
-    //get a random 16bit number
+    //get a random 16bytes number
     @RequestMapping(method = RequestMethod.GET, path ="/getRandNum")
     public ResponseEntity<RandNum> getRandNum() {
         SecureRandom sr = new SecureRandom();
         byte[] rndBytes = new byte[16];
+
+        sr.nextBytes(rndBytes);
 
         RandNum response = new RandNum(toHexString(rndBytes));
         return ResponseEntity.ok(response);
