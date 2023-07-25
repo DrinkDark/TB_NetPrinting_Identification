@@ -279,8 +279,10 @@ int main(void)
                 HostWriteString("Identification");
                 HostWriteString("\r");
 
+                CBC_ResetInitVector(CRYPTO_ENV0);
+
                 //Print read value on the output byte by byte 
-                for(uint8_t j = 0; j < sizeof(receivedUserDataLength); j++){ 
+                for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
                     HostWriteByte(receivedUserData[j]);
                 }
                 HostWriteString("\r");
@@ -291,6 +293,9 @@ int main(void)
             case AuthenticationFailed:
                 HostWriteString("AuthenticationFailed");
                 HostWriteString("\r");
+
+                CBC_ResetInitVector(CRYPTO_ENV0);
+
                 BLEDisconnectFromDevice();
                 return;
 
@@ -328,7 +333,6 @@ int main(void)
 
                 //Read the modified value based on the read attribute handle
                 bool dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedUserData, &receivedUserDataLength, sizeof(receivedUserData));
-
 
                 //Transform the byte array by merging every two bytes into one byte
                 //ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
