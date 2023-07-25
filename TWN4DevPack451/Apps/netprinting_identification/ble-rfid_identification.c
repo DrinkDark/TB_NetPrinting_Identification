@@ -24,6 +24,8 @@
 #define SEARCH_BLE(a,b,c,d)		false
 #define BLE_MASK				0
 
+#define BLE_DATA_SIZE			16
+
 enum States {
     WaitAuthentication,
     DeviceAuthentication,
@@ -110,8 +112,22 @@ void deviceDisconnected() {
     Beep(50, 800, 500, 100);
 }
 
+//Transform the byte array by merging every two bytes into one byte
+//ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
+void transformByteArray(byte* array, byte* transformedArray){   
+    for (size_t i = 0; i < (BLE_DATA_SIZE * 2); i += 2) {
+        char high = (array)[i];
+        char low = (array)[i + 1];
+
+        high = ScanHexChar(high);
+        low = ScanHexChar(low);
+
+        transformedArray[i / 2] = ((high << 4) | (low & 0x0F));
+    }
+}
+
 void getRandNum(byte* randNum){
-    byte buf[16];
+    byte buf[BLE_DATA_SIZE];
 
     //Set seed for random number based on the system ticks
     srand(GetSysTicks());
@@ -167,10 +183,10 @@ int main(void)
 
     Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));   //Enable encryption initialisation with CRYPTO_ENV0 for init vector, CBC-AES128 encryption and the key
 
-    byte encryptedData[16];
-    byte decryptedData[32];
+    byte encryptedData[BLE_DATA_SIZE];
+    byte decryptedData[BLE_DATA_SIZE * 2];
 
-    byte randNum[16];
+    byte randNum[BLE_DATA_SIZE];
 
     currentState = WaitAuthentication;
 
@@ -188,12 +204,10 @@ int main(void)
         int attrStatusFlag;
         int attrConfigFlag;
 
-        byte receivedUserData[32];
-        int receivedUserDataLength;
+        byte receivedDataBLE[BLE_DATA_SIZE * 2];
+        int receivedDataBLELength;
 
-        byte receivedData[16];
-
-        int HostChannel = CHANNEL_BLE;
+        byte trandformedReceivedDataBLE[BLE_DATA_SIZE];
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
@@ -234,7 +248,7 @@ int main(void)
                 //HostWriteString("DeviceAuthentication");
                 //HostWriteString("\r");
 
-                Encrypt(CRYPTO_ENV0, (const) &receivedData, &encryptedData, sizeof(encryptedData));
+                Encrypt(CRYPTO_ENV0, (const) &trandformedReceivedDataBLE, &encryptedData, sizeof(encryptedData));
 
                 BLESetGattServerAttributeValue(attrHandle, 0, &encryptedData, sizeof(encryptedData));
 
@@ -256,21 +270,12 @@ int main(void)
                 //HostWriteString("AppAuthenticated");
                 //HostWriteString("\r");
 
-                Decrypt(CRYPTO_ENV0, (const) &receivedData, &decryptedData, sizeof(decryptedData));
+                Decrypt(CRYPTO_ENV0, (const) &trandformedReceivedDataBLE, &decryptedData, sizeof(decryptedData));
 
-                //Transform the byte array by merging every two bytes into one byte
-                //ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
-                for (size_t i = 0; i < sizeof(decryptedData); i += 2) {
-                    char high = (decryptedData)[i];
-                    char low = (decryptedData)[i + 1];
-
-                    high = ScanHexChar(high);
-                    low = ScanHexChar(low);
-
-                    receivedData[i / 2] = ((high << 4) | (low & 0x0F));
-                 }
+                byte transformedDecryptedData[BLE_DATA_SIZE];
+                transformByteArray(&decryptedData, &transformedDecryptedData);
                  
-                if (memcmp(&receivedData, &randNum, sizeof(data))) {    
+                if (memcmp(&transformedDecryptedData, &randNum, sizeof(transformedDecryptedData))) {    
                     getRandNum(&randNum);                                            
                     BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(data));
                     currentState = Authenticated;
@@ -286,8 +291,8 @@ int main(void)
                 CBC_ResetInitVector(CRYPTO_ENV0);
 
                 //Print read value on the output byte by byte 
-                for(uint8_t j = 0; j < receivedUserDataLength; j++){ 
-                    HostWriteByte(receivedUserData[j]);
+                for(uint8_t j = 0; j < receivedDataBLELength; j++){ 
+                    HostWriteByte(receivedDataBLE[j]);
                 }
                 HostWriteString("\r");
 
@@ -336,19 +341,9 @@ int main(void)
                 attrHandle += (int)(0b1000000000000000);   
 
                 //Read the modified value based on the read attribute handle
-                bool dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedUserData, &receivedUserDataLength, sizeof(receivedUserData));
+                bool dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE, &receivedDataBLELength, sizeof(receivedDataBLE));
 
-                //Transform the byte array by merging every two bytes into one byte
-                //ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
-                for (size_t i = 0; i < sizeof(receivedUserData); i += 2) {
-                    char high = (receivedUserData)[i];
-                    char low = (receivedUserData)[i + 1];
-
-                    high = ScanHexChar(high);
-                    low = ScanHexChar(low);
-
-                    receivedData[i / 2] = ((high << 4) | (low & 0x0F));
-                 }
+                transformByteArray(&receivedDataBLE, &trandformedReceivedDataBLE);
 
                 switch(currentState) {
                     case WaitAuthentication:
@@ -394,9 +389,15 @@ int main(void)
                             currentState = AuthenticationFailed;
                         }
                         break;
+
+                        default:
+                            break;
                 }
 
             break;
+
+            default:
+                break;
 
                   
         }
