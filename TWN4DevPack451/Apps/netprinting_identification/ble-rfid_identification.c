@@ -14,8 +14,8 @@
   #define CONFIGENABLED         SUPPORT_CONFIGCARD_OFF
 #endif  
 
-#define LFTAGTYPES        		(ALL_LFTAGS & ~(TAGMASK(LFTAG_TIRIS) | TAGMASK(LFTAG_ISOFDX) | TAGMASK(LFTAG_PAC) | TAGMASK(LFTAG_COTAG) | TAGMASK(LFTAG_DEISTER)))
-#define HFTAGTYPES       		(ALL_HFTAGS & ~(TAGMASK(HFTAG_NFCP2P) | TAGMASK(HFTAG_BLE)))
+#define LFTAGTYPES        		
+#define HFTAGTYPES       		(TAGMASK(HFTAG_MIFARE))
 
 #define CARDTIMEOUT				2000UL	// Timeout in milliseconds
 #define MAXCARDIDLEN            32		// Length in bytes
@@ -98,8 +98,8 @@ void deviceConnected() {
     LEDOff(GREENLED);
     LEDBlink(REDLED,200,200);
 
-    Beep(50, 1500, 100, 100);
-    Beep(50, 1500, 100, 100);
+    SetVolume(50);
+    BeepHigh();
 }
 
 void deviceDisconnected() {
@@ -108,8 +108,6 @@ void deviceDisconnected() {
 
     LEDOff(REDLED);
     LEDOn(GREENLED);
-
-    Beep(50, 800, 500, 100);
 }
 
 //Transform the byte array by merging every two bytes into one byte
@@ -148,7 +146,7 @@ int main(void)
 	const byte Params[] = { SUPPORT_CONFIGCARD, 1, CONFIGENABLED, TLV_END };
 	SetParameters(Params,sizeof(Params));
 
-	SetTagTypes(LFTAGTYPES,HFTAGTYPES & ~BLE_MASK);
+	SetTagTypes(0, HFTAGTYPES);
 
 	char OldCardString[MAXCARDSTRINGLEN+1]; 
     OldCardString[0] = 0;
@@ -213,7 +211,7 @@ int main(void)
         //------------------------------  CARD IDENTIFICATION  -------------------------------
 
 		// Search a transponder
-	    if (SearchTag(&TagType,&IDBitCnt,ID,sizeof(ID)) || SEARCH_BLE(&TagType,&IDBitCnt,ID,sizeof(ID)))
+	    if (SearchTag(&TagType,&IDBitCnt,ID,sizeof(ID)))
 	    {
 			// A transponder was found. Read data from transponder and convert
 			// it into an ASCII string according to configuration
