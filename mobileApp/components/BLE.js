@@ -148,7 +148,7 @@ const BLE = () => {
                     if(alreadyDiscover(device) === false){
                         console.log('Device found : ', device.name, ' (' , device.id, '), RSSI = ', device.rssi);
                         addDevice(device);
-                    } else if (device.rssi >= -35){
+                    } else if (device.rssi >= -40){
                         connectToDevice(device);
                     }
                 }
@@ -231,7 +231,6 @@ const BLE = () => {
                     break;
 
                 case States.DeviceAuthentication:
-                    console.log(randNum);
                     if(randNum === await getDecryptedData(modifiedCharac)) {
                         console.log('Device authenticate');
                         currentState = States.DeviceAuthenticated;
@@ -291,7 +290,7 @@ const BLE = () => {
         try {
             const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(value.toString()));
             if(value.toString() === base64.decode(response.value).toString()) {
-                console.log('Value send : ', value);  
+                //console.log('Value send : ', value);  
                 return true;
             } else {
                 console.log('Value send failed: ', value);

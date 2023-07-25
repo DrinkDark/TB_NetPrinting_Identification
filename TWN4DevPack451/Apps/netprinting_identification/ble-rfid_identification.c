@@ -1,4 +1,3 @@
-
 #include "twn4.sys.h"
 #include "apptools.h"
 
@@ -111,6 +110,17 @@ void deviceDisconnected() {
     Beep(50, 800, 500, 100);
 }
 
+void getRandNum(byte* randNum){
+    byte buf[16];
+
+    //Set seed for random number based on the system ticks
+    srand(GetSysTicks());
+
+    for (int i = 0; i < sizeof(buf); i++) {
+        randNum[i] = rand() % 256;
+    }
+
+}
 
 int main(void)
 {
@@ -159,6 +169,8 @@ int main(void)
 
     byte encryptedData[16];
     byte decryptedData[32];
+
+    byte randNum[16];
 
     currentState = WaitAuthentication;
 
@@ -219,8 +231,8 @@ int main(void)
         switch(currentState) {
 
             case DeviceAuthentication:
-                HostWriteString("DeviceAuthentication");
-                HostWriteString("\r");
+                //HostWriteString("DeviceAuthentication");
+                //HostWriteString("\r");
 
                 Encrypt(CRYPTO_ENV0, (const) &receivedData, &encryptedData, sizeof(encryptedData));
 
@@ -231,17 +243,18 @@ int main(void)
 
 
             case AppAuthentication:
-                HostWriteString("AppAuthentication");
-                HostWriteString("\r");
+                //HostWriteString("AppAuthentication");
+                //HostWriteString("\r");
 
-                BLESetGattServerAttributeValue(attrHandle, 0, &data, sizeof(data));         //TODO replace with random number
+                getRandNum(&randNum);
+                BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(data));
 
                 currentState = WaitAppAuthentication;
                 break;
 
             case AppAuthenticated:
-                HostWriteString("AppAuthenticated");
-                HostWriteString("\r");
+                //HostWriteString("AppAuthenticated");
+                //HostWriteString("\r");
 
                 Decrypt(CRYPTO_ENV0, (const) &receivedData, &decryptedData, sizeof(decryptedData));
 
@@ -251,24 +264,15 @@ int main(void)
                     char high = (decryptedData)[i];
                     char low = (decryptedData)[i + 1];
 
-                    // Convert characters to their numeric values
-                    if (high >= 'a' && high <= 'f') {
-                        high = high - 'a' + 10;
-                    } else {
-                        high = high - '0';
-                    }
-
-                    if (low >= 'a' && low <= 'f') {
-                        low = low - 'a' + 10;
-                    } else {
-                        low = low - '0';
-                    }
+                    high = ScanHexChar(high);
+                    low = ScanHexChar(low);
 
                     receivedData[i / 2] = ((high << 4) | (low & 0x0F));
                  }
                  
-                if (memcmp(&receivedData, &data, sizeof(data))) {                                                //TODO replace with random number
-                    BLESetGattServerAttributeValue(attrHandle, 0, &data, sizeof(data));     //TODO replace with random number
+                if (memcmp(&receivedData, &randNum, sizeof(data))) {    
+                    getRandNum(&randNum);                                            
+                    BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(data));
                     currentState = Authenticated;
                 } else {
                     currentState = AuthenticationFailed;
@@ -276,8 +280,8 @@ int main(void)
                 break;
 
             case Identification:
-                HostWriteString("Identification");
-                HostWriteString("\r");
+                //HostWriteString("Identification");
+                //HostWriteString("\r");
 
                 CBC_ResetInitVector(CRYPTO_ENV0);
 
@@ -291,8 +295,8 @@ int main(void)
                 break;
 
             case AuthenticationFailed:
-                HostWriteString("AuthenticationFailed");
-                HostWriteString("\r");
+                //HostWriteString("AuthenticationFailed");
+                //HostWriteString("\r");
 
                 CBC_ResetInitVector(CRYPTO_ENV0);
 
@@ -340,26 +344,16 @@ int main(void)
                     char high = (receivedUserData)[i];
                     char low = (receivedUserData)[i + 1];
 
-                    // Convert characters to their numeric values
-                    if (high >= 'a' && high <= 'f') {
-                        high = high - 'a' + 10;
-                    } else {
-                        high = high - '0';
-                    }
-
-                    if (low >= 'a' && low <= 'f') {
-                        low = low - 'a' + 10;
-                    } else {
-                        low = low - '0';
-                    }
+                    high = ScanHexChar(high);
+                    low = ScanHexChar(low);
 
                     receivedData[i / 2] = ((high << 4) | (low & 0x0F));
                  }
 
                 switch(currentState) {
                     case WaitAuthentication:
-                        HostWriteString("WaitAuthentication");
-                        HostWriteString("\r");
+                        //HostWriteString("WaitAuthentication");
+                        //HostWriteString("\r");
 
                         if(dataReceived){
                             currentState = DeviceAuthentication;
@@ -369,8 +363,8 @@ int main(void)
                         break;
 
                     case DeviceAuthenticated:
-                        HostWriteString("DeviceAuthenticated");
-                        HostWriteString("\r");
+                        //HostWriteString("DeviceAuthenticated");
+                        //HostWriteString("\r");
 
                         if(dataReceived){
                             currentState = AppAuthentication;
@@ -380,8 +374,8 @@ int main(void)
                         break;
 
                     case WaitAppAuthentication:
-                        HostWriteString("WaitAppAuthentication");
-                        HostWriteString("\r");
+                        //HostWriteString("WaitAppAuthentication");
+                        //HostWriteString("\r");
 
                         if(dataReceived){
                             currentState = AppAuthenticated;
@@ -391,8 +385,8 @@ int main(void)
                         break;
 
                     case Authenticated:
-                        HostWriteString("Authenticated");
-                        HostWriteString("\r");
+                        //HostWriteString("Authenticated");
+                        //HostWriteString("\r");
 
                         if(dataReceived){
                             currentState = Identification;
