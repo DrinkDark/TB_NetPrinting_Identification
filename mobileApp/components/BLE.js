@@ -84,12 +84,10 @@ const BLE = () => {
         characteristic: Characteristic | null,
       ) => {
         if (error) {
-            //console.log('Error notification (charachteristic : ' + characteristic.uuid + ')');
-            console.log(error);
-            return -1;
+            //console.log('Error notification (charachteristic : ' + characteristic.uuid + ')'); 
+                console.log(error);
         } else if (!characteristic?.value) {
             //console.log('Notification (charachteristic : ' + characteristic.uuid + ') received with no data');
-            return -1;
         } else {
             //console.log('Notification received (charachteristic : ' + characteristic.uuid + ') : ' + Buffer.from(characteristic.value, 'base64').toString('hex'));
             modifiedCharac = Buffer.from(characteristic.value, 'base64').toString('hex');
@@ -112,7 +110,6 @@ const BLE = () => {
             }
             authenticationControler();
         }
-    
       };
 
     requestPermissions = async () => {
@@ -162,16 +159,20 @@ const BLE = () => {
         try {
             bleManager.stopDeviceScan();
             console.log('Stop scanning.');
-            const deviceConnection = await bleManager.connectToDevice(device.id);
-            connectedDevice = device;
+            if(await bleManager.connectToDevice(device.id)){
+                connectedDevice = device;
 
-            setPrintedText(connectedDevice.name + ' connected (' + connectedDevice.id + ')');
-            await connectedDevice.discoverAllServicesAndCharacteristics();
-
-            console.log('Enable monitor notification.');
-            await connectedDevice.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
-
-            authenticationControler(connectedDevice);  
+                setPrintedText(connectedDevice.name + ' connected (' + connectedDevice.id + ')');
+                await connectedDevice.discoverAllServicesAndCharacteristics();
+    
+                console.log('Enable monitor notification.');
+                await connectedDevice.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
+    
+                authenticationControler(connectedDevice);  
+            } else {
+                Alert.alert('Authentication failed !');
+                console.log('Connection failed !');
+            }
             
         } catch (e) {
             console.log('FAILED TO CONNECT :', e);

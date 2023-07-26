@@ -38,6 +38,8 @@ enum States {
     AuthenticationFailed
 } currentState;
 
+bool BLEDeviceConnected = false;
+
 //Read the card value from the readed card
 bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int MaxCardStringLen)
 {
@@ -62,6 +64,8 @@ void OnStartup(void)
     SetVolume(50);
     BeepLow();
     BeepHigh();
+
+    StartTimer(10000);
 }
 
 //New card found
@@ -100,6 +104,12 @@ void deviceConnected() {
 
     SetVolume(50);
     BeepHigh();
+
+    CBC_ResetInitVector(CRYPTO_ENV0);
+
+    BLEDeviceConnected = true;
+
+    StartTimer(10000);
 }
 
 void deviceDisconnected() {
@@ -108,6 +118,9 @@ void deviceDisconnected() {
 
     LEDOff(REDLED);
     LEDOn(GREENLED);
+
+    BLEDeviceConnected = false;
+    
 }
 
 //Transform the byte array by merging every two bytes into one byte
@@ -155,7 +168,7 @@ int main(void)
     //------------------------------------------------------------------------------------
     //---------------------------------  BLE INIT  ---------------------------------------
     TBLEConfig BLEConfig =  {
-        .ConnectTimeout = 10000,   //Timout of an established connection in milliseconds
+        .ConnectTimeout = 12000,   //Timout of an established connection in milliseconds
         .Power = 20,               //TX power : 0 to 80 (0.0dBm to 8.0dBm)
         .BondableMode = 0x00,      //Bonding : 0 = off, 1 = on
         .AdvInterval = 200,        //Advertisement interval : values 20ms to 10240ms
@@ -174,10 +187,7 @@ int main(void)
     //------------------------------------------------------------------------------------
     //------------------------------  CRYPTO INIT  ---------------------------------------
     const byte aesKey[] = {0xbf, 0xc1, 0xc1, 0x8b, 0x3c, 0x60, 0x50, 
-        0x2a, 0x4f, 0x08, 0xdf, 0xb6, 0xe0, 0xd9, 0xd1, 0x1f};          //Shared 128 bits AES shared key 
-
-    const byte data[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,      
-            0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x00, };      //Data to send (to be remplace by a random number)
+        0x2a, 0x4f, 0x08, 0xdf, 0xb6, 0xe0, 0xd9, 0xd1, 0x1f};          //128 bits AES shared key 
 
     Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));   //Enable encryption initialisation with CRYPTO_ENV0 for init vector, CBC-AES128 encryption and the key
 
@@ -211,7 +221,7 @@ int main(void)
         //------------------------------  CARD IDENTIFICATION  -------------------------------
 
 		// Search a transponder
-	    if (SearchTag(&TagType,&IDBitCnt,ID,sizeof(ID)))
+	    if (SearchTag(&TagType,&IDBitCnt,ID,sizeof(ID)) && !BLEDeviceConnected)
 	    {
 			// A transponder was found. Read data from transponder and convert
 			// it into an ASCII string according to configuration
@@ -233,8 +243,13 @@ int main(void)
     	
         if (TestTimer())
         {
-		    OnCardTimeout(OldCardString);
-		    OldCardString[0] = 0;
+            if(BLEDeviceConnected) {
+                currentState = AuthenticationFailed;
+
+            } else {
+                OnCardTimeout(OldCardString);
+		        OldCardString[0] = 0;
+            }
         }
 
         //------------------------------------------------------------------------------------
@@ -259,7 +274,7 @@ int main(void)
                 //HostWriteString("\r");
 
                 getRandNum(&randNum);
-                BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(data));
+                BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
                 currentState = WaitAppAuthentication;
                 break;
@@ -275,7 +290,7 @@ int main(void)
                  
                 if (memcmp(&transformedDecryptedData, &randNum, sizeof(transformedDecryptedData))) {    
                     getRandNum(&randNum);                                            
-                    BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(data));
+                    BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
                     currentState = Authenticated;
                 } else {
                     currentState = AuthenticationFailed;
@@ -286,7 +301,9 @@ int main(void)
                 //HostWriteString("Identification");
                 //HostWriteString("\r");
 
-                CBC_ResetInitVector(CRYPTO_ENV0);
+                attrHandle -= (int)(0b1000000000000000);  
+                getRandNum(&randNum);
+                BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
                 //Print read value on the output byte by byte 
                 for(uint8_t j = 0; j < receivedDataBLELength; j++){ 
@@ -300,11 +317,17 @@ int main(void)
             case AuthenticationFailed:
                 //HostWriteString("AuthenticationFailed");
                 //HostWriteString("\r");
-
-                CBC_ResetInitVector(CRYPTO_ENV0);
+                
+                attrHandle -= (int)(0b1000000000000000);  
+                getRandNum(&randNum);
+                BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
                 BLEDisconnectFromDevice();
-                return;
+                deviceDisconnected(); 
+                BLEInit(BLE_MODE_CUSTOM);
+
+                currentState = WaitAuthentication;
+                break;
 
             default:
                 break;
@@ -312,7 +335,8 @@ int main(void)
 
         //------------------------------------------------------------------------------------
         //-------------------------------  BLE IDENTIFICATION  -------------------------------
-        
+    
+
         //Check all the BLE events. Only the needed case are implemented. 
         switch(BLECheckEvent()) {
 
