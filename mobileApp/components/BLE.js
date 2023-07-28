@@ -175,7 +175,7 @@ const BLE = () => {
                 console.log('Enable monitor notification.');
                 await connectedDevice.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
                 
-                currentState = ST_WaitAuthentication;
+                currentState = States.ST_StartAuthentication;
                 authenticationControler(connectedDevice);  
             } else {
                 Alert.alert('Authentication failed !');

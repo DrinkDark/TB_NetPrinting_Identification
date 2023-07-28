@@ -15,6 +15,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Instant;
 
 import static org.apache.tomcat.util.buf.HexUtils.toHexString;
 
@@ -81,7 +82,7 @@ public class RESTController {
         return ResponseEntity.ok(response);
     }
 
-    //get a random 16bytes number
+    //Get a random 16bytes number
     @RequestMapping(method = RequestMethod.GET, path ="/getRandNum")
     public ResponseEntity<RandNum> getRandNum() {
         SecureRandom sr = new SecureRandom();
@@ -90,6 +91,15 @@ public class RESTController {
         sr.nextBytes(rndBytes);
 
         RandNum response = new RandNum(toHexString(rndBytes));
+        return ResponseEntity.ok(response);
+    }
+
+    //Get unix time and date
+    @RequestMapping(method = RequestMethod.GET, path ="/getUnixTimestamp")
+    public ResponseEntity<UnixTimestamp> getUnixTimestamp() {
+        long unixTimestamp = Instant.now().getEpochSecond();
+
+        UnixTimestamp response = new UnixTimestamp(unixTimestamp);
         return ResponseEntity.ok(response);
     }
 }
