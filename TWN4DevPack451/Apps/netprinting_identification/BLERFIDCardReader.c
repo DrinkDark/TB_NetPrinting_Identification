@@ -13,7 +13,7 @@
 
 #include "twn4.sys.h"
 #include "apptools.h"
-
+#include "timer.h"
 
 //------------------------------------------------------------------------------------
 //                                  DEFINE CONSTANT  
@@ -53,6 +53,17 @@ enum States {
 
 bool BLEDeviceConnected = false;    // A BLE device is connected
 
+struct DateTime {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+};
+
+struct DateTime currentTime = {2023, 07, 28, 14, 16, 00};
+
 /**
  * Startup fonction for the card reader
  * 
@@ -69,6 +80,7 @@ void OnStartup(void)
     SetVolume(50);
     BeepLow();
     BeepHigh();
+
 }
 
 /**
@@ -316,6 +328,147 @@ void chooseSMstateAttributeChanged(bool dataReceived) {
     }
 }
 
+/**
+ * Check if a year leap
+ * Is leap if : year divisible 4 but not by 100, except when it is also divisible by 400
+ * 
+ * @param year year to check if is leap
+ * @return 1 if true, 0 if false
+*/
+int isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+/**
+ * Update time and date with elapsed time in ms
+ * 
+ * @param dateTime pointer to the time and date struct
+ * @param elapsedTime elapsed time in ms
+*/
+void updateTime(struct DateTime *dateTime, int elapsedTime) {
+    int elapsedSeconds = elapsedTime / 1000;   // Transform elapsed time in s
+
+    dateTime->second += elapsedSeconds; // Update seconds
+
+    // Update minute
+    while (dateTime->second >= 60) {
+        dateTime->second -= 60;
+        dateTime->minute++;
+    }
+
+    // Update hour
+    while (dateTime->minute >= 60) {
+        dateTime->minute -= 60;
+        dateTime->hour++;
+    }
+
+    // Update day
+    while (dateTime->hour >= 24) {
+        dateTime->hour -= 24;
+        dateTime->day++;
+    }
+
+    // Choose correctnumber of days according to the month and leap years
+    while (dateTime->day > 28) {
+        int daysInMonth;
+        switch (dateTime->month) {
+            case 2:     // February
+                daysInMonth = isLeapYear(dateTime->year) ? 29 : 28;
+                break;
+            case 4:     // April
+            case 6:     // June
+            case 9:     // September
+            case 11:    // November
+                daysInMonth = 30;
+                break;
+            default:
+                daysInMonth = 31;
+                break;
+        }
+
+        // Update month
+        if (dateTime->day > daysInMonth) {
+            dateTime->day -= daysInMonth;
+            dateTime->month++;
+        }
+
+        // Update year
+        if (dateTime->month > 12) {
+            dateTime->month -= 12;
+            dateTime->year++;
+        }
+    }
+}
+
+// Function to encode date and time to UNIX timestamp
+time_t encodeToUnixTimestamp(int year, int month, int day, int hour, int minute, int second) {
+    year -= 1900; // Convert to years since 1900
+    month -= 1;   // Convert to 0-based month (0 for January, 1 for February, etc.)
+
+    time_t unixTimestamp = 0;
+    int daysPerMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // Calculate days from 1970 to the specified year
+    for (int y = 70; y < year; y++) {
+        unixTimestamp += 365;
+        if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) {
+            unixTimestamp++; // Leap year
+        }
+    }
+
+    // Calculate days from January 1st to the specified date
+    for (int m = 0; m < month; m++) {
+        unixTimestamp += daysPerMonth[m];
+        if (m == 1 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
+            unixTimestamp++; // Leap year, February has 29 days
+        }
+    }
+
+    unixTimestamp += day - 1; // Days in the current month
+
+    // Calculate seconds from midnight to the specified time
+    unixTimestamp = unixTimestamp * 24 * 60 * 60 + hour * 60 * 60 + minute * 60 + second;
+
+    return unixTimestamp;
+}
+
+// Function to decode UNIX timestamp to date and time
+void decodeFromUnixTimestamp(time_t unixTimestamp, int* year, int* month, int* day, int* hour, int* minute, int* second) {
+    int daysPerMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    // Calculate years since 1970
+    *year = 1970;
+    while (unixTimestamp >= 365 * 24 * 60 * 60) {
+        if (((*year % 4 == 0 && *year % 100 != 0) || (*year % 400 == 0))) {
+            unixTimestamp -= 366 * 24 * 60 * 60;
+        } else {
+            unixTimestamp -= 365 * 24 * 60 * 60;
+        }
+        (*year)++;
+    }
+
+    // Calculate days and months from January 1st of the current year
+    *month = 0;
+    while (unixTimestamp >= daysPerMonth[*month] * 24 * 60 * 60) {
+        unixTimestamp -= daysPerMonth[*month] * 24 * 60 * 60;
+        if (*month == 1 && ((*year % 4 == 0 && *year % 100 != 0) || (*year % 400 == 0))) {
+            unixTimestamp -= 24 * 60 * 60; // Adjust for the leap year
+        }
+        (*month)++;
+    }
+
+    // Calculate days in the current month
+    *day = unixTimestamp / (24 * 60 * 60) + 1;
+    unixTimestamp -= (*day - 1) * 24 * 60 * 60;
+
+    // Calculate hours, minutes, and seconds
+    *hour = unixTimestamp / (60 * 60);
+    unixTimestamp -= *hour * 60 * 60;
+
+    *minute = unixTimestamp / 60;
+    *second = unixTimestamp % 60;
+}
+
 int main(void)
 {
 	OnStartup();    	
@@ -368,6 +521,8 @@ int main(void)
 
     currentState = ST_OnIdle;
 
+    int elapsedTime = 0;
+    long lastSysTicks = 0;
     while (true)
     {
         //------------------------------------------------------------------------------------
@@ -388,6 +543,29 @@ int main(void)
         int receivedDataBLELength;
 
         byte transformedReceivedDataBLE[BLE_DATA_SIZE];
+
+
+        //------------------------------------------------------------------------------------
+        //-----------------------------  TIME CALCULATION  -----------------------------------
+        long sysTicks = GetSysTicks();
+
+        // GetSysTicks() return a value who will restart at 0 after 2^32 system ticks
+        // Manage the case when the last sysTicks is almost at the max and the new has restart
+        if(sysTicks > lastSysTicks) {
+            elapsedTime += (int) (sysTicks - lastSysTicks);
+        } else {
+            elapsedTime += (int) ((2147483647 - lastSysTicks) + sysTicks);
+        }
+        lastSysTicks = sysTicks;
+
+        // Update time only every second minimum (minimal time unit in the dateTime struct)
+        if (elapsedTime >= 1000)
+        {
+            updateTime(&currentTime, elapsedTime);
+            elapsedTime = 0;
+        } 
+        
+        mktime(&currentTime);
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
