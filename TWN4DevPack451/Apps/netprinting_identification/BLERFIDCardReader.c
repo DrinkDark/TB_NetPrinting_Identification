@@ -3,7 +3,7 @@
 //                        
 //
 // - Read MIFARE card and print ID
-// - Communicate via BLE
+// - Authenticate and identify via BLE
 //      o Advertise
 //      o Connect
 //      o Authentify himself and phone via double authentication using random 16 bytes numbers
@@ -39,19 +39,37 @@
 
 // Enumeration for states of the state machine
 enum States {
-    WaitAuthentication,     // Wait the start of the authentication protocol
-    DeviceAuthentication,   // Device (card reader) authentication is proceeding
-    DeviceAuthenticated,    // The Device is authenticated
-    AppAuthentication,      // App authentication is proceeding
-    WaitAppAuthentication,  // Wait the app's response for the app authentication
-    AppAuthenticated,       // The app is authenticated
-    Authenticated,          // Authentication protocole succeeded and finished
-    Identification,         // App identifies himself (transmits ID)
-    AuthenticationFailed    // A error occurred during the authentication process
+    ST_OnIdle,                  // Wait a connected device
+    ST_WaitAppRandNum,          // Wait the application random number
+    ST_DeviceAuthentication,    // Device (card reader) authentication is proceeding
+    ST_WaitDeviceAuthenticated, // The Device is authenticated
+    ST_AppAuthentication,       // App authentication is proceeding
+    ST_WaitAppAuthentication,   // Wait the app's response for the app authentication
+    ST_AppAuthenticated,        // The app is authenticated
+    ST_WaitIdentification,      // Authentication protocole succeeded and finished
+    ST_Identification,          // App identifies himself (transmits ID)
+    ST_AuthenticationFailed     // A error occurred during the authentication process
 } currentState;
 
 bool BLEDeviceConnected = false;    // A BLE device is connected
 
+/**
+ * Startup fonction for the card reader
+ * 
+ * Function called at startup to initialize the reader
+ * - Set the leds to green and emit a low and high beeps
+ * 
+*/
+void OnStartup(void)
+{
+    LEDInit(REDLED | GREENLED);
+    LEDOn(GREENLED);
+    LEDOff(REDLED);
+    
+    SetVolume(50);
+    BeepLow();
+    BeepHigh();
+}
 
 /**
  * Read card data function
@@ -77,25 +95,6 @@ bool ReadCardData(int TagType,const byte* ID,int IDBitCnt,char *CardString,int M
   	// Convert data to ASCII
     ConvertBinaryToString(CardData,0,CardDataBitCnt,CardString,16,(CardDataBitCnt+7)/8*2,MaxCardStringLen);
     return true;
-}
-
-
-/**
- * Startup fonction for the card reader
- * 
- * Function called at startup to initialize the reader
- * - Set the leds to green and emit a low and high beeps
- * 
-*/
-void OnStartup(void)
-{
-    LEDInit(REDLED | GREENLED);
-    LEDOn(GREENLED);
-    LEDOff(REDLED);
-    
-    SetVolume(50);
-    BeepLow();
-    BeepHigh();
 }
 
 /**
@@ -174,6 +173,8 @@ void deviceConnected() {
 
     BLEDeviceConnected = true;
 
+    currentState = ST_WaitAppRandNum;
+
     StartTimer(10000);  // Set the disconnect device timeout to 10s for the BLE
 }
 
@@ -230,10 +231,9 @@ void generateRandNum(byte* randNum){
     // Can produce different sequences of random numbers each time the function is called, as long as the system ticks are different.
     srand(GetSysTicks());
 
-    for (int i = 0; i < sizeof(randNum); i++) {
+    for (int i = 0; i < BLE_DATA_SIZE; i++) {
         randNum[i] = rand() % 256;      // % 256 ensures that the random number is within the range of 0 to 255 (one byte)
     }
-
 }
 
 /**
@@ -250,14 +250,14 @@ void chooseSMstateAttributeChanged(bool dataReceived) {
         //
         // Called when the app has return device authentication confirmation (write a random number in the attribute)
         // -------------------------------------------------------------------------------------
-        case WaitAuthentication:
+        case ST_WaitAppRandNum:
             //HostWriteString("WaitAuthentication");
             //HostWriteString("\r");
 
             if(dataReceived){
-                currentState = DeviceAuthentication;
+                currentState = ST_DeviceAuthentication;
             } else {
-                currentState = AuthenticationFailed;
+                currentState = ST_AuthenticationFailed;
             }
 
             break;
@@ -267,14 +267,14 @@ void chooseSMstateAttributeChanged(bool dataReceived) {
         //
         // Called when the device is authenticated
         // -------------------------------------------------------------------------------------
-        case DeviceAuthenticated:
+        case ST_WaitDeviceAuthenticated:
             //HostWriteString("DeviceAuthenticated");
             //HostWriteString("\r");
 
             if(dataReceived){
-                currentState = AppAuthentication;
+                currentState = ST_AppAuthentication;
             } else {
-                currentState = AuthenticationFailed;
+                currentState = ST_AuthenticationFailed;
             }
 
             break;
@@ -284,30 +284,30 @@ void chooseSMstateAttributeChanged(bool dataReceived) {
         //
         // Called when the app return the encrypt random number
         // -------------------------------------------------------------------------------------
-        case WaitAppAuthentication:
+        case ST_WaitAppAuthentication:
             //HostWriteString("WaitAppAuthentication");
             //HostWriteString("\r");
 
             if(dataReceived){
-                currentState = AppAuthenticated;
+                currentState = ST_AppAuthenticated;
             } else {
-                currentState = AuthenticationFailed;
+                currentState = ST_AuthenticationFailed;
             }
             break;
 
         // -------------------------------------------------------------------------------------
-        // Authenticated
+        // Wait identification
         //
         // Called when both the device and the app are authenticated
         // -------------------------------------------------------------------------------------
-        case Authenticated:
+        case ST_WaitIdentification:
             //HostWriteString("Authenticated");
             //HostWriteString("\r");
 
             if(dataReceived){
-                currentState = Identification;
+                currentState = ST_Identification;
             } else {
-                currentState = AuthenticationFailed;
+                currentState = ST_AuthenticationFailed;
             }
             break;
 
@@ -362,11 +362,11 @@ int main(void)
     Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));   // Enable encryption initialisation with CRYPTO_ENV0 for init vector, CBC-AES128 encryption and the key
 
     byte encryptedData[BLE_DATA_SIZE];
-    byte decryptedData[BLE_DATA_SIZE * 2];
+    byte decryptedData[BLE_DATA_SIZE];
 
     byte randNum[BLE_DATA_SIZE];
 
-    currentState = WaitAuthentication;
+    currentState = ST_OnIdle;
 
     while (true)
     {
@@ -387,7 +387,7 @@ int main(void)
         byte receivedDataBLE[BLE_DATA_SIZE * 2];
         int receivedDataBLELength;
 
-        byte trandformedReceivedDataBLE[BLE_DATA_SIZE];
+        byte transformedReceivedDataBLE[BLE_DATA_SIZE];
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
@@ -418,7 +418,7 @@ int main(void)
         {
             // Control if timer for card or BLE use
             if(BLEDeviceConnected) {
-                currentState = AuthenticationFailed;
+                currentState = ST_AuthenticationFailed;
             } else {
                 OnCardTimeout(OldCardString);
 		        OldCardString[0] = 0;
@@ -436,21 +436,17 @@ int main(void)
                 // Called when a device is connected and write a random number in a charachteristic
                 // Encrypt the data if correct length and send them to the device via a notification 
                 // -------------------------------------------------------------------------------------
-                case DeviceAuthentication:
+                case ST_DeviceAuthentication:
                     //HostWriteString("DeviceAuthentication");
                     //HostWriteString("\r");
 
-                    // Control received data size
-                    if(sizeof(trandformedReceivedDataBLE) == BLE_DATA_SIZE) {
-                        Encrypt(CRYPTO_ENV0, (const) &trandformedReceivedDataBLE, &encryptedData, sizeof(encryptedData));
+                    Encrypt(CRYPTO_ENV0, (const) &transformedReceivedDataBLE, &encryptedData, sizeof(encryptedData));
+                    CBC_ResetInitVector(CRYPTO_ENV0);
 
-                        BLESetGattServerAttributeValue(attrHandle, 0, &encryptedData, sizeof(encryptedData));       // Write the encrypt data in the attribute and send a notification to the device
+                    BLESetGattServerAttributeValue(attrHandle, 0, &encryptedData, sizeof(encryptedData));       // Write the encrypt data in the attribute and send a notification to the device
 
-                        currentState = DeviceAuthenticated;
-                    } else {
-                        currentState = AuthenticationFailed; 
-                    }
-
+                    currentState = ST_WaitDeviceAuthenticated;
+                    
                 break;
 
                 // -------------------------------------------------------------------------------------
@@ -459,7 +455,7 @@ int main(void)
                 // Called when the device has been authenticated
                 // Send a random number to the device via a notification 
                 // -------------------------------------------------------------------------------------
-                case AppAuthentication:
+                case ST_AppAuthentication:
                     //HostWriteString("AppAuthentication");
                     //HostWriteString("\r");
 
@@ -467,7 +463,7 @@ int main(void)
 
                     BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));   // Write the random number in the attribute and send a notification to the device
 
-                    currentState = WaitAppAuthentication;
+                    currentState = ST_WaitAppAuthentication;
 
                     break;
 
@@ -477,27 +473,27 @@ int main(void)
                 // Called when the app has return the encrypt random number
                 // Decrypt and compare to received data to the send random number
                 // -------------------------------------------------------------------------------------
-                case AppAuthenticated:
+                case ST_AppAuthenticated:
                     //HostWriteString("AppAuthenticated");
                     //HostWriteString("\r");
 
-                    Decrypt(CRYPTO_ENV0, (const) &trandformedReceivedDataBLE, &decryptedData, sizeof(decryptedData));
+                    Decrypt(CRYPTO_ENV0, (const) &transformedReceivedDataBLE, &decryptedData, sizeof(decryptedData));
 
                     // The Decrypt function return the data in the incorrect format. It as to be transformed. 
-                    byte transformedDecryptedData[BLE_DATA_SIZE];
-                    transformByteArray(&decryptedData, &transformedDecryptedData);
+                    //byte transformedDecryptedData[BLE_DATA_SIZE];
+                    //transformByteArray(&decryptedData, &transformedDecryptedData);
                     
                     // Compare the received decrypt data with the send random number
-                    if (memcmp(&transformedDecryptedData, &randNum, sizeof(transformedDecryptedData))) {    
+                    if (memcmp(&decryptedData, &randNum, sizeof(decryptedData)) == 0) {    
                     
                         // Write a random number in the attribute and send a notification to the device
                         // to sigifie the the success of the authentication procedure
                         generateRandNum(&randNum);                                            
                         BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
-                        currentState = Authenticated;
+                        currentState = ST_WaitIdentification;
                     } else {
-                        currentState = AuthenticationFailed;
+                        currentState = ST_AuthenticationFailed;
                     }
 
                     break;
@@ -508,7 +504,7 @@ int main(void)
                 // Called when the app is authenticate and it has send is ID 
                 // Output the ID and overwrite the ID in the attribute with a dumb value
                 // -------------------------------------------------------------------------------------
-                case Identification:
+                case ST_Identification:
                     //HostWriteString("Identification");
                     //HostWriteString("\r");
 
@@ -523,7 +519,7 @@ int main(void)
                     generateRandNum(&randNum);
                     BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
-                    currentState = WaitAuthentication;
+                    currentState = ST_OnIdle;
                     break;
 
                 // -------------------------------------------------------------------------------------
@@ -532,7 +528,7 @@ int main(void)
                 // Called when a error occurred in the authentication process 
                 // Overwrite the value in the attribute with a dumb value and disconnect from device
                 // -------------------------------------------------------------------------------------
-                case AuthenticationFailed:
+                case ST_AuthenticationFailed:
                     //HostWriteString("AuthenticationFailed");
                     //HostWriteString("\r");
                     
@@ -545,7 +541,7 @@ int main(void)
                     deviceDisconnected();       // Call callback (normally called by the BLECheckEvent)
                     BLEInit(BLE_MODE_CUSTOM);   // Init BLE to ensure that BLE is working properly on the next connection
 
-                    currentState = WaitAuthentication;
+                    currentState = ST_OnIdle;
                     break;
 
                 default:
@@ -590,7 +586,7 @@ int main(void)
 
                 bool dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE, &receivedDataBLELength, sizeof(receivedDataBLE));  //Read the modified value based on the read attribute handle
 
-                transformByteArray(&receivedDataBLE, &trandformedReceivedDataBLE);  // The data is transmit in the incorrect format. It as to be transformed.
+                transformByteArray(&receivedDataBLE, &transformedReceivedDataBLE);  // The data is transmit in the incorrect format. It as to be transformed.
 
                 chooseSMstateAttributeChanged(dataReceived);    // Choose the correct next state machine state
 

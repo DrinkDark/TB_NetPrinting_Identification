@@ -1,0 +1,53 @@
+<diagram program="umletino" version="15.1"><zoom_level>7</zoom_level><element><id>UMLSpecialState</id><coordinates><x>483</x><y>57</y><w>14</w><h>14</h></coordinates><panel_attributes>type=initial</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>420</x><y>197</y><w>140</w><h>35</h></coordinates><panel_attributes>*ST_WaitAppRandNum*
+--
+Wait application random number</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>64</y><w>21</w><h>63</h></coordinates><panel_attributes>lt=-&gt;</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>225</y><w>21</w><h>49</h></coordinates><panel_attributes>lt=-&gt;
+
+</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLState</id><coordinates><x>420</x><y>309</y><w>140</w><h>49</h></coordinates><panel_attributes>*ST_DeviceAuthentication*
+--
+Encrypt app random number and 
+send to the application using a 
+notification </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>798</x><y>190</y><w>140</w><h>42</h></coordinates><panel_attributes>*ST_WaitAppAuthentication*
+--
+Wait encrypt device random 
+number</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>420</x><y>533</y><w>140</w><h>49</h></coordinates><panel_attributes>*ST_AppAuthentication*
+--
+Generate reader random number 
+and send to the application using 
+a notification </panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>435</y><w>21</w><h>56</h></coordinates><panel_attributes>lt=-&gt;
+</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLState</id><coordinates><x>420</x><y>393</y><w>140</w><h>49</h></coordinates><panel_attributes>*ST_WaitDeviceAuthenticated*
+--
+Wait device authentication 
+confirmation from application
+(random number)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>351</y><w>49</w><h>56</h></coordinates><panel_attributes>lt=-&gt;
+default</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>553</x><y>127</y><w>469</w><h>511</h></coordinates><panel_attributes>lt=-&gt;
+default</panel_attributes><additional_attributes>450;660;450;710;610;710;610;10;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>798</x><y>540</y><w>140</w><h>49</h></coordinates><panel_attributes>*ST_Identification*
+--
+Print received ID and erase ID in
+characteristic by overwritting a 
+dumb value</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>861</x><y>491</y><w>63</w><h>63</h></coordinates><panel_attributes>lt=-&gt;
+ID received</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>UMLState</id><coordinates><x>798</x><y>393</y><w>140</w><h>35</h></coordinates><panel_attributes>*ST_WaitIdentification*
+--
+Wait ID</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>861</x><y>351</y><w>49</w><h>56</h></coordinates><panel_attributes>lt=-&gt;
+default</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLState</id><coordinates><x>798</x><y>309</y><w>140</w><h>49</h></coordinates><panel_attributes>*ST_AppAuthenticated*
+--
+Decrypt reader encrypt random 
+number and compare it with send
+random number</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>155</y><w>399</w><h>483</h></coordinates><panel_attributes>lt=-&gt;
+default</panel_attributes><additional_attributes>10;610;10;670;200;670;200;10;550;10;550;50</additional_attributes></element><element><id>UMLState</id><coordinates><x>189</x><y>113</y><w>140</w><h>49</h></coordinates><panel_attributes>*ST_AuthenticationFailed*
+--
+Erase characteristic's value by 
+overwritting a dumb value and
+disconnect BLE device</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>322</x><y>127</y><w>112</w><h>21</h></coordinates><panel_attributes>lt=-&gt;</panel_attributes><additional_attributes>10;10;140;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>420</x><y>113</y><w>140</w><h>35</h></coordinates><panel_attributes>*ST_OnIdle*
+--
+Wait BLE connected device</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>141</y><w>105</w><h>70</h></coordinates><panel_attributes>lt=-&gt;
+BLE device connected</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>252</x><y>155</y><w>238</w><h>133</h></coordinates><panel_attributes>lt=-&gt;
+</panel_attributes><additional_attributes>320;170;10;170;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>476</x><y>477</y><w>28</w><h>28</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>476</x><y>260</y><w>28</w><h>28</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>281</y><w>140</w><h>42</h></coordinates><panel_attributes>lt=-&gt;
+app random number received
+</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>483</x><y>498</y><w>119</w><h>49</h></coordinates><panel_attributes>lt=-&gt;
+random number received</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>861</x><y>225</y><w>21</w><h>49</h></coordinates><panel_attributes>lt=-&gt;
+
+</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>854</x><y>260</y><w>28</w><h>28</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>861</x><y>281</y><w>112</w><h>42</h></coordinates><panel_attributes>lt=-&gt;
+encrypt device random 
+number received
+</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>252</x><y>267</y><w>616</w><h>420</h></coordinates><panel_attributes></panel_attributes><additional_attributes>860;10;590;10;590;580;10;580;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>357</x><y>260</y><w>126</w><h>28</h></coordinates><panel_attributes>Error : received data empty</panel_attributes><additional_attributes>40;20;130;20</additional_attributes></element><element><id>Relation</id><coordinates><x>252</x><y>477</y><w>238</w><h>28</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;20;320;20</additional_attributes></element><element><id>Relation</id><coordinates><x>735</x><y>260</y><w>126</w><h>28</h></coordinates><panel_attributes>Error : received data empty</panel_attributes><additional_attributes>40;20;130;20</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>854</x><y>470</y><w>28</w><h>28</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>861</x><y>421</y><w>21</w><h>63</h></coordinates><panel_attributes>lt=-&gt;
+</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>658</x><y>470</y><w>210</w><h>28</h></coordinates><panel_attributes></panel_attributes><additional_attributes>10;20;280;20</additional_attributes></element><element><id>Relation</id><coordinates><x>658</x><y>323</y><w>154</w><h>28</h></coordinates><panel_attributes>Error : comparaison not equal</panel_attributes><additional_attributes>10;20;200;20</additional_attributes></element><element><id>Relation</id><coordinates><x>364</x><y>477</y><w>119</w><h>28</h></coordinates><panel_attributes>Error : received data empty</panel_attributes><additional_attributes>20;20;140;20</additional_attributes></element><element><id>Relation</id><coordinates><x>742</x><y>470</y><w>119</w><h>28</h></coordinates><panel_attributes>Error : received data empty</panel_attributes><additional_attributes>20;20;140;20</additional_attributes></element></diagram>

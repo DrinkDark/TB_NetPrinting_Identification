@@ -22,19 +22,20 @@ var modifiedCharac;
 var randNum;
 
 const States = {
-    WaitAuthentication: 'WaitAuthentication',
-    DeviceAuthentication: 'DeviceAuthentication',
-    WaitDeviceAuthentication: 'WaitDeviceAuthentication',
-    DeviceAuthenticated: 'DeviceAuthenticated',
-    WaitDeviceRandNum: 'WaitDeviceRandNum',
-    AppAuthentication: 'AppAuthentication',
-    WaitAppAuthentication: 'WaitAppAuthentication',
-    AppAuthenticated: 'AppAuthenticated',
-    Authenticated: 'Authenticated',
-    AuthenticationFailed: 'AuthFailed'
+    ST_OnIdle: 'ST_OnIdle',
+    ST_StartAuthentication: 'ST_StartAuthentication',
+    ST_DeviceAuthentication: 'ST_DeviceAuthentication',
+    ST_WaitDeviceAuthentication: 'ST_WaitDeviceAuthentication',
+    ST_DeviceAuthenticated: 'ST_DeviceAuthenticated',
+    ST_WaitDeviceRandNum: 'ST_WaitDeviceRandNum',
+    ST_AppAuthentication: 'ST_AppAuthentication',
+    ST_WaitAppAuthentication: 'ST_WaitAppAuthentication',
+    ST_AppAuthenticated: 'ST_AppAuthenticated',
+    ST_Authenticated: 'ST_Authenticated',
+    ST_AuthenticationFailed: 'AuthFailed'
   };
 
-var currentState = States.WaitAuthentication;
+var currentState = States.ST_OnIdle;
 
 const BLE = () => {
     const [printedText, setPrintedText] = useState('');
@@ -76,7 +77,7 @@ const BLE = () => {
                 break; 
             }
         }
-        return exist;Wa
+        return exist;
     };
     
     const onNotificationReceived = (
@@ -85,7 +86,13 @@ const BLE = () => {
       ) => {
         if (error) {
             //console.log('Error notification (charachteristic : ' + characteristic.uuid + ')'); 
+            if(currentState != States.ST_OnIdle) {
                 console.log(error);
+
+                currentState = States.ST_AuthenticationFailed;
+                authenticationControler();
+            }
+  
         } else if (!characteristic?.value) {
             //console.log('Notification (charachteristic : ' + characteristic.uuid + ') received with no data');
         } else {
@@ -93,16 +100,16 @@ const BLE = () => {
             modifiedCharac = Buffer.from(characteristic.value, 'base64').toString('hex');
 
             switch(currentState) {
-                case States.WaitDeviceAuthentication:
-                    currentState = States.DeviceAuthentication;
+                case States.ST_WaitDeviceAuthentication:
+                    currentState = States.ST_DeviceAuthentication;
                 break;
 
-                case States.WaitDeviceRandNum:
-                    currentState = States.AppAuthentication;
+                case States.ST_WaitDeviceRandNum:
+                    currentState = States.ST_AppAuthentication;
                     break;
     
-                case States.WaitAppAuthentication:
-                    currentState = States.AppAuthenticated;
+                case States.ST_WaitAppAuthentication:
+                    currentState = States.ST_AppAuthenticated;
                     break;
 
                 default:
@@ -133,7 +140,7 @@ const BLE = () => {
     };
 
     scanForDevices = async () => {
-        if(userID !== '' && currentState === States.WaitAuthentication){
+        if(userID !== '' && currentState === States.ST_OnIdle){
             console.log("Start scanning...");
             setPrintedText('Discovering ...');
 
@@ -167,7 +174,8 @@ const BLE = () => {
     
                 console.log('Enable monitor notification.');
                 await connectedDevice.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
-    
+                
+                currentState = ST_WaitAuthentication;
                 authenticationControler(connectedDevice);  
             } else {
                 Alert.alert('Authentication failed !');
@@ -188,7 +196,7 @@ const BLE = () => {
             return randNum;
         } catch (error) {
             console.error(error);
-            currentState = States.AuthenticationFailed;
+            currentState = States.ST_AuthenticationFailed;
         }
     };
 
@@ -201,7 +209,7 @@ const BLE = () => {
             return decryptData;
         } catch (error) {
             console.error(error);
-            currentState = States.AuthenticationFailed;
+            currentState = States.ST_AuthenticationFailed;
         }
     };
 
@@ -214,67 +222,68 @@ const BLE = () => {
             return encryptData;
         } catch (error) {
             console.error(error);
-            currentState = States.AuthenticationFailed;
+            currentState = States.ST_AuthenticationFailed;
         }
     };
     
     const authenticationControler = async() => {
         while(true){
             switch(currentState) {
-                case States.WaitAuthentication:
+                case States.ST_StartAuthentication:
                     console.log('Authentication protocol started...');
                     if(await sendValue(await getRandomNum())){
-                        currentState = States.WaitDeviceAuthentication;
+                        currentState = States.ST_WaitDeviceAuthentication;
                         return;
                     } else {
-                        currentState = States.AuthenticationFailed;
+                        currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
-                case States.DeviceAuthentication:
+                case States.ST_DeviceAuthentication:
                     if(randNum === await getDecryptedData(modifiedCharac)) {
                         console.log('Device authenticate');
-                        currentState = States.DeviceAuthenticated;
+                        currentState = States.ST_DeviceAuthenticated;
                     } else{
-                        currentState = States.AuthenticationFailed;
+                        currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
-                case States.DeviceAuthenticated:
+                case States.ST_DeviceAuthenticated:
                     if(await sendValue(await getRandomNum())){;
-                        currentState = States.WaitDeviceRandNum;
+                        currentState = States.ST_WaitDeviceRandNum;
                         return;
                     } else {
-                        currentState = States.AuthenticationFailed;
+                        currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
-                case States.AppAuthentication:
+                case States.ST_AppAuthentication:
+                    console.log('Device random number : ' + modifiedCharac);
                     if(await sendValue(await getEncryptedData(modifiedCharac))){;
-                        currentState = States.WaitAppAuthentication;
+                        currentState = States.ST_WaitAppAuthentication;
                         return;
                     } else {
-                        currentState = States.AuthenticationFailed;
+                        currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
-                case States.AppAuthenticated:
+                case States.ST_AppAuthenticated:
                     if(await sendValue(userID)){;
-                        currentState = States.Authenticated;
+                        currentState = States.ST_Authenticated;
                     } else {
-                        currentState = States.AuthenticationFailed;
+                        currentState = States.ST_AuthenticationFailed;
                     }
                 break;
 
-                case States.Authenticated:
+                case States.ST_Authenticated:
                     Alert.alert('User ID successfully sent to the card reader !');
                     console.log('Authentication done, ID send !');
                     disconnectFromDevice(connectedDevice);
 
-                    currentState = States.WaitAuthentication;
+                    currentState = States.ST_OnIdle;
                     return;
     
-                case States.AuthenticationFailed:
+                case States.ST_AuthenticationFailed:
                     Alert.alert('Authentication failed !');
                     console.log('Authentication failed !');
                     disconnectFromDevice(connectedDevice)
@@ -295,7 +304,6 @@ const BLE = () => {
                 return true;
             } else {
                 console.log('Value send failed: ', value);
-                currentState = States.AuthenticationFailed;
                 return false;
             }  
         } catch (e) {
@@ -308,7 +316,7 @@ const BLE = () => {
         try {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             clearDeviceList();
-            currentState = States.WaitAuthentication;
+            currentState = States.ST_OnIdle;
 
             console.log('Device disconnected : ' + connectedDevice.name);
             setPrintedText('');
