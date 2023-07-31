@@ -10,12 +10,12 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>tb.adrirey</groupId>
-	<artifactId>backend</artifactId>
+	<artifactId>middleware</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>backend</name>
-	<description>Backend for TB</description>
+	<name>middleware</name>
+	<description>Middleware for BLE identification</description>
 	<properties>
-		<java.version>20</java.version>
+		<java.version>16</java.version>
 	</properties>
 	<dependencies>
 

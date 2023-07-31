@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.net.SocketException;
 
-
 @SpringBootApplication
 public class MiddlewareApplication {
 
