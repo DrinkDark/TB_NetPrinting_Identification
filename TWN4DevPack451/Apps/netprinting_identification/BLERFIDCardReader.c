@@ -53,7 +53,7 @@ enum States {
 
 bool BLEDeviceConnected = false;    // A BLE device is connected
 
-long long unixCurrentTime = 1690495200;     // Seconds since 1 januar 1970
+long unixCurrentTime = 1690495200;     // Seconds since 1 januar 1970
 
 /**
  * Startup fonction for the card reader
@@ -408,14 +408,13 @@ int main(void)
         }
         lastSysTicks = sysTicks;
 
-        // Update time only every second minimum (minimal time unit in the dateTime struct)
+        // Update time only every second minimum (minimal time unit)
         if (elapsedTime >= 1000)
         {
-            updateTime(&currentTime, elapsedTime);
-            elapsedTime = 0;
+            unixCurrentTime = (long) (elapsedTime / 1000);  // Add elapsed seconds
+            elapsedTime = elapsedTime % 1000;               // Store the remaining time (when less than a second remaining)
         } 
         
-        mktime(&currentTime);
 
         //------------------------------------------------------------------------------------
         //------------------------------  CARD IDENTIFICATION  -------------------------------
