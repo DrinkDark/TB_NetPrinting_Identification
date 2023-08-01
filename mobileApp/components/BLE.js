@@ -226,6 +226,18 @@ const BLE = () => {
         }
     };
     
+    const getSignedMessage = async() => {
+        try {
+            const response = await axios.get(`http://${ipAddress}:8080/getSignedMessage?userID=${userID}`);
+            
+            console.log('Signed message : ' + response.data.signedMessage);
+            return response.data.signedMessage;
+        } catch (error) {
+            console.error(error);
+            currentState = States.ST_AuthenticationFailed;
+        }
+    };
+
     const authenticationControler = async() => {
         while(true){
             switch(currentState) {
@@ -268,7 +280,7 @@ const BLE = () => {
                     break;
 
                 case States.ST_AppAuthenticated:
-                    if(await sendValue(userID)){;
+                    if(await sendValue(await getSignedMessage())){;
                         currentState = States.ST_Authenticated;
                     } else {
                         currentState = States.ST_AuthenticationFailed;

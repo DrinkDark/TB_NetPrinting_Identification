@@ -37,7 +37,7 @@ public class RESTController {
      * @param value variable to transform
      * @return transformed variable
      */
-    public static byte[] longToBytes(long value) {
+    public byte[] longToBytes(long value) {
         return new byte[]{
                 (byte) (value >>> 56),
                 (byte) (value >>> 48),
@@ -175,17 +175,18 @@ public class RESTController {
      *
      * Return it in JSON format
      *
-     * @param userName userName to get userID
+     * @param userID userName to get userID
      * @return  ResponseEntity containing the signed message
      */
     @RequestMapping(method = RequestMethod.GET, path ="/getSignedMessage")
-    public ResponseEntity<SignedMessage> getSignedMessage(@RequestParam String userName) {
+    public ResponseEntity<SignedMessage> getSignedMessage(@RequestParam String userID) {
         byte[] signedMessage = new byte[32];
 
-        byte[] userID = scp.getUserProperty(userName, "secondary-card-number").getBytes(StandardCharsets.UTF_8);                 // Get userID based on user name in the print manager server
-        System.arraycopy(userID, 0, signedMessage, 0, userID.length);                                                          //Copy the user into the signed message
-        System.arraycopy(longToBytes(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                           // Copy the current time into the signed message
-        System.arraycopy(longToBytes(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);       // Copy the expiration time into the signed message (24h)
+        byte[] userIDArray = userID.getBytes(StandardCharsets.UTF_8);
+
+        System.arraycopy(userIDArray, 0, signedMessage, (8 - Math.min(userIDArray.length, 8)), Math.min(userIDArray.length, 8));                                    //Copy the user into the signed message (maximum 8 bytes, if more take 8 first bytes)
+        System.arraycopy(longToBytes(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                            // Copy the current time into the signed message
+        System.arraycopy(longToBytes(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)
 
         SignedMessage response = new SignedMessage(sec.encryptData(toHexString(signedMessage)));    ;      //Convert the byte aray to hex string
         return ResponseEntity.ok(response);
