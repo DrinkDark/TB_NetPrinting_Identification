@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tb.adrirey.middleware.Response.*;
 
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
 
@@ -32,17 +31,38 @@ public class RESTController {
     }
 
     /**
-     * Transform long variable to bytes array
+     * Transform long variable to byte array (length 8)
      *
      * @param value variable to transform
      * @return transformed variable
      */
-    public byte[] longToBytes(long value) {
+    public byte[] longTo8ByteArray(long value) {
         return new byte[]{
                 (byte) (value >>> 56),
                 (byte) (value >>> 48),
                 (byte) (value >>> 40),
                 (byte) (value >>> 32),
+                (byte) (value >>> 24),
+                (byte) (value >>> 16),
+                (byte) (value >>> 8),
+                (byte) value
+        };
+    }
+
+    /**
+     * Transform int variable to byte array (length 8)
+     *
+     * An integer contain 4 bytes. The for most significant bytes filled with 0
+     *
+     * @param value variable to transform
+     * @return transformed variable
+     */
+    public byte[] intTo8ByteArray(int value) {
+        return new byte[]{
+                0x00,                       // Padding byte
+                0x00,                       // Padding byte
+                0x00,                       // Padding byte
+                0x00,                       // Padding byte
                 (byte) (value >>> 24),
                 (byte) (value >>> 16),
                 (byte) (value >>> 8),
@@ -182,13 +202,13 @@ public class RESTController {
     public ResponseEntity<SignedMessage> getSignedMessage(@RequestParam String userID) {
         byte[] signedMessage = new byte[32];
 
-        byte[] userIDArray = userID.getBytes(StandardCharsets.UTF_8);
+        byte[] userIDArray = intTo8ByteArray(Integer.parseInt(userID));
 
         System.arraycopy(userIDArray, 0, signedMessage, (8 - Math.min(userIDArray.length, 8)), Math.min(userIDArray.length, 8));                                    //Copy the user into the signed message (maximum 8 bytes, if more take 8 first bytes)
-        System.arraycopy(longToBytes(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                            // Copy the current time into the signed message
-        System.arraycopy(longToBytes(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)
+        System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                            // Copy the current time into the signed message
+        System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)
 
-        SignedMessage response = new SignedMessage(sec.encryptData(toHexString(signedMessage)));    ;      //Convert the byte aray to hex string
+        SignedMessage response = new SignedMessage(toHexString(signedMessage));    ;      //Convert the byte aray to hex string
         return ResponseEntity.ok(response);
     }
 }
