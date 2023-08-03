@@ -31,7 +31,8 @@ const States = {
     ST_AppAuthentication: 'ST_AppAuthentication',
     ST_WaitAppAuthentication: 'ST_WaitAppAuthentication',
     ST_AppAuthenticated: 'ST_AppAuthenticated',
-    ST_Authenticated: 'ST_Authenticated',
+    ST_WaitIdentification: 'ST_WaitIdentification',
+    ST_Identicated: 'ST_Identicated',
     ST_AuthenticationFailed: 'AuthFailed'
   };
 
@@ -112,6 +113,11 @@ const BLE = () => {
                     currentState = States.ST_AppAuthenticated;
                     break;
 
+                case States.ST_WaitIdentification:
+                    currentState = States.ST_Identicated;
+                    console.log("ST_WaitIdentification");
+                    break;
+                    
                 default:
                     break;
             }
@@ -281,13 +287,14 @@ const BLE = () => {
 
                 case States.ST_AppAuthenticated:
                     if(await sendValue(await getSignedMessage())){;
-                        currentState = States.ST_Authenticated;
+                        currentState = States.ST_WaitIdentification;
+                        return;
                     } else {
                         currentState = States.ST_AuthenticationFailed;
                     }
                 break;
 
-                case States.ST_Authenticated:
+                case States.ST_Identicated:
                     Alert.alert('User ID successfully sent to the card reader !');
                     console.log('Authentication done, ID send !');
                     disconnectFromDevice(connectedDevice);

@@ -57,7 +57,7 @@ enum States {
 
 bool BLEDeviceConnected = false;    // A BLE device is connected
 
-long currentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
+int64_t currentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
 
 /**
  * Startup fonction for the card reader
@@ -257,6 +257,23 @@ void getBytes(byte* sourceArray, int startIndex, int endIndex, byte* destination
     for (int i = 0; i < (endIndex - startIndex + 1); i++) {
         destinationArray[i] = sourceArray[startIndex + i];
     }
+}
+
+/**
+ * Convert from byte array to long
+ * 
+ * @param sourceArray pointer to the source array
+ * @param arraySize size of the source array
+ * 
+ * @return result value convert in long
+*/
+uint64_t byteArrayToLong(byte* sourceArray, uint8_t arraySize) {
+    uint64_t result = 0;
+
+    for ( int i = 0 ; i < arraySize ; i++ ){
+        result = (result << 8) | sourceArray[i];
+    }
+    return result;
 }
 
 /**
@@ -568,22 +585,14 @@ int main(void)
 
                     transformByteArray(&receivedDataBLE64, sizeof(receivedDataBLE64), &transformedReceivedDataBLE32);
 
-                    byte byteBuffer[8];
-                    getBytes(&transformedReceivedDataBLE32, 8, 15, &byteBuffer);
+                    byte messageCurrentTime[8];
+                    getBytes(&transformedReceivedDataBLE32, 8, 15, &messageCurrentTime);
 
-                    int64_t messageCurrentTime = 0;
-                    for ( int i = 0 ; i < sizeof(byteBuffer) ; i++ ){
-                        messageCurrentTime = (messageCurrentTime << 8) | byteBuffer[i];
-                    }
+                    byte messageExpirationTime[8];
+                    getBytes(&transformedReceivedDataBLE32, 16, 23, &messageExpirationTime);
 
-                    getBytes(&transformedReceivedDataBLE32, 16, 23, &byteBuffer);
-
-                    int64_t messageExpirationTime = 0;
-                    for ( int i = 0 ; i < sizeof(byteBuffer) ; i++ ){
-                        messageExpirationTime = (messageExpirationTime << 8) | byteBuffer[i];
-                    }
-
-                    if(messageExpirationTime >= messageCurrentTime && messageExpirationTime >= currentTime) {
+                    if(byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= byteArrayToLong(messageCurrentTime, sizeof(messageCurrentTime)) && 
+                        byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= currentTime) {
                         if(messageCurrentTime > currentTime) {
                             currentTime = messageCurrentTime;
                         }
@@ -599,10 +608,9 @@ int main(void)
                         }
                         HostWriteString("\r");
 
-                        // Write a dumb value in the attribute to overwrite the make disappear the ID
-                        attrHandle -= (int)(0b1000000000000000);    // bit 15 of the attribute handle to 0 -> write without notification
+                        // Write a random number in the attribute to signify the succeed of the authentication procedure
                         generateRandNum(&randNum);
-                        //BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
+                        BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
                         length64 = false;
 
