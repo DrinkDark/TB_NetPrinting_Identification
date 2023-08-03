@@ -1,9 +1,12 @@
 package tb.adrirey.middleware;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tb.adrirey.middleware.Response.*;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
 
@@ -199,16 +202,16 @@ public class RESTController {
      * @return  ResponseEntity containing the signed message
      */
     @RequestMapping(method = RequestMethod.GET, path ="/getSignedMessage")
-    public ResponseEntity<SignedMessage> getSignedMessage(@RequestParam String userID) {
-        byte[] signedMessage = new byte[32];
-
-        byte[] userIDArray = intTo8ByteArray(Integer.parseInt(userID));
-
+    public ResponseEntity<SignedMessage> getSignedMessage(@RequestParam String userID) throws DecoderException {
+        byte signedMessage[] = new byte[32];
+        byte userIDArray[] = new byte[8];
+        userIDArray = Hex.decodeHex(userID.toCharArray());
+        
         System.arraycopy(userIDArray, 0, signedMessage, (8 - Math.min(userIDArray.length, 8)), Math.min(userIDArray.length, 8));                                    //Copy the user into the signed message (maximum 8 bytes, if more take 8 first bytes)
         System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                            // Copy the current time into the signed message
         System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)
 
-        SignedMessage response = new SignedMessage(toHexString(signedMessage));    ;      //Convert the byte aray to hex string
+        SignedMessage response = new SignedMessage(toHexString(signedMessage));    ;      //Convert the byte array to hex string
         return ResponseEntity.ok(response);
     }
 }

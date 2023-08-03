@@ -13,7 +13,6 @@
 
 #include "twn4.sys.h"
 #include "apptools.h"
-#include "timer.h"
 
 //------------------------------------------------------------------------------------
 //                                  DEFINE CONSTANT  
@@ -35,7 +34,12 @@
 #define MAXCARDIDLEN            32		// Length in bytes
 #define MAXCARDSTRINGLEN		128   	// Length W/O null-termination
 
-#define BLE_DATA_SIZE			16      // Max length of a BLE packet
+#define LENGTH_8_BYTES			8       // 8 bytes length
+#define LENGTH_16_BYTES			16      // 16 bytes length
+#define LENGTH_32_BYTES			32      // 32 bytes length
+#define LENGTH_64_BYTES			64      // 64 bytes length
+
+bool length64 = false;
 
 // Enumeration for states of the state machine
 enum States {
@@ -53,7 +57,7 @@ enum States {
 
 bool BLEDeviceConnected = false;    // A BLE device is connected
 
-long unixCurrentTime = 1690495200;     // Seconds since 1 januar 1970
+long currentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
 
 /**
  * Startup fonction for the card reader
@@ -206,11 +210,12 @@ void deviceDisconnected() {
  * ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
  * 
  * @param array : pointer to the array to transform
+ * @param arraySize : size of the array to merge
  * @param transformedArray : pointer to the transformed array
  * 
 */
-void transformByteArray(byte* array, byte* transformedArray){   
-    for (size_t i = 0; i < (BLE_DATA_SIZE * 2); i += 2) {
+void transformByteArray(byte* array, int arraySize, byte* transformedArray){   
+    for (size_t i = 0; i < arraySize; i += 2) {
         char high = (array)[i];
         char low = (array)[i + 1];
 
@@ -224,7 +229,7 @@ void transformByteArray(byte* array, byte* transformedArray){
 /**
  * Generate a random number 
  * 
- * Function to generate a random bytes number of the argument size
+ * Function to generate a random 16 bytes number of the argument size
  * 
  * @param randNum : pointer to the random number
  * 
@@ -234,7 +239,7 @@ void generateRandNum(byte* randNum){
     // Can produce different sequences of random numbers each time the function is called, as long as the system ticks are different.
     srand(GetSysTicks());
 
-    for (int i = 0; i < BLE_DATA_SIZE; i++) {
+    for (int i = 0; i < LENGTH_16_BYTES; i++) {
         randNum[i] = rand() % 256;      // % 256 ensures that the random number is within the range of 0 to 255 (one byte)
     }
 }
@@ -364,36 +369,41 @@ int main(void)
 
     Crypto_Init(CRYPTO_ENV0, CRYPTOMODE_CBC_AES128, &aesKey, sizeof(aesKey));   // Enable encryption initialisation with CRYPTO_ENV0 for init vector, CBC-AES128 encryption and the key
 
-    byte encryptedData[BLE_DATA_SIZE];
-    byte decryptedData[BLE_DATA_SIZE];
+    byte encryptedData[LENGTH_16_BYTES];
+    byte decryptedData[LENGTH_16_BYTES];
 
-    byte randNum[BLE_DATA_SIZE];
+    byte randNum[LENGTH_16_BYTES];
 
     currentState = ST_OnIdle;
 
     int elapsedTime = 0;
     long lastSysTicks = 0;
+
+    //------------------------------------------------------------------------------------
+    //--------------------------------  CARD VALUES  -------------------------------------
+
+    int TagType;
+    int IDBitCnt;
+    byte ID[LENGTH_32_BYTES];
+
+    //------------------------------------------------------------------------------------
+    //--------------------------------  BLE VALUES  --------------------------------------
+
+    int attrHandle;
+    int attrStatusFlag;
+    int attrConfigFlag;
+
+    byte receivedDataBLE32[LENGTH_32_BYTES];
+    byte receivedDataBLE64[LENGTH_64_BYTES];
+
+    int receivedDataBLELength;
+
+    byte transformedReceivedDataBLE16[LENGTH_16_BYTES];
+    byte transformedReceivedDataBLE32[LENGTH_32_BYTES];
+
     while (true)
     {
-        //------------------------------------------------------------------------------------
-        //--------------------------------  CARD VALUES  -------------------------------------
-
-		int TagType;
-		int IDBitCnt;
-		byte ID[32];
-
-        //------------------------------------------------------------------------------------
-        //--------------------------------  BLE VALUES  --------------------------------------
-
-        int attrHandle;
-        int attrStatusFlag;
-        int attrConfigFlag;
-
-        byte receivedDataBLE[BLE_DATA_SIZE * 2];
-        int receivedDataBLELength;
-
-        byte transformedReceivedDataBLE[BLE_DATA_SIZE];
-
+       
 
         //------------------------------------------------------------------------------------
         //-----------------------------  TIME CALCULATION  -----------------------------------
@@ -411,7 +421,7 @@ int main(void)
         // Update time only every second minimum (minimal time unit)
         if (elapsedTime >= 1000)
         {
-            unixCurrentTime = (long) (elapsedTime / 1000);  // Add elapsed seconds
+            currentTime = (long) (elapsedTime / 1000);      // Add elapsed seconds
             elapsedTime = elapsedTime % 1000;               // Store the remaining time (when less than a second remaining)
         } 
         
@@ -467,7 +477,7 @@ int main(void)
                     //HostWriteString("DeviceAuthentication");
                     //HostWriteString("\r");
 
-                    Encrypt(CRYPTO_ENV0, (const) &transformedReceivedDataBLE, &encryptedData, sizeof(encryptedData));
+                    Encrypt(CRYPTO_ENV0, (const) &transformedReceivedDataBLE16, &encryptedData, sizeof(encryptedData));
                     CBC_ResetInitVector(CRYPTO_ENV0);
 
                     BLESetGattServerAttributeValue(attrHandle, 0, &encryptedData, sizeof(encryptedData));       // Write the encrypt data in the attribute and send a notification to the device
@@ -504,7 +514,7 @@ int main(void)
                     //HostWriteString("AppAuthenticated");
                     //HostWriteString("\r");
 
-                    Decrypt(CRYPTO_ENV0, (const) &transformedReceivedDataBLE, &decryptedData, sizeof(decryptedData));
+                    Decrypt(CRYPTO_ENV0, (const) &transformedReceivedDataBLE16, &decryptedData, sizeof(decryptedData));
 
                     // The Decrypt function return the data in the incorrect format. It as to be transformed. 
                     //byte transformedDecryptedData[BLE_DATA_SIZE];
@@ -517,6 +527,8 @@ int main(void)
                         // to sigifie the the success of the authentication procedure
                         generateRandNum(&randNum);                                            
                         BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
+
+                        length64 = true;
 
                         currentState = ST_WaitIdentification;
                     } else {
@@ -532,22 +544,59 @@ int main(void)
                 // Output the ID and overwrite the ID in the attribute with a dumb value
                 // -------------------------------------------------------------------------------------
                 case ST_Identification:
+                {
                     //HostWriteString("Identification");
                     //HostWriteString("\r");
 
-                    //Output read value byte by byte 
-                    for(uint8_t j = 0; j < receivedDataBLELength; j++){ 
-                        HostWriteByte(receivedDataBLE[j]);
+                    char userID[16];
+                    memcpy(userID, receivedDataBLE64, 16);
+
+                    transformByteArray(&receivedDataBLE64, sizeof(receivedDataBLE64), &transformedReceivedDataBLE32);
+
+                    byte tempBuffer[8];
+
+                    for (size_t i = 0; i < 8; i++) {
+                        tempBuffer[i] = transformedReceivedDataBLE32[8 + i];
                     }
-                    HostWriteString("\r");
 
-                    // Write a dumb value in the attribute to overwrite the make disappear the ID
-                    attrHandle -= (int)(0b1000000000000000);    // bite 15 of the attribute handle to 0 -> write without notification
-                    generateRandNum(&randNum);
-                    BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
+                    long messageCurrentTime = (long) tempBuffer;
 
-                    currentState = ST_OnIdle;
+                    for (size_t i = 0; i < 8; i++) {
+                        tempBuffer[i] = transformedReceivedDataBLE32[16 + i];
+                    }
+
+                    long messageExpirationTime = (long) tempBuffer;
+
+                    if(messageExpirationTime >= messageCurrentTime && messageExpirationTime >= currentTime) {
+                        if(messageCurrentTime > currentTime) {
+                            currentTime = messageCurrentTime;
+                        }
+
+                        // Write userID
+                        for (int i = 0; i < 16; i++)
+                        {
+                            // Didn't write padding bytes
+                            if(userID[i] != '0'){
+                                HostWriteChar(userID[i]);
+                            }
+                            
+                        }
+                            HostWriteString("\r");
+
+                        // Write a dumb value in the attribute to overwrite the make disappear the ID
+                        attrHandle -= (int)(0b1000000000000000);    // bit 15 of the attribute handle to 0 -> write without notification
+                        generateRandNum(&randNum);
+                        BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
+
+                        length64 = false;
+
+                        currentState = ST_OnIdle;
+                    } else {
+                        currentState = ST_AuthenticationFailed;
+                    }
                     break;
+                }
+                    
 
                 // -------------------------------------------------------------------------------------
                 // Authentification failed
@@ -560,7 +609,7 @@ int main(void)
                     //HostWriteString("\r");
                     
                     // Write a dumb value in the attribute to overwrite the make disappear the ID
-                    attrHandle -= (int)(0b1000000000000000);     // bite 15 of the attribute handle to 0 -> write without notification 
+                    attrHandle -= (int)(0b1000000000000000);     // bit 15 of the attribute handle to 0 -> write without notification 
                     generateRandNum(&randNum);
                     BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
@@ -611,9 +660,17 @@ int main(void)
                 
                 attrHandle += (int)(0b1000000000000000);    //Attribute handle bit 15 have to be set to 1 when event BLE_EVENT_GATT_SERVER_ATTRIBUTE_VALUE
 
-                bool dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE, &receivedDataBLELength, sizeof(receivedDataBLE));  //Read the modified value based on the read attribute handle
+                bool dataReceived = false;
 
-                transformByteArray(&receivedDataBLE, &transformedReceivedDataBLE);  // The data is transmit in the incorrect format. It as to be transformed.
+                //Read the modified 32 or 64 bytes value based on the read attribute handle
+                // The data is transmit in the incorrect format. It as to be transformed.
+                if(length64) {
+                    dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE64, &receivedDataBLELength, sizeof(receivedDataBLE64));
+   
+                } else {
+                    dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE32, &receivedDataBLELength, sizeof(receivedDataBLE32));  
+                    transformByteArray(&receivedDataBLE32, sizeof(receivedDataBLE32), &transformedReceivedDataBLE16); 
+                }
 
                 chooseSMstateAttributeChanged(dataReceived);    // Choose the correct next state machine state
 
