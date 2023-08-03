@@ -206,7 +206,7 @@ public class RESTController {
         byte signedMessage[] = new byte[32];
         byte userIDArray[] = new byte[8];
         userIDArray = Hex.decodeHex(userID.toCharArray());
-        
+
         System.arraycopy(userIDArray, 0, signedMessage, (8 - Math.min(userIDArray.length, 8)), Math.min(userIDArray.length, 8));                                    //Copy the user into the signed message (maximum 8 bytes, if more take 8 first bytes)
         System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                            // Copy the current time into the signed message
         System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)

@@ -209,20 +209,20 @@ void deviceDisconnected() {
  * Function to transform a byte array by merging every two bytes into one byte
  * ex: {0x1, 0x2, 0x3, 0x4, ...} -> {0x12, 0x34, ...}
  * 
- * @param array : pointer to the array to transform
- * @param arraySize : size of the array to merge
- * @param transformedArray : pointer to the transformed array
+ * @param sourceArray pointer to the array to transform
+ * @param arraySize size of the array to merge
+ * @param destinationArray pointer to the transformed array
  * 
 */
-void transformByteArray(byte* array, int arraySize, byte* transformedArray){   
+void transformByteArray(byte* sourceArray, int arraySize, byte* destinationArray){   
     for (size_t i = 0; i < arraySize; i += 2) {
-        char high = (array)[i];
-        char low = (array)[i + 1];
+        char high = (sourceArray)[i];
+        char low = (sourceArray)[i + 1];
 
         high = ScanHexChar(high);
         low = ScanHexChar(low);
 
-        transformedArray[i / 2] = ((high << 4) | (low & 0x0F));
+        destinationArray[i / 2] = ((high << 4) | (low & 0x0F));
     }
 }
 
@@ -231,7 +231,7 @@ void transformByteArray(byte* array, int arraySize, byte* transformedArray){
  * 
  * Function to generate a random 16 bytes number of the argument size
  * 
- * @param randNum : pointer to the random number
+ * @param randNum pointer to the random number
  * 
 */
 void generateRandNum(byte* randNum){
@@ -241,6 +241,21 @@ void generateRandNum(byte* randNum){
 
     for (int i = 0; i < LENGTH_16_BYTES; i++) {
         randNum[i] = rand() % 256;      // % 256 ensures that the random number is within the range of 0 to 255 (one byte)
+    }
+}
+
+/**
+ * Get specific bytes
+ * 
+ * @param sourceArray pointer to the source array
+ * @param startIndex index to start
+ * @param endIndex index to end
+ * @param destinationArray pointer to the destination array
+ * 
+*/
+void getBytes(byte* sourceArray, int startIndex, int endIndex, byte* destinationArray) {
+    for (int i = 0; i < (endIndex - startIndex + 1); i++) {
+        destinationArray[i] = sourceArray[startIndex + i];
     }
 }
 
@@ -553,19 +568,20 @@ int main(void)
 
                     transformByteArray(&receivedDataBLE64, sizeof(receivedDataBLE64), &transformedReceivedDataBLE32);
 
-                    byte tempBuffer[8];
+                    byte byteBuffer[8];
+                    getBytes(&transformedReceivedDataBLE32, 8, 15, &byteBuffer);
 
-                    for (size_t i = 0; i < 8; i++) {
-                        tempBuffer[i] = transformedReceivedDataBLE32[8 + i];
+                    int64_t messageCurrentTime = 0;
+                    for ( int i = 0 ; i < sizeof(byteBuffer) ; i++ ){
+                        messageCurrentTime = (messageCurrentTime << 8) | byteBuffer[i];
                     }
 
-                    long messageCurrentTime = (long) tempBuffer;
+                    getBytes(&transformedReceivedDataBLE32, 16, 23, &byteBuffer);
 
-                    for (size_t i = 0; i < 8; i++) {
-                        tempBuffer[i] = transformedReceivedDataBLE32[16 + i];
+                    int64_t messageExpirationTime = 0;
+                    for ( int i = 0 ; i < sizeof(byteBuffer) ; i++ ){
+                        messageExpirationTime = (messageExpirationTime << 8) | byteBuffer[i];
                     }
-
-                    long messageExpirationTime = (long) tempBuffer;
 
                     if(messageExpirationTime >= messageCurrentTime && messageExpirationTime >= currentTime) {
                         if(messageCurrentTime > currentTime) {
@@ -581,12 +597,12 @@ int main(void)
                             }
                             
                         }
-                            HostWriteString("\r");
+                        HostWriteString("\r");
 
                         // Write a dumb value in the attribute to overwrite the make disappear the ID
                         attrHandle -= (int)(0b1000000000000000);    // bit 15 of the attribute handle to 0 -> write without notification
                         generateRandNum(&randNum);
-                        BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
+                        //BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
 
                         length64 = false;
 
