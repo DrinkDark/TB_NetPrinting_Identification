@@ -57,7 +57,7 @@ enum States {
 
 bool BLEDeviceConnected = false;    // A BLE device is connected
 
-int64_t currentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
+int64_t readerCurrentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
 
 /**
  * Startup fonction for the card reader
@@ -453,7 +453,7 @@ int main(void)
         // Update time only every second minimum (minimal time unit)
         if (elapsedTime >= 1000)
         {
-            currentTime = (long) (elapsedTime / 1000);      // Add elapsed seconds
+            readerCurrentTime = (long) (elapsedTime / 1000);      // Add elapsed seconds
             elapsedTime = elapsedTime % 1000;               // Store the remaining time (when less than a second remaining)
         } 
         
@@ -572,29 +572,38 @@ int main(void)
                 // -------------------------------------------------------------------------------------
                 // Identification procedure
                 //
-                // Called when the app is authenticate and it has send is ID 
-                // Output the ID and overwrite the ID in the attribute with a dumb value
+                // Called when the app is authenticate and it has send is signed message
+                // Control the current time and the exiration time and output the ID
                 // -------------------------------------------------------------------------------------
                 case ST_Identification:
                 {
                     //HostWriteString("Identification");
                     //HostWriteString("\r");
 
+                    //Get user ID from the signed message
                     char userID[16];
                     memcpy(userID, receivedDataBLE64, 16);
 
+                    // Need to read the curent and eypiration time in the format 0x11, 0x22, ... instead of 0x1, 0x1, 0x2, 0x2, ...
                     transformByteArray(&receivedDataBLE64, sizeof(receivedDataBLE64), &transformedReceivedDataBLE32);
 
+                    // Get current time from the signed message (bytes 8 to 15)
                     byte messageCurrentTime[8];
                     getBytes(&transformedReceivedDataBLE32, 8, 15, &messageCurrentTime);
 
+                    // Get expiration time from the signed message (bytes 16 to 23)
                     byte messageExpirationTime[8];
                     getBytes(&transformedReceivedDataBLE32, 16, 23, &messageExpirationTime);
 
+                    // The message's expiration time must be in the future compare to the message's current time 
+                    // and the reader's current time else signed message is not valid
                     if(byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= byteArrayToLong(messageCurrentTime, sizeof(messageCurrentTime)) && 
-                        byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= currentTime) {
-                        if(messageCurrentTime > currentTime) {
-                            currentTime = messageCurrentTime;
+                        byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= readerCurrentTime) {
+
+                        // If the reader's current time is in the past compare to the message's current time,
+                        // the time from the reader is updated.
+                        if(messageCurrentTime > readerCurrentTime) {
+                            readerCurrentTime = messageCurrentTime;
                         }
 
                         // Write userID
@@ -687,13 +696,11 @@ int main(void)
                 bool dataReceived = false;
 
                 //Read the modified 32 or 64 bytes value based on the read attribute handle
-                // The data is transmit in the incorrect format. It as to be transformed.
                 if(length64) {
                     dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE64, &receivedDataBLELength, sizeof(receivedDataBLE64));
-   
                 } else {
                     dataReceived = BLEGetGattServerAttributeValue(attrHandle, &receivedDataBLE32, &receivedDataBLELength, sizeof(receivedDataBLE32));  
-                    transformByteArray(&receivedDataBLE32, sizeof(receivedDataBLE32), &transformedReceivedDataBLE16); 
+                    transformByteArray(&receivedDataBLE32, sizeof(receivedDataBLE32), &transformedReceivedDataBLE16);       // The data is transmit in the incorrect format. It as to be transformed.
                 }
 
                 chooseSMstateAttributeChanged(dataReceived);    // Choose the correct next state machine state

@@ -32,7 +32,7 @@ const States = {
     ST_WaitAppAuthentication: 'ST_WaitAppAuthentication',
     ST_AppAuthenticated: 'ST_AppAuthenticated',
     ST_WaitIdentification: 'ST_WaitIdentification',
-    ST_Identicated: 'ST_Identicated',
+    ST_Identify: 'ST_Identify',
     ST_AuthenticationFailed: 'AuthFailed'
   };
 
@@ -114,7 +114,7 @@ const BLE = () => {
                     break;
 
                 case States.ST_WaitIdentification:
-                    currentState = States.ST_Identicated;
+                    currentState = States.ST_Identify;
                     console.log("ST_WaitIdentification");
                     break;
                     
@@ -294,7 +294,7 @@ const BLE = () => {
                     }
                 break;
 
-                case States.ST_Identicated:
+                case States.ST_Identify:
                     Alert.alert('User ID successfully sent to the card reader !');
                     console.log('Authentication done, ID send !');
                     disconnectFromDevice(connectedDevice);
