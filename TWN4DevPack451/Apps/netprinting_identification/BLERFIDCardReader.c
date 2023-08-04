@@ -249,7 +249,7 @@ void OnCardDone(void)
  * - Start timer (for the timeout)
  * 
 */
-void deviceConnected() {
+void deviceConnected(void) {
     //HostWriteString("Device connected");
     //HostWriteString("\r");
 
@@ -278,7 +278,7 @@ void deviceConnected() {
  * - Set leds and beeps
  * 
 */
-void deviceDisconnected() {
+void deviceDisconnected(void) {
     //HostWriteString("Device disconnected");
     //HostWriteString("\r");  
 
@@ -366,7 +366,7 @@ long byteArrayToLong(byte* sourceArray, int arraySize) {
  * 
  * If the elapsed sysTicks are greater than 1000 (> 1 second), the readerCurrentTime is incremented (the minimal unit in unix time format is a seconde)
 */
-void updateTime() {
+void updateTime(void) {
     long sysTicks = GetSysTicks();
 
     // GetSysTicks() return a value who will restart at 0 after 2^32 system ticks
@@ -391,7 +391,7 @@ void updateTime() {
  * 
  * Search a card, read his value and print his value if the a BLE device is not connected
 */
-void scanCard() {
+void scanCard(void) {
 	    if (SearchTag(&TagType,&IDBitCnt,ID,sizeof(ID)) && !BLEDeviceConnected)
 	    {
 			// A transponder was found. Read data from transponder and convert
@@ -418,7 +418,7 @@ void scanCard() {
  * 
  * Control if the timer is used for the BLE or for a card
 */
-void verifyTimeout() {
+void verifyTimeout(void) {
     // 
     if (TestTimer())
     {
@@ -437,7 +437,7 @@ void verifyTimeout() {
  * Choose the state machine state
  * 
 */
-void chooseSMstate() {
+void chooseSMstate(void) {
     if(BLEDeviceConnected) {
         switch(currentState) {
 
@@ -686,7 +686,7 @@ void chooseSMstateAttributeChanged(bool dataReceived) {
  * 
  * Only the needed case are implemented. 
 */
-void checkBLEEvent() {
+void checkBLEEvent(void) {
     switch(BLECheckEvent()) {
 
         // -------------------------------------------------------------------------------------
