@@ -60,7 +60,10 @@ enum States {
     ST_AuthenticationFailed     // A error occurred during the authentication process
 } currentState;
 
-long readerCurrentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
+uint64_t readerCurrentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
+
+uint32_t elapsedTime = 0;
+uint32_t lastSysTicks = 0;
 
 
 //-----------------------------  CRYPTO VARIABLES  -----------------------------------
@@ -74,8 +77,6 @@ byte decryptedData[LENGTH_16_BYTES];
 
 byte randNum[LENGTH_16_BYTES];
 
-int elapsedTime = 0;
-long lastSysTicks = 0;
 
 
 //-------------------------------  CARD VARIABLES  -----------------------------------
@@ -345,15 +346,15 @@ void getBytes(byte* sourceArray, int startIndex, int endIndex, byte* destination
 }
 
 /**
- * Convert from byte array to long
+ * Convert from byte array to uint64_t
  * 
  * @param sourceArray pointer to the source array
  * @param arraySize size of the source array
  * 
- * @return result value convert in long
+ * @return result value convert in uint64_t
 */
-long byteArrayToLong(byte* sourceArray, int arraySize) {
-    long result = 0;
+uint64_t byteArrayToUint64_t(byte* sourceArray, int arraySize) {
+    uint64_t result = 0;
 
     for (int i = 0 ; i < arraySize ; i++ ){
         result = (result << 8) | sourceArray[i];
@@ -367,22 +368,22 @@ long byteArrayToLong(byte* sourceArray, int arraySize) {
  * If the elapsed sysTicks are greater than 1000 (> 1 second), the readerCurrentTime is incremented (the minimal unit in unix time format is a seconde)
 */
 void updateTime(void) {
-    long sysTicks = GetSysTicks();
+    uint64_t sysTicks = (uint64_t) GetSysTicks();
 
     // GetSysTicks() return a value who will restart at 0 after 2^32 system ticks
     // Manage the case when the last sysTicks is almost at the max and the new has restart
     if(sysTicks > lastSysTicks) {
-        elapsedTime += (int) (sysTicks - lastSysTicks);
+        elapsedTime += (sysTicks - lastSysTicks);
     } else {
-        elapsedTime += (int) ((2147483647 - lastSysTicks) + sysTicks);
+        elapsedTime += ((4294967296 - lastSysTicks) + sysTicks);
     }
     lastSysTicks = sysTicks;
 
     // Update time only every second minimum (minimal time unit)
     if (elapsedTime >= 1000)
     {
-        readerCurrentTime = (long) (elapsedTime / 1000);      // Add elapsed seconds
-        elapsedTime = elapsedTime % 1000;               // Store the remaining time (when less than a second remaining)
+        readerCurrentTime = (elapsedTime / 1000);     // Add elapsed seconds
+        elapsedTime = elapsedTime % 1000;                    // Store the remaining time (when less than a second remaining)
     } 
 }
 
@@ -539,8 +540,8 @@ void chooseSMstate(void) {
 
                 // The message's expiration time must be in the future compare to the message's current time 
                 // and the reader's current time else signed message is not valid
-                if(byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= byteArrayToLong(messageCurrentTime, sizeof(messageCurrentTime)) && 
-                    byteArrayToLong(messageExpirationTime, sizeof(messageExpirationTime)) >= readerCurrentTime) {
+                if(byteArrayToUint64_t(messageExpirationTime, sizeof(messageExpirationTime)) >= byteArrayToUint64_t(messageCurrentTime, sizeof(messageCurrentTime)) && 
+                    byteArrayToUint64_t(messageExpirationTime, sizeof(messageExpirationTime)) >= readerCurrentTime) {
 
                     // If the reader's current time is in the past compare to the message's current time,
                     // the time from the reader is updated.
