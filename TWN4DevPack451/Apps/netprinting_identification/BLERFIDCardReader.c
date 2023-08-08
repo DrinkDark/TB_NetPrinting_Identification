@@ -39,6 +39,7 @@
 #define LENGTH_32_BYTES			32      // 32 bytes length
 #define LENGTH_64_BYTES			64      // 64 bytes length
 
+#define BLETIMOUT               10000   // Timeout in milliseconds
 
 //////////////////////////////////////////////////////////////////////////////////////
 //                                DEFINE VARIABLES
@@ -62,7 +63,7 @@ enum States {
 
 uint64_t readerCurrentTime = 1690495200;     // Current time in Unix format (seconds since 1 januar 1970)
 
-uint32_t elapsedTime = 0;
+uint32_t elapsedTicks = 0;
 uint32_t lastSysTicks = 0;
 
 
@@ -133,7 +134,7 @@ bool BLEDeviceConnected = false;            // A BLE device is connected
  * - Set the leds to green and emit a low and high beeps
  * 
 */
-void OnStartup(void)
+void init(void)
 {
     //--------------------------------  CARD INIT  ---------------------------------------
 
@@ -269,7 +270,7 @@ void deviceConnected(void) {
 
     currentState = ST_WaitAppRandNum;
 
-    StartTimer(10000);  // Set the disconnect device timeout to 10s for the BLE
+    StartTimer(BLETIMOUT);  // Set the disconnect device timeout to 10s for the BLE
 }
 
 /**
@@ -372,18 +373,18 @@ void updateTime(void) {
 
     // GetSysTicks() return a value who will restart at 0 after 2^32 system ticks
     // Manage the case when the last sysTicks is almost at the max and the new has restart
-    if(sysTicks > lastSysTicks) {
-        elapsedTime += (sysTicks - lastSysTicks);
+    if(sysTicks >= lastSysTicks) {
+        elapsedTicks += (sysTicks - lastSysTicks);
     } else {
-        elapsedTime += ((4294967296 - lastSysTicks) + sysTicks);
+        elapsedTicks += ((2^32 - lastSysTicks) + sysTicks);
     }
     lastSysTicks = sysTicks;
 
     // Update time only every second minimum (minimal time unit)
-    if (elapsedTime >= 1000)
+    if (elapsedTicks >= 1000)
     {
-        readerCurrentTime = (elapsedTime / 1000);     // Add elapsed seconds
-        elapsedTime = elapsedTime % 1000;                    // Store the remaining time (when less than a second remaining)
+        readerCurrentTime = (elapsedTicks / 1000);     // Add elapsed seconds
+        elapsedTicks = elapsedTicks % 1000;                    // Store the remaining time (when less than a second remaining)
     } 
 }
 
@@ -584,7 +585,7 @@ void chooseSMstate(void) {
                 //HostWriteString("AuthenticationFailed");
                 //HostWriteString("\r");
                 
-                // Write a dumb value in the attribute to overwrite the make disappear the ID
+                // Write a dumb value in the attribute to overwrite the data in the characteristic
                 attrHandle -= (int)(0b1000000000000000);     // bit 15 of the attribute handle to 0 -> write without notification 
                 generateRandNum(&randNum);
                 BLESetGattServerAttributeValue(attrHandle, 0, &randNum, sizeof(randNum));
@@ -741,7 +742,7 @@ void checkBLEEvent(void) {
 
 int main(void)
 {
-	OnStartup();    	
+	init();    	
 
     while (true)
     {

@@ -1,26 +1,37 @@
+///////////////////////////////////////////////////
+//             BLE custom component
+///////////////////////////////////////////////////
+
 import React, { useState } from 'react';
-import { Alert,Text, View, StyleSheet,PermissionsAndroid, Pressable, FlatList} from 'react-native';
+import { 
+    Alert,
+    Text, 
+    View, 
+    StyleSheet,
+    PermissionsAndroid, 
+    Pressable, 
+    FlatList
+} from 'react-native';
 
-import { BleManager, Characteristic, Device } from "react-native-ble-plx";
-
+import { BleManager, Characteristic } from "react-native-ble-plx";
 import { Buffer } from 'buffer';
-
 import axios from 'axios';
-
 import base64 from 'react-native-base64'
 
 const bleManager = new BleManager();
 
-const ipAddress = '192.168.137.1';
+const ipAddress = '192.168.137.1';      // Middleware component address
 
-const CARD_ID_UUID_CHARAC = '495f449c-fc60-4048-b53e-bdb3046d4495';
-const CARD_ID_UUID_SERVICE = '5a44c004-4112-4274-880e-cd9b3daedf8e';
+const SERVICE_UUID = '5a44c004-4112-4274-880e-cd9b3daedf8e';    // Service UUID
+const CHARAC_UUID = '495f449c-fc60-4048-b53e-bdb3046d4495';     // Characteristic UUID
 
-var userID = '';
-var connectedDevice;
-var modifiedCharac;
-var randNum;
 
+var userID = '';        // User ID 
+var connectedDevice;    // Connected device
+var modifiedCharac;     // Modified characteristic value
+var randNum;            // Random number value
+
+// SM states
 const States = {
     ST_OnIdle: 'ST_OnIdle',
     ST_StartAuthentication: 'ST_StartAuthentication',
@@ -36,22 +47,41 @@ const States = {
     ST_AuthenticationFailed: 'AuthFailed'
   };
 
-var currentState = States.ST_OnIdle;
+var currentState = States.ST_OnIdle;    // Current state
 
+
+/**
+ * BLE component constructor
+ * 
+ * @returns BLE component
+ */
 const BLE = () => {
-    const [printedText, setPrintedText] = useState('');
-    const [discoveredDeviceList, setDiscoveredDeviceList] = useState([]);
+    const [printedText, setPrintedText] = useState('');                     // Printed text hook
+    const [discoveredDeviceList, setDiscoveredDeviceList] = useState([]);   // Discover device list hoook
 
     
+    /**
+     * Add a new device to the discover device list
+     * 
+     * @param {*} device device to add
+     */
     const addDevice = (device) => {
         setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList, device]);  
         sortDeviceList();             
     };
 
+    /**
+     * Sort the discover device list in the descending order using the device's rssi
+     */
     const sortDeviceList = () => {
         setDiscoveredDeviceList(prevDeviceList => [...prevDeviceList].sort((a, b) => b.rssi - a.rssi));
     }
-
+ 
+    /**
+     * Update the discover device list with the new device values
+     * 
+     * @param {*} updatedDevice device to update 
+     */
     const updateDevice = (updatedDevice) => {
         const updatedDeviceList = discoveredDeviceList.map(device => {
           if (device.id === updatedDevice.id) {
@@ -63,10 +93,18 @@ const BLE = () => {
         sortDeviceList();
     };
 
+    /**
+     * Clear discover device list
+     */
     const clearDeviceList = () => {
         setDiscoveredDeviceList([]);
     };
 
+    /**
+     * Check if a device is already discover
+     * 
+     * Update device if already discover
+     */
     alreadyDiscover = (device) => {
         var exist = false;
 
@@ -81,25 +119,39 @@ const BLE = () => {
         return exist;
     };
     
+    // 
+    /**
+     * BLE notification handler
+     * 
+     * Called when a notification is received from a BLE characteristic.
+     * 
+     * @param {*} error received error
+     * @param {*} characteristic received characteristic
+     */
     const onNotificationReceived = (
         error: BleError | null,
         characteristic: Characteristic | null,
       ) => {
+        // A error is received
         if (error) {
             //console.log('Error notification (charachteristic : ' + characteristic.uuid + ')'); 
             if(currentState != States.ST_OnIdle) {
                 console.log(error);
 
                 currentState = States.ST_AuthenticationFailed;
-                authenticationControler();
+                chooseSMstate();
             }
   
+        // The received value is empty
         } else if (!characteristic?.value) {
             //console.log('Notification (charachteristic : ' + characteristic.uuid + ') received with no data');
+        
+        // The received value is valid
         } else {
             //console.log('Notification received (charachteristic : ' + characteristic.uuid + ') : ' + Buffer.from(characteristic.value, 'base64').toString('hex'));
-            modifiedCharac = Buffer.from(characteristic.value, 'base64').toString('hex');
+            modifiedCharac = Buffer.from(characteristic.value, 'base64').toString('hex');       // Decode the base64 recieved value
 
+            // Select the SM state after receiving a notification
             switch(currentState) {
                 case States.ST_WaitDeviceAuthentication:
                     currentState = States.ST_DeviceAuthentication;
@@ -115,16 +167,18 @@ const BLE = () => {
 
                 case States.ST_WaitIdentification:
                     currentState = States.ST_Identify;
-                    console.log("ST_WaitIdentification");
                     break;
                     
                 default:
                     break;
             }
-            authenticationControler();
+            chooseSMstate();      // Start again the state machine after the notification
         }
       };
 
+    /**
+     * Request the permissions to use the location and BLE
+     */
     requestPermissions = async () => {
         const grantedStatus = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -145,16 +199,26 @@ const BLE = () => {
         }
     };
 
+    /**
+     * Scan for BLE device
+     * 
+     * Connect to a discover device if his rssi is greater than -40dB
+     */
     scanForDevices = async () => {
         if(userID !== '' && currentState === States.ST_OnIdle){
             console.log("Start scanning...");
             setPrintedText('Discovering ...');
 
+            // Start the device scanning
             bleManager.startDeviceScan(null, null, (error, device) => {
                 if(error) {
                     console.log('Error scanning for devices : ', error);
                 } 
-                if (device && device.serviceUUIDs && (device.serviceUUIDs).includes(CARD_ID_UUID_SERVICE)){
+
+                // If a device is discovered and the include the service UUID
+                // the device is added to the discovered device list if not already discovered
+                // If the rssi is bigger than -40dB, it try to connect to the device
+                if (device && device.serviceUUIDs && (device.serviceUUIDs).includes(SERVICE_UUID)){
                     if(alreadyDiscover(device) === false){
                         console.log('Device found : ', device.name, ' (' , device.id, '), RSSI = ', device.rssi);
                         addDevice(device);
@@ -163,26 +227,36 @@ const BLE = () => {
                     }
                 }
             });
+
+        // No user is selected
         } else {
             Alert.alert('Enter a valid user name.');
         }
     };
 
+    /**
+     * Connect to the device pass in parameter
+     */
     connectToDevice = async (device) => {
         try {
-            bleManager.stopDeviceScan();
+            bleManager.stopDeviceScan();    // Stop the device scan  
             console.log('Stop scanning.');
-            if(await bleManager.connectToDevice(device.id)){
-                connectedDevice = device;
 
-                setPrintedText(connectedDevice.name + ' connected (' + connectedDevice.id + ')');
-                await connectedDevice.discoverAllServicesAndCharacteristics();
+            // Try to connect to the device
+            if(await bleManager.connectToDevice(device.id)){
+                connectedDevice = device;       // Set the connected device
+
+                setPrintedText(connectedDevice.name + ' connected (' + connectedDevice.id + ')');   // Set the printed text
+                await connectedDevice.discoverAllServicesAndCharacteristics();                      // Discover all GATT server services and characteristics
     
+                // Enable the notfication for the characteristics
                 console.log('Enable monitor notification.');
-                await connectedDevice.monitorCharacteristicForService(CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, (error, characteristic) => onNotificationReceived(error, characteristic));
+                await connectedDevice.monitorCharacteristicForService(SERVICE_UUID, CHARAC_UUID, (error, characteristic) => onNotificationReceived(error, characteristic));
                 
                 currentState = States.ST_StartAuthentication;
-                authenticationControler(connectedDevice);  
+                chooseSMstate(connectedDevice);  
+
+            // Connection failed
             } else {
                 Alert.alert('Authentication failed !');
                 console.log('Connection failed !');
@@ -193,6 +267,12 @@ const BLE = () => {
         }
     };
 
+    // 
+    /**
+     * Get random number fro the middleware component
+     * 
+     * @returns received random nummber
+     */
     const getRandomNum = async() => {
         try {
             const response = await axios.get(`http://${ipAddress}:8080/getRandNum`);
@@ -206,6 +286,13 @@ const BLE = () => {
         }
     };
 
+    /**
+     * Get decrypted data fro the middleware component
+     * 
+     * @param {*} data data to decrypt
+     * 
+     * @returns received decrypted data
+     */
     const getDecryptedData = async(data) => {
         try {
             const response = await axios.get(`http://${ipAddress}:8080/getDecryptData?data=${data}`);
@@ -219,6 +306,14 @@ const BLE = () => {
         }
     };
 
+    
+    /**
+     * Get encrypted data fro the middleware component
+     * 
+     * @param {*} data data to encrypt
+     * 
+     * @returns received encrypted data
+     */
     const getEncryptedData = async(data) => {
         try {
             const response = await axios.get(`http://${ipAddress}:8080/getEncryptData?data=${data}`);
@@ -232,6 +327,11 @@ const BLE = () => {
         }
     };
     
+    /**
+     * Get signed message fro the middleware component
+     * 
+     * @returns received signed message
+     */
     const getSignedMessage = async() => {
         try {
             const response = await axios.get(`http://${ipAddress}:8080/getSignedMessage?userID=${userID}`);
@@ -244,19 +344,30 @@ const BLE = () => {
         }
     };
 
-    const authenticationControler = async() => {
+    /**
+     * Choose state machine state
+     * 
+     * Contain a while loop to make the SM work
+     * Have to quit this functions when a notification is waited.
+     * Can't call onNotificationReceived functions if in the loop
+     */
+    const chooseSMstate = async() => {
+        // While loop for the state machine
         while(true){
             switch(currentState) {
+
+                // Write random number in the characteristic 
                 case States.ST_StartAuthentication:
                     console.log('Authentication protocol started...');
-                    if(await sendValue(await getRandomNum())){
+                    if(await writeValue(await getRandomNum())){
                         currentState = States.ST_WaitDeviceAuthentication;
-                        return;
+                        return;     // Wait 
                     } else {
                         currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
+                // Decrypt received data via notification and compare it with the send random number
                 case States.ST_DeviceAuthentication:
                     if(randNum === await getDecryptedData(modifiedCharac)) {
                         console.log('Device authenticate');
@@ -266,47 +377,53 @@ const BLE = () => {
                     }
                     break;
 
+                // Write random number to signify the device authentication succeed
                 case States.ST_DeviceAuthenticated:
-                    if(await sendValue(await getRandomNum())){;
+                    if(await writeValue(await getRandomNum())){;
                         currentState = States.ST_WaitDeviceRandNum;
-                        return;
+                        return;     // Quit this function. Wait a notification
                     } else {
                         currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
+                // Encrypt the received random number and write it in the characteristic 
                 case States.ST_AppAuthentication:
-                    console.log('Device random number : ' + modifiedCharac);
-                    if(await sendValue(await getEncryptedData(modifiedCharac))){;
+                    if(await writeValue(await getEncryptedData(modifiedCharac))){;
                         currentState = States.ST_WaitAppAuthentication;
-                        return;
+                        return;     // Quit this function. Wait a notification
                     } else {
                         currentState = States.ST_AuthenticationFailed;
                     }
                     break;
 
+                // Write the signed message in the characteristic
                 case States.ST_AppAuthenticated:
-                    if(await sendValue(await getSignedMessage())){;
+                    if(await writeValue(await getSignedMessage())){;
                         currentState = States.ST_WaitIdentification;
-                        return;
+                        return;     // Quit this function. Wait a notification
                     } else {
                         currentState = States.ST_AuthenticationFailed;
                     }
                 break;
 
+                // Authentication succeed
+                // Disconnect from the device
                 case States.ST_Identify:
                     Alert.alert('User ID successfully sent to the card reader !');
                     console.log('Authentication done, ID send !');
                     disconnectFromDevice(connectedDevice);
 
                     currentState = States.ST_OnIdle;
-                    return;
+                    return;     // Quit this function. The authentication procedure is finish
     
+                // Authentication procedure failed
+                // Desconnect from the device
                 case States.ST_AuthenticationFailed:
                     Alert.alert('Authentication failed !');
                     console.log('Authentication failed !');
                     disconnectFromDevice(connectedDevice)
-                    return;
+                    return;     // Quit this function. The authentication procedure has failed
 
                 default:
                     break;
@@ -315,9 +432,21 @@ const BLE = () => {
            
     };
 
-    const sendValue = async (value) => {
+    
+    /**
+     * Write value in the characteristic
+     * 
+     * Write the value in base64.
+     * Control if the received response's value correspond to the send value
+     * 
+     * @param {*} value value to write
+     * @returns true if succeed, else false
+     */
+    const writeValue = async (value) => {
         try {
-            const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, CARD_ID_UUID_SERVICE, CARD_ID_UUID_CHARAC, base64.encode(value.toString()));
+            const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, SERVICE_UUID, CHARAC_UUID, base64.encode(value.toString()));
+           
+            // Check if write response correspond to the send value
             if(value.toString() === base64.decode(response.value).toString()) {
                 //console.log('Value send : ', value);  
                 return true;
@@ -330,10 +459,15 @@ const BLE = () => {
             return false;
         }
     };
-
+ 
+    /**
+     * Disconnect from device
+     * 
+     * Clear the device list and reset SM to idle state
+     */
     const disconnectFromDevice = () => {
         try {
-            bleManager.cancelDeviceConnection(connectedDevice.id);
+            bleManager.cancelDeviceConnection(connectedDevice.id);  
             clearDeviceList();
             currentState = States.ST_OnIdle;
 
@@ -344,12 +478,33 @@ const BLE = () => {
         }    
     };          
 
+    /**
+     * Set user identifier
+     * @param {*} id user identifier to set
+     */
+    BLE.setUserID = (id) => {
+        userID = id;
+    };
+
+    // 
+    /**
+     * Define item for device list
+     * 
+     * @param {*} param title and the id of the item
+     *  
+     * @returns rendered item
+     */
     const Item = ({title, id}) => (
         <View style={[styles.item, discoveredDeviceList[0].id == id && styles.itemSelected]}>
           <Text style={styles.itemText}>{title}</Text>
         </View>
     );
 
+    /**
+     * Return the BLE custom component
+     * 
+     * Contain the discover device list, a button to start discovering data and text
+     */
     return (
         <><View style={styles.container}>
         <Text style={styles.itemTitle}>{discoveredDeviceList.length === 0 ? null : 'Discovered devices'}</Text>
@@ -385,12 +540,12 @@ const BLE = () => {
 
 };
 
-BLE.setUserID = (id) => {
-    userID = id;
-};
 
-export default BLE;
+export default BLE;     // Export custom BLE component
 
+/**
+ * Style sheet containing styles for the component
+ */
 const styles = StyleSheet.create({
     container: {
         flex: 2,

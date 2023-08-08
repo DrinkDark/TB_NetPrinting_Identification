@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////
+//           User custom component
+///////////////////////////////////////////////////
+
 import React from 'react';
 
 import {
@@ -8,19 +12,42 @@ import {
     TouchableOpacity,
   } from 'react-native';
 
-import useUser from '../hooks/useUser'
+import useUser from '../hooks/useUser'  
 
+
+/**
+ * User component constructor
+ * 
+ * @returns user component
+ */
 const User = () => {
-    const [userName, onChangeUserName, userID, users] = useUser();
+    const [userName, onChangeUserName, userID, users] = useUser();    // Initialize useUser custom hook
 
+      /**
+       * Handle the press event when a user item is selected
+       * 
+       * @param {*} user pressed user
+       */
       const handlePress = (user) => {
         if (userName === user) {
-            onChangeUserName(null);
+            onChangeUserName(null);   // Unselect current user if pressed
         } else {
-            onChangeUserName(user);
+            onChangeUserName(user);   // Changed user if new pressed
         }
       };
     
+      //
+      // 
+      /**
+       * Render each item in the user list
+       * 
+       * Every item is a button and has an on press method
+       * The selected item has a different style 
+       * 
+       * @param {*} item item to render
+       * 
+       * @returns rendered item
+       */
       const renderItem = ({ item }) => (
         <TouchableOpacity
           style={[
@@ -33,6 +60,11 @@ const User = () => {
         </TouchableOpacity>
       );
 
+    /**
+     * Return the user custom component
+     * 
+     * Contain the scollable user list and the user ID
+     */
     return (
         <><View style={styles.container}>
           <View>
@@ -55,7 +87,9 @@ const User = () => {
   );
 };
 
-
+/**
+ * Style sheet containing styles for the component
+ */
 const styles = StyleSheet.create({
   container: {
       flex: 0.6,
@@ -105,6 +139,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default User;
+export default User;    // Export the custom component
 
 
