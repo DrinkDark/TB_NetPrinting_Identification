@@ -278,7 +278,7 @@ const BLE = () => {
             const response = await axios.get(`http://${ipAddress}:8080/getRandNum`);
             randNum = response.data.randNum;
             
-            console.log('App random number: ' + randNum);
+            //console.log('App random number: ' + randNum);
             return randNum;
         } catch (error) {
             console.error(error);
@@ -298,7 +298,7 @@ const BLE = () => {
             const response = await axios.get(`http://${ipAddress}:8080/getDecryptData?data=${data}`);
             const decryptData = response.data.decryptedData;
 
-            console.log('Decrypted data : ' + decryptData);
+            //console.log('Decrypted data : ' + decryptData);
             return decryptData;
         } catch (error) {
             console.error(error);
@@ -319,7 +319,7 @@ const BLE = () => {
             const response = await axios.get(`http://${ipAddress}:8080/getEncryptData?data=${data}`);
             const encryptData = response.data.encryptedData;
 
-            console.log('Encrypted data : ' + encryptData);
+            //console.log('Encrypted data : ' + encryptData);
             return encryptData;
         } catch (error) {
             console.error(error);
@@ -336,7 +336,7 @@ const BLE = () => {
         try {
             const response = await axios.get(`http://${ipAddress}:8080/getSignedMessage?userID=${userID}`);
             
-            console.log('Signed message : ' + response.data.signedMessage);
+            //console.log('Signed message : ' + response.data.signedMessage);
             return response.data.signedMessage;
         } catch (error) {
             console.error(error);
@@ -370,7 +370,6 @@ const BLE = () => {
                 // Decrypt received data via notification and compare it with the send random number
                 case States.ST_DeviceAuthentication:
                     if(randNum === await getDecryptedData(modifiedCharac)) {
-                        console.log('Device authenticate');
                         currentState = States.ST_DeviceAuthenticated;
                     } else{
                         currentState = States.ST_AuthenticationFailed;
@@ -379,6 +378,7 @@ const BLE = () => {
 
                 // Write random number to signify the device authentication succeed
                 case States.ST_DeviceAuthenticated:
+                    console.log('Device authenticated');
                     if(await writeValue(await getRandomNum())){;
                         currentState = States.ST_WaitDeviceRandNum;
                         return;     // Quit this function. Wait a notification
@@ -399,6 +399,7 @@ const BLE = () => {
 
                 // Write the signed message in the characteristic
                 case States.ST_AppAuthenticated:
+                    console.log('App authenticated');
                     if(await writeValue(await getSignedMessage())){;
                         currentState = States.ST_WaitIdentification;
                         return;     // Quit this function. Wait a notification

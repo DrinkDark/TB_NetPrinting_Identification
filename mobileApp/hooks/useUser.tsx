@@ -19,19 +19,16 @@ const ipAddress = '192.168.137.1';        // Middleware component address
 const useUser = () => {
   const [userName, setUserName] = useState('');   // Initialize user name useState hook
   const [userID, setUserID] = useState('');       // Initialize user ID useState hook
-  const [users, setUsers] = useState([]);         // Initialize user useState hook
-
-  /**
-   * Add new user to the hook
-   * 
-   * @param userList user list to add
-   */
-  const addUsers = (userList) => {
-    setUsers(userList);
-  };
+  const [userList, setUserList] = useState([]);         // Initialize user useState hook
   
-
-
+   /**
+   * User name changed
+   * 
+   * @param value changed value to updated
+   */
+   const onChangeUserName = (value) => {
+    setUserName(value);
+  };
 
   /**
    * Use effect define
@@ -41,10 +38,10 @@ const useUser = () => {
    */
   useEffect(() => {
     // If no user is selected, the user list is retrieve from the middleware component
-    if(users && !userName){
+    if(userList && !userName){
       axios.get(`http://${ipAddress}:8080/getUserList`)
       .then(response => {
-        addUsers(response.data.userList);
+        setUserList(response.data.userList);
         console.log('UserList : ' + response.data.userList);
       })
       .catch(error => {
@@ -67,17 +64,8 @@ const useUser = () => {
     }
   },[userName]);    // Every time the username change, the useEffect is called
 
-  // 
-  /**
-   * User name changed
-   * 
-   * @param value changed value to updated
-   */
-  const onChangeUserName = (value) => {
-    setUserName(value);
-  };
 
-  return [userName, onChangeUserName, userID, users];
+  return [userName, onChangeUserName, userID, userList];
 };
 
 export default useUser;   // Export custom useUser hook

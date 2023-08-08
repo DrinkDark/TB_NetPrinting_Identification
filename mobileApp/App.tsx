@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////
-//           Application TSX component
+//          main application component
 ///////////////////////////////////////////////////
 
 import React, { useRef } from 'react';
@@ -7,37 +7,22 @@ import React, { useRef } from 'react';
 import {
   StyleSheet,
   Text,
-  useColorScheme,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
 
 import User from './components/User';
 import BLE from './components/BLE';
 
 /**
- * // App component constructor
+ * // Main application component constructor
  * 
  * @returns app JSX component
  */
 const App = () => {
-  const scrollViewRef = useRef();   //  
-
-  const isDarkMode = useColorScheme() === 'dark';   // Define theme
 
   /**
-   * Define background color
-   */
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-
-  /**
-   * Return the JSX element (UI component)
+   * Return the Main application component (UI component)
    * 
    * Contain the application title, custom user and ble component and the application credit
    * The two custom components are defined in others files and render her
