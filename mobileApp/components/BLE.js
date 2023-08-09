@@ -230,7 +230,7 @@ const BLE = () => {
 
         // No user is selected
         } else {
-            Alert.alert('Enter a valid user name.');
+            Alert.alert('Select a user !');
         }
     };
 
@@ -266,8 +266,55 @@ const BLE = () => {
             console.log('FAILED TO CONNECT :', e);
         }
     };
+ 
+    /**
+     * Disconnect from device
+     * 
+     * Clear the device list and reset SM to idle state
+     */
+    const disconnectFromDevice = () => {
+        try {
+            if(bleManager.isDeviceConnected(connectedDevice.id))
+            {
+                bleManager.cancelDeviceConnection(connectedDevice.id);
+            }
+            clearDeviceList();
+            currentState = States.ST_OnIdle;
 
-    // 
+            console.log('Device disconnected : ' + connectedDevice.name);
+            setPrintedText('');
+        } catch (e) {
+            console.log('FAILED TO DISCONNECT :', e);
+        }    
+    };   
+
+    /**
+     * Write value in the characteristic
+     * 
+     * Write the value in base64.
+     * Control if the received response's value correspond to the send value
+     * 
+     * @param {*} value value to write
+     * @returns true if succeed, else false
+     */
+    const writeValue = async (value) => {
+        try {
+            const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, SERVICE_UUID, CHARAC_UUID, base64.encode(value.toString()));
+           
+            // Check if write response correspond to the send value
+            if(value.toString() === base64.decode(response.value).toString()) {
+                //console.log('Value send : ', value);  
+                return true;
+            } else {
+                console.log('Value send failed: ', value);
+                return false;
+            }  
+        } catch (e) {
+            console.log('FAILED TO SEND VALUE :', e);
+            return false;
+        }
+    };
+
     /**
      * Get random number fro the middleware component
      * 
@@ -361,7 +408,7 @@ const BLE = () => {
                     console.log('Authentication protocol started...');
                     if(await writeValue(await getRandomNum())){
                         currentState = States.ST_WaitDeviceAuthentication;
-                        return;     // Wait 
+                        return;     // Quit this function. Wait a notification 
                     } else {
                         currentState = States.ST_AuthenticationFailed;
                     }
@@ -431,53 +478,7 @@ const BLE = () => {
             }
         }
            
-    };
-
-    
-    /**
-     * Write value in the characteristic
-     * 
-     * Write the value in base64.
-     * Control if the received response's value correspond to the send value
-     * 
-     * @param {*} value value to write
-     * @returns true if succeed, else false
-     */
-    const writeValue = async (value) => {
-        try {
-            const response = await bleManager.writeCharacteristicWithResponseForDevice(connectedDevice.id, SERVICE_UUID, CHARAC_UUID, base64.encode(value.toString()));
-           
-            // Check if write response correspond to the send value
-            if(value.toString() === base64.decode(response.value).toString()) {
-                //console.log('Value send : ', value);  
-                return true;
-            } else {
-                console.log('Value send failed: ', value);
-                return false;
-            }  
-        } catch (e) {
-            console.log('FAILED TO SEND VALUE :', e);3
-            return false;
-        }
-    };
- 
-    /**
-     * Disconnect from device
-     * 
-     * Clear the device list and reset SM to idle state
-     */
-    const disconnectFromDevice = () => {
-        try {
-            bleManager.cancelDeviceConnection(connectedDevice.id);  
-            clearDeviceList();
-            currentState = States.ST_OnIdle;
-
-            console.log('Device disconnected : ' + connectedDevice.name);
-            setPrintedText('');
-        } catch (e) {
-            console.log('FAILED TO DISCONNECT :', e);
-        }    
-    };          
+    };       
 
     /**
      * Set user identifier

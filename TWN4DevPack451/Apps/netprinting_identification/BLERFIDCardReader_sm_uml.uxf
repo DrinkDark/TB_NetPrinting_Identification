@@ -1,4 +1,4 @@
-<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><element><id>UMLSpecialState</id><coordinates><x>522</x><y>27</y><w>18</w><h>18</h></coordinates><panel_attributes>type=initial</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>441</x><y>207</y><w>180</w><h>45</h></coordinates><panel_attributes>*ST_WaitAppRandNum*
+<diagram program="umletino" version="15.1"><zoom_level>9</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLSpecialState</id><coordinates><x>522</x><y>27</y><w>18</w><h>18</h></coordinates><panel_attributes>type=initial</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>441</x><y>207</y><w>180</w><h>45</h></coordinates><panel_attributes>*ST_WaitAppRandNum*
 --
 Wait application random number</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>36</y><w>27</w><h>81</h></coordinates><panel_attributes>lt=-&gt;</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>243</y><w>27</w><h>63</h></coordinates><panel_attributes>lt=-&gt;
 
@@ -13,7 +13,8 @@ number</panel_attributes><additional_attributes></additional_attributes></elemen
 --
 Generate reader random number 
 and send to the application using 
-a notification </panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>513</y><w>27</w><h>72</h></coordinates><panel_attributes>lt=-&gt;
+a notification 
+bg=green</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>513</y><w>27</w><h>72</h></coordinates><panel_attributes>lt=-&gt;
 </panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLState</id><coordinates><x>441</x><y>459</y><w>180</w><h>63</h></coordinates><panel_attributes>*ST_WaitDeviceAuthenticated*
 --
 Wait device authentication 
@@ -31,14 +32,17 @@ default</panel_attributes><additional_attributes>10;10;10;60</additional_attribu
 --
 Decrypt reader encrypt random 
 number and compare it with send
-random number</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>153</y><w>513</w><h>621</h></coordinates><panel_attributes>lt=-&gt;
+random number
+bg=green</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>153</y><w>513</w><h>621</h></coordinates><panel_attributes>lt=-&gt;
 default</panel_attributes><additional_attributes>10;610;10;670;200;670;200;10;550;10;550;50</additional_attributes></element><element><id>UMLState</id><coordinates><x>144</x><y>99</y><w>180</w><h>63</h></coordinates><panel_attributes>*ST_AuthenticationFailed*
 --
 Erase characteristic's value by 
 overwritting a dumb value and
-disconnect BLE device</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>315</x><y>117</y><w>144</w><h>27</h></coordinates><panel_attributes>lt=-&gt;</panel_attributes><additional_attributes>10;10;140;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>441</x><y>99</y><w>180</w><h>45</h></coordinates><panel_attributes>*ST_OnIdle*
+disconnect BLE device
+bg=red</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>315</x><y>117</y><w>144</w><h>27</h></coordinates><panel_attributes>lt=-&gt;</panel_attributes><additional_attributes>10;10;140;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>441</x><y>99</y><w>180</w><h>45</h></coordinates><panel_attributes>*ST_OnIdle*
 --
-Wait BLE connected device</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>135</y><w>135</w><h>90</h></coordinates><panel_attributes>lt=-&gt;
+Wait BLE connected device
+bg=blue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>135</y><w>135</w><h>90</h></coordinates><panel_attributes>lt=-&gt;
 BLE device connected</panel_attributes><additional_attributes>10;10;10;80</additional_attributes></element><element><id>Relation</id><coordinates><x>225</x><y>153</y><w>306</w><h>171</h></coordinates><panel_attributes>lt=-&gt;
 </panel_attributes><additional_attributes>320;170;10;170;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>513</x><y>567</y><w>36</w><h>36</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>513</x><y>288</y><w>36</w><h>36</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>522</x><y>315</y><w>180</w><h>54</h></coordinates><panel_attributes>lt=-&gt;
 app random number received
