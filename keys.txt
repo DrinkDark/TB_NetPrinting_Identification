@@ -1,4 +1,0 @@
-readerPrKey = 159b05f622cc40180a54d23ea757c201
-readerPuKey = 4ab1855ebe174b1af284b1d551bd3275
-appPrKey = 
-appPuKey = 
