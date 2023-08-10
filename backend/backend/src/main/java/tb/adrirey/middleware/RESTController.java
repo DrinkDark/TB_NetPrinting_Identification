@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tb.adrirey.middleware.Response.*;
 
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
 
@@ -117,8 +116,6 @@ public class RESTController {
         return ResponseEntity.ok(response);
     }
 
-
-
     /**
      * Get method for the user balance
      *
@@ -174,13 +171,13 @@ public class RESTController {
      * @return ResponseEntity containing the random number
      */
     @RequestMapping(method = RequestMethod.GET, path ="/getRandNum")
-    public ResponseEntity<RandNum> getRandNum() {
+    public ResponseEntity<RandomNumber> getRandNum() {
         SecureRandom sr = new SecureRandom();
         byte[] rndBytes = new byte[16];
 
         sr.nextBytes(rndBytes);
 
-        RandNum response = new RandNum(toHexString(rndBytes));      //Convert the byte array to hex string
+        RandomNumber response = new RandomNumber(toHexString(rndBytes));      //Convert the byte array to hex string
         return ResponseEntity.ok(response);
     }
 
@@ -203,13 +200,14 @@ public class RESTController {
      */
     @RequestMapping(method = RequestMethod.GET, path ="/getSignedMessage")
     public ResponseEntity<SignedMessage> getSignedMessage(@RequestParam String userID) throws DecoderException {
+        int validityTime = 24 * 3600;
         byte signedMessage[] = new byte[32];
         byte userIDArray[] = new byte[8];
         userIDArray = Hex.decodeHex(userID.toCharArray());
 
         System.arraycopy(userIDArray, 0, signedMessage, (8 - Math.min(userIDArray.length, 8)), Math.min(userIDArray.length, 8));                                    //Copy the user into the signed message (maximum 8 bytes, if more take 8 first bytes)
         System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond()), 0, signedMessage, 8, 8);                            // Copy the current time into the signed message
-        System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond() + 24 * 3600) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)
+        System.arraycopy(longTo8ByteArray(Instant.now().getEpochSecond() + validityTime) , 0, signedMessage, 16, 8);        // Copy the expiration time into the signed message (24h from current time)
 
         SignedMessage response = new SignedMessage(toHexString(signedMessage));    ;      //Convert the byte array to hex string
         return ResponseEntity.ok(response);
