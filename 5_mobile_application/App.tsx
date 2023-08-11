@@ -10,9 +10,12 @@ import {
   View,
 } from 'react-native';
 
+import { LogBox } from 'react-native';
 
 import User from './components/User';
 import BLE from './components/BLE';
+
+LogBox.ignoreLogs(['new NativeEventEmitter']);    // Ignore new NativeEventEmmitter in the application. Always exist
 
 /**
  * // Main application component constructor

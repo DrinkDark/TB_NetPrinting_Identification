@@ -93,6 +93,7 @@ const User = () => {
 const styles = StyleSheet.create({
   container: {
       flex: 0.6,
+      justifyContent: 'center',
       marginLeft: 15,
       marginRight: 15,
       marginTop: 15,
@@ -106,7 +107,6 @@ const styles = StyleSheet.create({
   },
   text: {
       fontSize: 20,
-
   },
   containerFlatlist: {
     flex: 1,
