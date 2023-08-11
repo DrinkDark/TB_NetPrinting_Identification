@@ -1,0 +1,91 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>520</x><y>100</y><w>200</w><h>70</h></coordinates><panel_attributes>MiddlewareApplication
+--
++ restC : RESTController
+--
++ main(args : String[]) . void
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>400</x><y>500</y><w>440</w><h>140</h></coordinates><panel_attributes>ServerCommandProxy
+--
+- xmlRpcClient : final XmlRpcClient
+- _authToken : final String
+--
++ ServerCommandProxy(server : String, port : int, authToken : String) : void
++ getUserAccountBalance(userName : String) : double
++ getUserProperty(userName : String, propertyName: String) : String
++ isUserExists(userName : String) : Boolean
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>400</x><y>230</y><w>440</w><h>220</h></coordinates><panel_attributes>RESTController
+--
+- scp : ServerCommandProxy
+- key : byte[]
+- aesMasterKey : Key
+--
++ RESTController()
++ getUserID(userName : String) : ResponseEntity&lt;UserID&gt;
++ getUserList() : ResponseEntity&lt;UserList&gt;
++ userExists(userName : String) : ResponseEntity&lt;UserExists&gt;
++ getUserBalance(userName : String) : ResponseEntity&lt;UserBalance&gt;
++ aesEncryptedData(data: String) : ResponseEntity&lt;EncryptedData&gt;
++ aesDecryptedData(data: String) : ResponseEntity&lt;DecryptedData&gt;
++ getRandNum() : ResponseEntity&lt;RandNum&gt;
++ getSignedMessage() : ResponseEntity&lt;SignedMessage&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>610</x><y>160</y><w>60</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+restC</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>Relation</id><coordinates><x>610</x><y>440</y><w>50</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+scp</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>UMLNote</id><coordinates><x>690</x><y>650</y><w>150</w><h>40</h></coordinates><panel_attributes>bg=yellow
+only the used methods 
+are shown</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>870</x><y>140</y><w>300</w><h>100</h></coordinates><panel_attributes>UserID
+--
+- userID: String
+--
++ UserID(userID : String)
++ getUserID() : String
++ setUserID(userID : String) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>870</x><y>260</y><w>300</w><h>100</h></coordinates><panel_attributes>UserList
+--
+- userList : Vector&lt;String&gt;
+--
++ UserList(userList : Vector&lt;String&gt;)
++ getUserList() : Vector&lt;String&gt;
++ setUserList(userList  : Vector&lt;String&gt;) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>870</x><y>380</y><w>300</w><h>100</h></coordinates><panel_attributes>UserExists
+--
+- userExists: Boolean
+--
++ UserList(userExists : Boolean)
++ getUserExists() : Boolean
++ setUserExists(userExists : Boolean) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>870</x><y>500</y><w>300</w><h>100</h></coordinates><panel_attributes>UserBalance
+--
+- UserBalance: double
+--
++ userBalance(userBalance : double)
++ getUserBalance() : double
++ setUserBalance(userBalance : double) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>70</x><y>130</y><w>300</w><h>100</h></coordinates><panel_attributes>EncryptedData
+--
+- encryptedData: String
+--
++ EncryptedData(encryptedData : String)
++ getEncryptedData() : String
++ setEncryptedData(encryptedData : String) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>70</x><y>250</y><w>300</w><h>100</h></coordinates><panel_attributes>DecryptedData
+--
+- decryptedData: String
+--
++ DecryptedData(decryptedData : String)
++ getDecryptedData() : String
++ setDecryptedData(decryptedData : String) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>830</x><y>180</y><w>60</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>10;90;40;10</additional_attributes></element><element><id>Relation</id><coordinates><x>830</x><y>290</y><w>60</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>10;30;40;20</additional_attributes></element><element><id>Relation</id><coordinates><x>830</x><y>360</y><w>60</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>10;10;40;70</additional_attributes></element><element><id>Relation</id><coordinates><x>830</x><y>400</y><w>60</w><h>170</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>10;10;40;150</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>180</y><w>60</w><h>110</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>40;90;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>290</y><w>60</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>40;40;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>70</x><y>370</y><w>300</w><h>100</h></coordinates><panel_attributes>RandomNumber
+--
+- randomNumber: String
+--
++ RandomNumber(randomNumber: String)
++ getRandomNumber() : String
++ setRandomNumber(randomNumber: String) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>70</x><y>490</y><w>300</w><h>100</h></coordinates><panel_attributes>SignedMessage
+--
+- signedMessage: String
+--
++ SignedMessage(signedMessage: String)
++ getSignedMessage() : String
++ setSignedMessage(signedMessage: String) : void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>360</y><w>60</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>40;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>410</y><w>60</w><h>160</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes><additional_attributes>40;10;10;140</additional_attributes></element></diagram>

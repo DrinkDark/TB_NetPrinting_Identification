@@ -1,0 +1,60 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for d</help_text><element><id>UMLClass</id><coordinates><x>90</x><y>160</y><w>600</w><h>460</h></coordinates><panel_attributes>BLERFIDCardReader
+--
+- currentState : States             
+- BLEDeviceConnected : bool         
+- Params : byte[ ]
+- OldCardString: char[MAXCARDSTRINGLEN+1] 
+- BLEConfig : TBLEConfig
+- aesKey : byte[ ]
+- encryptedData : byte[BLE_DATA_SIZE]
+- decryptedData : byte[2 * BLE_DATA_SIZE]
+- randNum : byte[BLE_DATA_SIZE]
+- TagType : int
+- IDBitCnt : int
+- ID : byte[32]
+- attrHandle : int
+- attStatusFlag : int
+- attrConfigflag : int
+- receivedDataBLE : byte[2 * BLE_DATA_SIZE]
+- receivedDataBLELength : int
+- transformedReceivedDataBLE : byte[BLE_DATA_SIZE]
+--
++ OnStartup()
++ ReadCardData(TagType : int, ID : byte*, IDBitCnt : int, CardString  char*, MaxCardStringLen : int)
++ OnNewCardFound(CardString : char*)
++ OnCardTimeout(CardString : char*)
++ OnCardDone()
++ deviceConnected()
++ deviceDisconnected()
++ transformByteArray(array : byte*, transformedArray : byte*)
++ generateRandNum(randNum : byte*)
++ chooseSMstateAttributeChanged(dataReceived : bool)
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>800</x><y>160</y><w>300</w><h>180</h></coordinates><panel_attributes>&lt;&lt;Enumeration&gt;&gt;
+States
+--
+ ST_WaitAuthentication
+ ST_DeviceAuthentication
+ ST_WaitDeviceAuthenticated
+ ST_AppAuthentication
+ ST_WaitAppAuthentication
+ ST_AppAuthenticated
+ ST_WaitIdentification
+ ST_Identification
+ ST_AuthenticationFailed
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>240</y><w>140</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1</panel_attributes><additional_attributes>120;20;10;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>800</x><y>360</y><w>300</w><h>180</h></coordinates><panel_attributes>TBLEConfig
+--
+- ConnectTimeout : uint32_t
+- Power : byte
+- BondableMode : byte
+- AdvInterval : uint16_t
+- ChannelMap : byte
+- DiscoverMode : byte
+- ConnectMode : byte
+- SecurityFlags : byte
+- IOCapabilities : byte
+- Passkey : uint32_t
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>680</x><y>440</y><w>140</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1</panel_attributes><additional_attributes>120;20;10;20</additional_attributes></element></diagram>
