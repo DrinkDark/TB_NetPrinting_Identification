@@ -12,8 +12,6 @@ This bachelor thesis aims to develop a new authentication solution:
 
 This new authentication system has to be secure to prevent any kind of attack.
 
-![deployment diagram](deployment_diagram.png)
-
 ## Objectives
 1. Analysis of Polyright's existing identitication system and ecosystem.
 2. Setting up a test bed to simulate a real situation.
@@ -90,7 +88,12 @@ Raspberry PI image for the Print Release Station.
 - Ellysis Vanguard Bluetooth sniffer
 - HP LaserJet P3015 printer
 
+## Test bench
+A complete test bench was set up to test this project. The paperCut Print Server manager was host in a VM. It is not include in this repository. The followings procedure can be followed to set up the test bench : [Commissioning test bench](commissioning_test_bench.pdf). The figure bellow shows the complete system.
+
+![deployment diagram](deployment_diagram.png)
+
 ## Authors and contributors :
-* **Adrien Rey** - *Student*
+* **Adrien Rey** - *Developer, Student*
 * **Christopher Métrailler** - *Professor*
 * **Christophe Pierroz** - *Expert*
