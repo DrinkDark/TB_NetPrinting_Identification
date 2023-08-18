@@ -12,6 +12,8 @@ This bachelor thesis aims to develop a new authentication solution:
 
 This new authentication system has to be secure to prevent any kind of attack.
 
+![deployment diagram](deployment_diagram.png)
+
 ## Objectives
 1. Analysis of Polyright's existing identitication system and ecosystem.
 2. Setting up a test bed to simulate a real situation.
