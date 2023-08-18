@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="15.1">
-  <zoom_level>7</zoom_level>
+  <help_text>Space for diagram notes</help_text>
+  <zoom_level>6</zoom_level>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>231</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>306</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_WaitAppAuthentication*
 bg=white</panel_attributes>
@@ -16,10 +17,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>231</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>306</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_AppAuthenticated*
 bg=white</panel_attributes>
@@ -28,10 +29,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>280</y>
-      <w>14</w>
-      <h>77</h>
+      <x>732</x>
+      <y>348</y>
+      <w>12</w>
+      <h>66</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -39,10 +40,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>280</y>
-      <w>182</w>
-      <h>42</h>
+      <x>738</x>
+      <y>348</y>
+      <w>156</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Decrypt encryptDeviceRandNum</panel_attributes>
@@ -51,10 +52,10 @@ Decrypt encryptDeviceRandNum</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>315</y>
-      <w>154</w>
-      <h>42</h>
+      <x>738</x>
+      <y>378</y>
+      <w>132</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 transform response format</panel_attributes>
@@ -63,10 +64,10 @@ transform response format</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>483</x>
-      <y>385</y>
-      <w>910</w>
-      <h>322</h>
+      <x>594</x>
+      <y>438</y>
+      <w>702</w>
+      <h>276</h>
     </coordinates>
     <panel_attributes>if sendDeviceRandNum != receivedDeviceRandNum</panel_attributes>
     <additional_attributes/>
@@ -74,10 +75,10 @@ transform response format</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>252</y>
-      <w>21</w>
-      <h>182</h>
+      <x>732</x>
+      <y>324</y>
+      <w>18</w>
+      <h>156</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;240.0</additional_attributes>
@@ -85,10 +86,10 @@ transform response format</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>420</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>468</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_AuthenticationFailed*
 bg=white</panel_attributes>
@@ -97,10 +98,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>504</y>
-      <w>140</w>
-      <h>42</h>
+      <x>738</x>
+      <y>540</y>
+      <w>120</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Disconnect from device</panel_attributes>
@@ -109,10 +110,10 @@ Disconnect from device</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>469</y>
-      <w>140</w>
-      <h>42</h>
+      <x>738</x>
+      <y>510</y>
+      <w>120</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Overwrite attribute with
@@ -122,10 +123,10 @@ dumb value</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>469</y>
-      <w>14</w>
-      <h>77</h>
+      <x>732</x>
+      <y>510</y>
+      <w>12</w>
+      <h>66</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -133,10 +134,10 @@ dumb value</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>567</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>594</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_OnIdle*
 bg=white</panel_attributes>
@@ -145,10 +146,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>441</y>
-      <w>21</w>
-      <h>140</h>
+      <x>732</x>
+      <y>486</y>
+      <w>18</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;180.0</additional_attributes>
@@ -156,10 +157,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>252</y>
-      <w>21</w>
-      <h>336</h>
+      <x>918</x>
+      <y>324</y>
+      <w>18</w>
+      <h>288</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;460.0;10.0;10.0</additional_attributes>
@@ -167,10 +168,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>574</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>600</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_AuthenticationFailed*
 bg=white</panel_attributes>
@@ -179,10 +180,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>595</y>
-      <w>21</w>
-      <h>63</h>
+      <x>918</x>
+      <y>618</y>
+      <w>18</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
@@ -190,10 +191,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>588</y>
-      <w>21</w>
-      <h>245</h>
+      <x>732</x>
+      <y>612</y>
+      <w>18</w>
+      <h>210</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;330.0</additional_attributes>
@@ -201,10 +202,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>665</y>
-      <w>21</w>
-      <h>168</h>
+      <x>918</x>
+      <y>678</y>
+      <w>18</w>
+      <h>144</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;220.0;10.0;10.0</additional_attributes>
@@ -212,10 +213,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>483</x>
-      <y>707</y>
-      <w>910</w>
-      <h>1022</h>
+      <x>594</x>
+      <y>714</y>
+      <w>702</w>
+      <h>876</h>
     </coordinates>
     <panel_attributes>else</panel_attributes>
     <additional_attributes/>
@@ -223,10 +224,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>735</y>
-      <w>126</w>
-      <h>42</h>
+      <x>738</x>
+      <y>738</y>
+      <w>108</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 generate randNum</panel_attributes>
@@ -235,10 +236,10 @@ generate randNum</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>728</y>
-      <w>14</w>
-      <h>70</h>
+      <x>732</x>
+      <y>732</y>
+      <w>12</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -246,22 +247,22 @@ generate randNum</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>770</y>
-      <w>266</w>
-      <h>28</h>
+      <x>738</x>
+      <y>768</y>
+      <w>198</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 notification attribute changed</panel_attributes>
-    <additional_attributes>360.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>310.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>819</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>810</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_AppAuthenticated*
 bg=white</panel_attributes>
@@ -270,10 +271,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>819</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>810</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_WaitIdentification*
 bg=white</panel_attributes>
@@ -282,22 +283,22 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>917</y>
-      <w>259</w>
-      <h>28</h>
+      <x>738</x>
+      <y>894</y>
+      <w>192</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 write with signed message</panel_attributes>
-    <additional_attributes>10.0;20.0;350.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;300.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>924</y>
-      <w>14</w>
-      <h>42</h>
+      <x>732</x>
+      <y>900</y>
+      <w>12</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -305,22 +306,22 @@ write with signed message</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>945</y>
-      <w>259</w>
-      <h>28</h>
+      <x>738</x>
+      <y>918</y>
+      <w>192</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;.
 confirmation value received</panel_attributes>
-    <additional_attributes>350.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>300.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>840</y>
-      <w>21</w>
-      <h>161</h>
+      <x>918</x>
+      <y>828</y>
+      <w>18</w>
+      <h>138</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;210.0;10.0;10.0</additional_attributes>
@@ -328,10 +329,10 @@ confirmation value received</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>840</y>
-      <w>21</w>
-      <h>161</h>
+      <x>732</x>
+      <y>828</y>
+      <w>18</w>
+      <h>138</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;210.0</additional_attributes>
@@ -339,10 +340,10 @@ confirmation value received</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>987</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>954</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_WaitIdentification*
 bg=white</panel_attributes>
@@ -351,10 +352,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>987</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>954</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_Identification*
 bg=white</panel_attributes>
@@ -363,10 +364,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>1029</y>
-      <w>175</w>
-      <h>42</h>
+      <x>738</x>
+      <y>990</y>
+      <w>150</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 get value from signed message</panel_attributes>
@@ -375,10 +376,10 @@ get value from signed message</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>1029</y>
-      <w>14</w>
-      <h>35</h>
+      <x>732</x>
+      <y>990</y>
+      <w>12</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -386,10 +387,10 @@ get value from signed message</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>1288</y>
-      <w>21</w>
-      <h>287</h>
+      <x>732</x>
+      <y>1212</y>
+      <w>18</w>
+      <h>246</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;390.0</additional_attributes>
@@ -397,10 +398,10 @@ get value from signed message</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>1561</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>1446</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_OnIdle*
 bg=white</panel_attributes>
@@ -409,21 +410,21 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>1582</y>
-      <w>21</w>
-      <h>217</h>
+      <x>732</x>
+      <y>1464</y>
+      <w>18</w>
+      <h>180</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;290.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;280.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>917</x>
-      <y>1603</y>
-      <w>140</w>
-      <h>42</h>
+      <x>924</x>
+      <y>1482</y>
+      <w>120</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Disconnect from device</panel_attributes>
@@ -432,10 +433,10 @@ Disconnect from device</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>910</x>
-      <y>1596</y>
-      <w>14</w>
-      <h>49</h>
+      <x>918</x>
+      <y>1476</y>
+      <w>12</w>
+      <h>42</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -443,10 +444,10 @@ Disconnect from device</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>1008</y>
-      <w>21</w>
-      <h>280</h>
+      <x>918</x>
+      <y>972</y>
+      <w>18</w>
+      <h>240</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;380.0</additional_attributes>
@@ -454,10 +455,10 @@ Disconnect from device</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>1680</y>
-      <w>21</w>
-      <h>119</h>
+      <x>918</x>
+      <y>1548</y>
+      <w>18</w>
+      <h>102</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;150.0</additional_attributes>
@@ -465,10 +466,10 @@ Disconnect from device</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>644</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>660</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_OnIdle*
 bg=white</panel_attributes>
@@ -477,10 +478,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>1659</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>1530</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_OnIdle*
 bg=white</panel_attributes>
@@ -489,10 +490,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1183</x>
-      <y>392</y>
-      <w>203</w>
-      <h>63</h>
+      <x>1122</x>
+      <y>444</y>
+      <w>174</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>bg=yellow
 _*Application authentication failed*_
@@ -507,23 +508,23 @@ Cause :
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>462</x>
-      <y>1750</y>
-      <w>959</w>
-      <h>28</h>
+      <x>576</x>
+      <y>1608</y>
+      <w>738</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=-
 fg=red
 </panel_attributes>
-    <additional_attributes>10.0;20.0;1350.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;1210.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>469</x>
-      <y>1750</y>
-      <w>154</w>
-      <h>28</h>
+      <x>588</x>
+      <y>1608</y>
+      <w>132</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=-
 fg=red
@@ -533,10 +534,10 @@ Authentication protocole succeed</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>504</x>
-      <y>679</y>
-      <w>140</w>
-      <h>28</h>
+      <x>606</x>
+      <y>690</y>
+      <w>120</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=-
 fg=red
@@ -546,23 +547,23 @@ Authentication protocol failed</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>504</x>
-      <y>679</y>
-      <w>882</w>
-      <h>28</h>
+      <x>600</x>
+      <y>690</y>
+      <w>696</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=-
 fg=red
 </panel_attributes>
-    <additional_attributes>10.0;20.0;1240.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;1140.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>910</x>
-      <y>861</y>
-      <w>14</w>
-      <h>112</h>
+      <x>918</x>
+      <y>846</y>
+      <w>12</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -570,34 +571,34 @@ fg=red
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>917</x>
-      <y>861</y>
-      <w>259</w>
-      <h>28</h>
+      <x>924</x>
+      <y>846</y>
+      <w>192</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;-
 get signed message</panel_attributes>
-    <additional_attributes>350.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>300.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>917</x>
-      <y>889</y>
-      <w>259</w>
-      <h>28</h>
+      <x>924</x>
+      <y>870</y>
+      <w>192</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;.
 signed message</panel_attributes>
-    <additional_attributes>10.0;20.0;350.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;300.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1162</x>
-      <y>868</y>
-      <w>14</w>
-      <h>42</h>
+      <x>1104</x>
+      <y>852</y>
+      <w>12</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -605,10 +606,10 @@ signed message</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>497</x>
-      <y>1078</y>
-      <w>882</w>
-      <h>336</h>
+      <x>606</x>
+      <y>1032</y>
+      <w>678</w>
+      <h>288</h>
     </coordinates>
     <panel_attributes>if messageExpirationTime &lt; messageCurrentTime &amp;&amp;
    messageExpirationTime &lt; readerCurrentTime </panel_attributes>
@@ -617,10 +618,10 @@ signed message</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>1120</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>1068</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_AuthenticationFailed*
 bg=white</panel_attributes>
@@ -629,10 +630,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>1169</y>
-      <w>140</w>
-      <h>42</h>
+      <x>738</x>
+      <y>1110</y>
+      <w>120</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Overwrite attribute with
@@ -642,10 +643,10 @@ dumb value</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>1169</y>
-      <w>14</w>
-      <h>77</h>
+      <x>732</x>
+      <y>1110</y>
+      <w>12</w>
+      <h>66</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -653,10 +654,10 @@ dumb value</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>1204</y>
-      <w>140</w>
-      <h>42</h>
+      <x>738</x>
+      <y>1140</y>
+      <w>120</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Disconnect from device</panel_attributes>
@@ -665,10 +666,10 @@ Disconnect from device</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>602</x>
-      <y>1267</y>
-      <w>126</w>
-      <h>28</h>
+      <x>684</x>
+      <y>1194</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_OnIdle*
 bg=white</panel_attributes>
@@ -677,10 +678,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>1274</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>1200</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_AuthenticationFailed*
 bg=white</panel_attributes>
@@ -689,10 +690,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>1344</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>1260</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_OnIdle*
 bg=white</panel_attributes>
@@ -701,10 +702,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1183</x>
-      <y>1085</y>
-      <w>182</w>
-      <h>63</h>
+      <x>1122</x>
+      <y>1038</y>
+      <w>156</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>bg=yellow
 _*Identification failed*_
@@ -718,23 +719,23 @@ Cause :
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>504</x>
-      <y>1379</y>
-      <w>882</w>
-      <h>28</h>
+      <x>612</x>
+      <y>1290</y>
+      <w>672</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=-
 fg=red
 </panel_attributes>
-    <additional_attributes>10.0;20.0;1240.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;1100.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>1295</y>
-      <w>21</w>
-      <h>63</h>
+      <x>918</x>
+      <y>1218</y>
+      <w>18</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;70.0;10.0;10.0</additional_attributes>
@@ -742,10 +743,10 @@ fg=red
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>1141</y>
-      <w>21</w>
-      <h>140</h>
+      <x>732</x>
+      <y>1086</y>
+      <w>18</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;180.0;10.0;10.0</additional_attributes>
@@ -753,10 +754,10 @@ fg=red
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>1365</y>
-      <w>21</w>
-      <h>203</h>
+      <x>918</x>
+      <y>1278</y>
+      <w>18</w>
+      <h>174</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;270.0;10.0;10.0</additional_attributes>
@@ -764,10 +765,10 @@ fg=red
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>1008</y>
-      <w>21</w>
-      <h>126</h>
+      <x>732</x>
+      <y>972</y>
+      <w>18</w>
+      <h>108</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;160.0;10.0;10.0</additional_attributes>
@@ -775,10 +776,10 @@ fg=red
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>511</x>
-      <y>1379</y>
-      <w>140</w>
-      <h>28</h>
+      <x>618</x>
+      <y>1290</y>
+      <w>120</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=-
 fg=red
@@ -788,10 +789,10 @@ Authentication protocol failed</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>497</x>
-      <y>1414</y>
-      <w>882</w>
-      <h>301</h>
+      <x>606</x>
+      <y>1320</y>
+      <w>678</w>
+      <h>258</h>
     </coordinates>
     <panel_attributes>else</panel_attributes>
     <additional_attributes/>
@@ -799,10 +800,10 @@ Authentication protocol failed</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>1435</y>
-      <w>105</w>
-      <h>42</h>
+      <x>738</x>
+      <y>1338</y>
+      <w>90</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 Output user ID</panel_attributes>
@@ -811,10 +812,10 @@ Output user ID</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>658</x>
-      <y>1428</y>
-      <w>14</w>
-      <h>112</h>
+      <x>732</x>
+      <y>1332</y>
+      <w>12</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -822,22 +823,22 @@ Output user ID</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>1512</y>
-      <w>266</w>
-      <h>28</h>
+      <x>738</x>
+      <y>1404</y>
+      <w>198</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 notification attribute changed</panel_attributes>
-    <additional_attributes>360.0;20.0;10.0;20.0</additional_attributes>
+    <additional_attributes>310.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>665</x>
-      <y>1477</y>
-      <w>126</w>
-      <h>42</h>
+      <x>738</x>
+      <y>1374</y>
+      <w>108</w>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 generate randNum</panel_attributes>
@@ -846,10 +847,10 @@ generate randNum</panel_attributes>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>854</x>
-      <y>1554</y>
-      <w>126</w>
-      <h>28</h>
+      <x>870</x>
+      <y>1440</y>
+      <w>108</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>*ST_Identify*
 bg=white</panel_attributes>
@@ -858,10 +859,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>1575</y>
-      <w>21</w>
-      <h>84</h>
+      <x>918</x>
+      <y>1458</y>
+      <w>18</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;100.0;10.0;10.0</additional_attributes>
@@ -869,10 +870,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>1638</y>
-      <w>21</w>
-      <h>35</h>
+      <x>918</x>
+      <y>1512</y>
+      <w>18</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;30.0</additional_attributes>
@@ -880,10 +881,10 @@ bg=white</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>469</x>
-      <y>203</y>
-      <w>938</w>
-      <h>1540</h>
+      <x>582</x>
+      <y>282</y>
+      <w>726</w>
+      <h>1320</h>
     </coordinates>
     <panel_attributes>else</panel_attributes>
     <additional_attributes/>
@@ -891,10 +892,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>658</x>
-      <y>182</y>
-      <w>21</w>
-      <h>63</h>
+      <x>732</x>
+      <y>264</y>
+      <w>18</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
@@ -902,10 +903,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>910</x>
-      <y>182</y>
-      <w>21</w>
-      <h>63</h>
+      <x>918</x>
+      <y>264</y>
+      <w>18</w>
+      <h>54</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
@@ -913,10 +914,10 @@ bg=white</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1162</x>
-      <y>189</y>
-      <w>21</w>
-      <h>1610</h>
+      <x>1104</x>
+      <y>270</y>
+      <w>18</w>
+      <h>1380</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;2280.0;10.0;10.0</additional_attributes>

@@ -52,27 +52,6 @@ public class RESTController {
     }
 
     /**
-     * Transform int variable to byte array (length 8)
-     *
-     * An integer contain 4 bytes. The for most significant bytes filled with 0
-     *
-     * @param value variable to transform
-     * @return transformed variable
-     */
-    public byte[] intTo8ByteArray(int value) {
-        return new byte[]{
-                0x00,                       // Padding byte
-                0x00,                       // Padding byte
-                0x00,                       // Padding byte
-                0x00,                       // Padding byte
-                (byte) (value >>> 24),
-                (byte) (value >>> 16),
-                (byte) (value >>> 8),
-                (byte) value
-        };
-    }
-
-    /**
      * Get request for user name
      *
      * Handles a GET request to fetch a user ID based on their username.

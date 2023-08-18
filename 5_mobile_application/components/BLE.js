@@ -470,7 +470,11 @@ const BLE = () => {
                 case States.ST_AuthenticationFailed:
                     Alert.alert('Authentication failed !');
                     console.log('Authentication failed !');
-                    disconnectFromDevice(connectedDevice)
+
+                    if(connectedDevice.isConnected()) {
+                        disconnectFromDevice(connectedDevice)
+                    }
+                    
                     return;     // Quit this function. The authentication procedure has failed
 
                 default:

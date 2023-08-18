@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>11</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>627</x>
+      <y>330</y>
+      <w>231</w>
+      <h>66</h>
+    </coordinates>
+    <panel_attributes>main
+--
++ scp : ServerCommandProxy
++ gui : GUI
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>638</x>
+      <y>539</y>
+      <w>627</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>ServerCommandProxy
+--
+- xmlRpcClient : final XmlRpcClient
+- _authToken : final String
+--
++ ServerCommandProxy(server : String, port : int, authToken : String) : void
++ setUserAccountBalance(userName : String, balance : double, comment: String) : void
++ setUserProperty(userName : String, propertyName: String, propertyValue: String) : void
++ addNewUser(userName : String) : void
++ deleteExistingUser(userName : String) : void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>968</x>
+      <y>286</y>
+      <w>297</w>
+      <h>165</h>
+    </coordinates>
+    <panel_attributes>GUI
+--
++ setBalanceButton : JButton
++ adduserButton : JButton
++ addUsersFromFileButton : JButton
++ deleteuserButton : JButton
++ deleteAllUsersButton : JButton
++ buttonSize : dimension
+--
++ GUI(scp : ServerCommandProxy) : void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1122</x>
+      <y>440</y>
+      <w>99</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+&lt;&lt;extends&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1078</x>
+      <y>495</y>
+      <w>110</w>
+      <h>33</h>
+    </coordinates>
+    <panel_attributes>JFrame</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>847</x>
+      <y>341</y>
+      <w>143</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+gui</panel_attributes>
+    <additional_attributes>10.0;20.0;110.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>737</x>
+      <y>385</y>
+      <w>55</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+scp</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>869</x>
+      <y>484</y>
+      <w>165</w>
+      <h>44</h>
+    </coordinates>
+    <panel_attributes>bg=yellow
+only the used methods 
+are shown</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

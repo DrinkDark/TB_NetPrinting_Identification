@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <help_text>Space for diagram notes</help_text>
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>590</x>
+      <y>130</y>
+      <w>200</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>MiddlewareApplication
+--
++ restC : RESTController
+--
++ main(args : String[]) . void
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>530</y>
+      <w>440</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>ServerCommandProxy
+--
+- xmlRpcClient : final XmlRpcClient
+- _authToken : final String
+--
++ ServerCommandProxy(server : String, 
+			port : int, authToken : String) : void
++ getUserAccountBalance(userName : String) : double
++ getUserProperty(userName : String, propertyName: String) : String
++ isUserExists(userName : String) : Boolean
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>260</y>
+      <w>440</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>RESTController
+--
+- scp : ServerCommandProxy
+- key : byte[]
+- aesMasterKey : Key
+--
++ RESTController()
++ getUserID(userName : String) : ResponseEntity&lt;UserID&gt;
++ getUserList() : ResponseEntity&lt;UserList&gt;
++ userExists(userName : String) : ResponseEntity&lt;UserExists&gt;
++ getUserBalance(userName : String) : ResponseEntity&lt;UserBalance&gt;
++ aesEncryptedData(data: String) : ResponseEntity&lt;EncryptedData&gt;
++ aesDecryptedData(data: String) : ResponseEntity&lt;DecryptedData&gt;
++ getRandNum() : ResponseEntity&lt;RandNum&gt;
++ getSignedMessage() : ResponseEntity&lt;SignedMessage&gt;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>680</x>
+      <y>190</y>
+      <w>60</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+restC</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>680</x>
+      <y>480</y>
+      <w>50</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+scp</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>760</x>
+      <y>690</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bg=yellow
+only the used methods 
+are shown</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>140</y>
+      <w>300</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>UserID
+--
+- userID: String
+--
++ UserID(userID : String)
++ getUserID() : String
++ setUserID(userID : String) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>270</y>
+      <w>300</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>UserList
+--
+- userList : Vector&lt;String&gt;
+--
++ UserList(userList : Vector&lt;String&gt;)
++ getUserList() : Vector&lt;String&gt;
++ setUserList(userList  : Vector&lt;String&gt;) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>400</y>
+      <w>300</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>UserExists
+--
+- userExists: Boolean
+--
++ UserList(userExists : Boolean)
++ getUserExists() : Boolean
++ setUserExists(userExists : Boolean) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>530</y>
+      <w>300</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>UserBalance
+--
+- UserBalance: double
+--
++ userBalance(userBalance : double)
++ getUserBalance() : double
++ setUserBalance(userBalance : double) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>140</y>
+      <w>330</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>EncryptedData
+--
+- encryptedData: String
+--
++ EncryptedData(encryptedData : String)
++ getEncryptedData() : String
++ setEncryptedData(encryptedData : String) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>270</y>
+      <w>330</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>DecryptedData
+--
+- decryptedData: String
+--
++ DecryptedData(decryptedData : String)
++ getDecryptedData() : String
++ setDecryptedData(decryptedData : String) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>180</y>
+      <w>50</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;120.0;30.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>310</y>
+      <w>50</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;40.0;30.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>390</y>
+      <w>50</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>430</y>
+      <w>50</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>440</x>
+      <y>190</y>
+      <w>50</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>30.0;110.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>440</x>
+      <y>310</y>
+      <w>50</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>30.0;50.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>400</y>
+      <w>330</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>RandomNumber
+--
+- randomNumber: String
+--
++ RandomNumber(randomNumber: String)
++ getRandomNumber() : String
++ setRandomNumber(randomNumber: String) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>530</y>
+      <w>330</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>SignedMessage
+--
+- signedMessage: String
+--
++ SignedMessage(signedMessage: String)
++ getSignedMessage() : String
++ setSignedMessage(signedMessage: String) : void</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>440</x>
+      <y>390</y>
+      <w>50</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>30.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>440</x>
+      <y>440</y>
+      <w>50</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+</panel_attributes>
+    <additional_attributes>30.0;10.0;10.0;150.0</additional_attributes>
+  </element>
+</diagram>
