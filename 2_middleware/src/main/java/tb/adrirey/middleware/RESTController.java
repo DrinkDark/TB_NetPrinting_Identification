@@ -21,7 +21,7 @@ import static org.apache.tomcat.util.buf.HexUtils.toHexString;
 public class RESTController {
     private ServerCommandProxy scp; // Proxy for the print manager server communication
     private Security sec;           // Security object
-
+    
     /**
      * Default constructor
      *

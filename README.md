@@ -21,7 +21,7 @@ This new authentication system has to be secure to prevent any kind of attack.
 
 ## Content
 ### **1. Documentation**
-All the diagrams and the BLE analyse done using a BLE sniffer
+All the diagrams and the BLE analyse done using a BLE sniffer, the report and the poster.
 
 ### **2. Middleware**
 Web service coded in Java using the Spring framework. Communicates with the Print manager serveur via a XML API to retrieve usefull informations. Provides a REST service for the mobile application to get print server data, encrypted and decrypted data and the signed message for the authentication.
